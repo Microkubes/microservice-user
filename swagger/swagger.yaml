@@ -1,0 +1,304 @@
+consumes:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+definitions:
+  UserPayload:
+    description: UserPayload
+    example:
+      active: false
+      email: frieda@oberbrunnerkirlin.name
+      externalId: Saepe cum optio.
+      password: 877qphg0ar
+      roles:
+      - In sit reprehenderit ea quam.
+      - In sit reprehenderit ea quam.
+      - In sit reprehenderit ea quam.
+      username: ercdrq9ifp
+    properties:
+      active:
+        default: false
+        description: Status of user account
+        example: false
+        type: boolean
+      email:
+        description: Email of user
+        example: frieda@oberbrunnerkirlin.name
+        format: email
+        type: string
+      externalId:
+        description: External id of user
+        example: Saepe cum optio.
+        type: string
+      password:
+        description: Password of user
+        example: 877qphg0ar
+        maxLength: 30
+        minLength: 6
+        type: string
+      roles:
+        description: Roles of user
+        example:
+        - In sit reprehenderit ea quam.
+        - In sit reprehenderit ea quam.
+        - In sit reprehenderit ea quam.
+        items:
+          example: In sit reprehenderit ea quam.
+          type: string
+        type: array
+      username:
+        description: Name of user
+        example: ercdrq9ifp
+        maxLength: 50
+        minLength: 4
+        type: string
+    required:
+    - username
+    - email
+    - password
+    - roles
+    - externalId
+    title: UserPayload
+    type: object
+  error:
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
+  users:
+    description: users media type (default view)
+    example:
+      active: true
+      email: thad@herman.name
+      externalId: Possimus ullam occaecati quae.
+      id: 3.692024e+17
+      roles:
+      - In sit reprehenderit ea quam.
+      - In sit reprehenderit ea quam.
+      - In sit reprehenderit ea quam.
+      username: 759hes5gsu
+    properties:
+      active:
+        default: false
+        description: Status of user account
+        example: true
+        type: boolean
+      email:
+        description: Email of user
+        example: thad@herman.name
+        format: email
+        type: string
+      externalId:
+        description: External id of user
+        example: Possimus ullam occaecati quae.
+        type: string
+      id:
+        description: Unique user ID
+        example: 3.692024e+17
+        format: int64
+        type: integer
+      roles:
+        description: Roles of user
+        example:
+        - In sit reprehenderit ea quam.
+        - In sit reprehenderit ea quam.
+        - In sit reprehenderit ea quam.
+        items:
+          example: In sit reprehenderit ea quam.
+          type: string
+        type: array
+      username:
+        description: Name of user
+        example: 759hes5gsu
+        maxLength: 50
+        minLength: 4
+        type: string
+    required:
+    - id
+    - username
+    - email
+    - roles
+    - externalId
+    - active
+    title: 'Mediatype identifier: application/vnd.goa.user+json; view=default'
+    type: object
+host: localhost:8080
+info:
+  description: A service that provides basic access to the user data
+  title: The user microservice
+  version: "1.0"
+paths:
+  /swagger-ui/{filepath}:
+    get:
+      operationId: swagger#/swagger-ui/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: Download swagger-ui/dist
+  /swagger.json:
+    get:
+      operationId: swagger#/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      summary: Download swagger/swagger.json
+  /users/:
+    post:
+      description: Creates user
+      operationId: user#create
+      parameters:
+      - description: UserPayload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UserPayload'
+      produces:
+      - application/vnd.goa.user+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/users'
+      schemes:
+      - http
+      summary: create user
+      tags:
+      - user
+  /users/{userId}:
+    get:
+      description: Get user by id
+      operationId: user#get
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/vnd.goa.user+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: get user
+      tags:
+      - user
+    put:
+      description: Update user
+      operationId: user#update
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: UserPayload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UserPayload'
+      produces:
+      - application/vnd.goa.user+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: update user
+      tags:
+      - user
+  /users/me:
+    get:
+      description: Retrieves the user information for the authenticated user
+      operationId: user#getMe
+      produces:
+      - application/vnd.goa.user+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+      summary: getMe user
+      tags:
+      - user
+produces:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+responses:
+  NotFound:
+    description: Not Found
+  OK:
+    description: OK
+    schema:
+      $ref: '#/definitions/users'
+schemes:
+- http
+swagger: "2.0"
