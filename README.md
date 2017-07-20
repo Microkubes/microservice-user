@@ -41,7 +41,7 @@ go build -o user
 ## Other changes, not related to the design
 For all other changes that are not related to the design just recompile the service and start it again:
 ```
-$GOPATH/src/user-microservice
+cd $GOPATH/src/user-microservice
 go build -o user
 ./user
 ```
