@@ -4,25 +4,42 @@ import (
 	"fmt"
 	"github.com/goadesign/goa"
 	"user-microservice/app"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"time"
 )
+
+type Person struct {
+	ID        bson.ObjectId `bson:"_id,omitempty"`
+	Name      string
+	Phone     string
+	Timestamp time.Time
+}
 
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
+	usersc *mgo.Collection
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service) *UserController {
-	return &UserController{Controller: service.NewController("UserController")}
+func NewUserController(service *goa.Service, usersc *mgo.Collection) *UserController {
+	return &UserController{
+		Controller: service.NewController("UserController"),
+		usersc: usersc,
+	}
 }
 
 // Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
-	// UserController_Create: start_implement
+	// Insert Datas
+	err := c.usersc.Insert(&Person{Name: "Vlado", Phone: "+55 53 1234 4321", Timestamp: time.Now()},
+		&Person{Name: "Ace", Phone: "+66 33 1234 5678", Timestamp: time.Now()})
 
-	// Put your logic here
+	if err != nil {
+		panic(err)
+	}
 
-	// UserController_Create: end_implement
 	return nil
 }
 
