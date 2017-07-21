@@ -10,7 +10,7 @@ import (
 var _ = API("user", func() {
 	    Title("The user microservice")
 	    Description("A service that provides basic access to the user data")
-        Version("1.0")
+            Version("1.0")
 	    Scheme("http")
 	    Host("localhost:8080")
 })
