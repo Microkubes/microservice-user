@@ -30,20 +30,20 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 func (c *UserController) Get(ctx *app.GetUserContext) error {
 	// UserController_Get: start_implement
 	if ctx.UserID == 0 {
-        // Emulate a missing record with ID 0
-        return ctx.NotFound()
-    }
+		// Emulate a missing record with ID 0
+		return ctx.NotFound()
+	}
 
 	roles := []string{"admin", "owner"}
 
 	// Build the resource using the generated data structure
-    user := &app.Users {
-        ID:   ctx.UserID,
-        Username: fmt.Sprintf("User #%d", ctx.UserID),
-        Email: "example@gmail.com",
-        ExternalID: "qwe23adsa213saqqw",
-        Roles: roles,
-    }
+	user := &app.Users {
+		ID:   ctx.UserID,
+		Username: fmt.Sprintf("User #%d", ctx.UserID),
+		Email: "example@gmail.com",
+		ExternalID: "qwe23adsa213saqqw",
+		Roles: roles,
+	}
 
 	// UserController_Get: end_implement
 	return ctx.OK(user)
