@@ -5,16 +5,7 @@ import (
 	"github.com/goadesign/goa"
 	"user-microservice/app"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-	"time"
 )
-
-type Person struct {
-	ID        bson.ObjectId `bson:"_id,omitempty"`
-	Name      string
-	Phone     string
-	Timestamp time.Time
-}
 
 // UserController implements the user resource.
 type UserController struct {
@@ -32,9 +23,9 @@ func NewUserController(service *goa.Service, usersc *mgo.Collection) *UserContro
 
 // Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
+	payload := goa.ContextRequest(ctx).Payload
 	// Insert Datas
-	err := c.usersc.Insert(&Person{Name: "Vlado", Phone: "+55 53 1234 4321", Timestamp: time.Now()},
-		&Person{Name: "Ace", Phone: "+66 33 1234 5678", Timestamp: time.Now()})
+	err := c.usersc.Insert(payload)
 
 	if err != nil {
 		panic(err)
