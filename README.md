@@ -48,8 +48,8 @@ go build -o user
 ```
 
 ## Set up MongoDB
+Create users database with default username and password.
 See: [Set up MongoDB](https://github.com/JormungandrK/jormungandr-infrastructure#mongodb--v346-)
-Create users database with default username and password:
 ```
 export MS_DBNAME=users
 ./mongo/run.sh

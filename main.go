@@ -26,13 +26,13 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
-    // Connnect to MongoDB
+	// Connnect to MongoDB
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
-        Addrs:    []string{Host},
-        Username: Username,
-        Password: Password,
-        Database: Database,
-    })
+		Addrs:    []string{Host},
+		Username: Username,
+		Password: Password,
+		Database: Database,
+	})
 	if err != nil {
 		panic(err)
 	}
