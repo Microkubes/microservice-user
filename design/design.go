@@ -87,8 +87,7 @@ var UserPayload = Type("UserPayload", func() {
         Description("UserPayload")
 
         Attribute("username", String, "Name of user", func() {
-            MinLength(4)
-            MaxLength(50)
+            Pattern("^([a-zA-Z0-9@]{4,30})$")
         })
         Attribute("email", String, "Email of user", func() {
             Format("email")

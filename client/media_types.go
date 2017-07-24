@@ -13,7 +13,6 @@ package client
 import (
 	"github.com/goadesign/goa"
 	"net/http"
-	"unicode/utf8"
 )
 
 // users media type (default view)
@@ -53,11 +52,8 @@ func (mt *Users) Validate() (err error) {
 	if err2 := goa.ValidateFormat(goa.FormatEmail, mt.Email); err2 != nil {
 		err = goa.MergeErrors(err, goa.InvalidFormatError(`response.email`, mt.Email, goa.FormatEmail, err2))
 	}
-	if utf8.RuneCountInString(mt.Username) < 4 {
-		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.username`, mt.Username, utf8.RuneCountInString(mt.Username), 4, true))
-	}
-	if utf8.RuneCountInString(mt.Username) > 50 {
-		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.username`, mt.Username, utf8.RuneCountInString(mt.Username), 50, false))
+	if ok := goa.ValidatePattern(`^([a-zA-Z0-9@]{4,30})$`, mt.Username); !ok {
+		err = goa.MergeErrors(err, goa.InvalidPatternError(`response.username`, mt.Username, `^([a-zA-Z0-9@]{4,30})$`))
 	}
 	return
 }

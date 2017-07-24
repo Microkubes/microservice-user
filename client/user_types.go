@@ -72,13 +72,8 @@ func (ut *userPayload) Validate() (err error) {
 		}
 	}
 	if ut.Username != nil {
-		if utf8.RuneCountInString(*ut.Username) < 4 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`response.username`, *ut.Username, utf8.RuneCountInString(*ut.Username), 4, true))
-		}
-	}
-	if ut.Username != nil {
-		if utf8.RuneCountInString(*ut.Username) > 50 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`response.username`, *ut.Username, utf8.RuneCountInString(*ut.Username), 50, false))
+		if ok := goa.ValidatePattern(`^([a-zA-Z0-9@]{4,30})$`, *ut.Username); !ok {
+			err = goa.MergeErrors(err, goa.InvalidPatternError(`response.username`, *ut.Username, `^([a-zA-Z0-9@]{4,30})$`))
 		}
 	}
 	return
@@ -150,11 +145,8 @@ func (ut *UserPayload) Validate() (err error) {
 	if utf8.RuneCountInString(ut.Password) > 30 {
 		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.password`, ut.Password, utf8.RuneCountInString(ut.Password), 30, false))
 	}
-	if utf8.RuneCountInString(ut.Username) < 4 {
-		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.username`, ut.Username, utf8.RuneCountInString(ut.Username), 4, true))
-	}
-	if utf8.RuneCountInString(ut.Username) > 50 {
-		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.username`, ut.Username, utf8.RuneCountInString(ut.Username), 50, false))
+	if ok := goa.ValidatePattern(`^([a-zA-Z0-9@]{4,30})$`, ut.Username); !ok {
+		err = goa.MergeErrors(err, goa.InvalidPatternError(`response.username`, ut.Username, `^([a-zA-Z0-9@]{4,30})$`))
 	}
 	return
 }

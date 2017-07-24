@@ -79,16 +79,15 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 Payload example:
 
 {
-   "active": false,
-   "email": "frieda@oberbrunnerkirlin.name",
-   "externalId": "Saepe cum optio.",
-   "password": "877qphg0ar",
+   "active": true,
+   "email": "thea@funkvonrueden.net",
+   "externalId": "Occaecati qui esse voluptas et voluptas veritatis.",
+   "password": "7tux75md87",
    "roles": [
-      "In sit reprehenderit ea quam.",
       "In sit reprehenderit ea quam.",
       "In sit reprehenderit ea quam."
    ],
-   "username": "ercdrq9ifp"
+   "username": "ApPq"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -137,16 +136,15 @@ Payload example:
 Payload example:
 
 {
-   "active": false,
-   "email": "frieda@oberbrunnerkirlin.name",
-   "externalId": "Saepe cum optio.",
-   "password": "877qphg0ar",
+   "active": true,
+   "email": "thea@funkvonrueden.net",
+   "externalId": "Occaecati qui esse voluptas et voluptas veritatis.",
+   "password": "7tux75md87",
    "roles": [
-      "In sit reprehenderit ea quam.",
       "In sit reprehenderit ea quam.",
       "In sit reprehenderit ea quam."
    ],
-   "username": "ercdrq9ifp"
+   "username": "ApPq"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}

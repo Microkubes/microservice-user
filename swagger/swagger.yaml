@@ -7,33 +7,32 @@ definitions:
   UserPayload:
     description: UserPayload
     example:
-      active: false
-      email: frieda@oberbrunnerkirlin.name
-      externalId: Saepe cum optio.
-      password: 877qphg0ar
+      active: true
+      email: thea@funkvonrueden.net
+      externalId: Occaecati qui esse voluptas et voluptas veritatis.
+      password: 7tux75md87
       roles:
       - In sit reprehenderit ea quam.
       - In sit reprehenderit ea quam.
-      - In sit reprehenderit ea quam.
-      username: ercdrq9ifp
+      username: ApPq
     properties:
       active:
         default: false
         description: Status of user account
-        example: false
+        example: true
         type: boolean
       email:
         description: Email of user
-        example: frieda@oberbrunnerkirlin.name
+        example: thea@funkvonrueden.net
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Saepe cum optio.
+        example: Occaecati qui esse voluptas et voluptas veritatis.
         type: string
       password:
         description: Password of user
-        example: 877qphg0ar
+        example: 7tux75md87
         maxLength: 30
         minLength: 6
         type: string
@@ -42,16 +41,14 @@ definitions:
         example:
         - In sit reprehenderit ea quam.
         - In sit reprehenderit ea quam.
-        - In sit reprehenderit ea quam.
         items:
           example: In sit reprehenderit ea quam.
           type: string
         type: array
       username:
         description: Name of user
-        example: ercdrq9ifp
-        maxLength: 50
-        minLength: 4
+        example: ApPq
+        pattern: ^([a-zA-Z0-9@]{4,30})$
         type: string
     required:
     - username
@@ -109,7 +106,7 @@ definitions:
       - In sit reprehenderit ea quam.
       - In sit reprehenderit ea quam.
       - In sit reprehenderit ea quam.
-      username: 759hes5gsu
+      username: dkPRrKW
     properties:
       active:
         default: false
@@ -142,9 +139,8 @@ definitions:
         type: array
       username:
         description: Name of user
-        example: 759hes5gsu
-        maxLength: 50
-        minLength: 4
+        example: dkPRrKW
+        pattern: ^([a-zA-Z0-9@]{4,30})$
         type: string
     required:
     - id
