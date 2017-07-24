@@ -10,26 +10,24 @@ import (
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-	usersc *mgo.Collection
+	usersCollection *mgo.Collection
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service, usersc *mgo.Collection) *UserController {
+func NewUserController(service *goa.Service, usersCollection *mgo.Collection) *UserController {
 	return &UserController{
 		Controller: service.NewController("UserController"),
-		usersc: usersc,
+		usersCollection: usersCollection,
 	}
 }
 
 // Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
-	payload := goa.ContextRequest(ctx).Payload
-	// Insert Datas
-	err := c.usersc.Insert(payload)
+	// UserController_Create: start_implement
 
-	if err != nil {
-		panic(err)
-	}
+	// Put your logic here
+
+	// UserController_Create: end_implement
 
 	return nil
 }
