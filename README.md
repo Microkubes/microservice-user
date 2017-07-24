@@ -9,7 +9,8 @@ export PATH=$GOPATH/bin:$PATH
 ```
 Install goa and goagen:
 ```
-cd $GOPATH
+
+
 go get -u github.com/goadesign/goa/...
 ```
 
@@ -44,4 +45,17 @@ For all other changes that are not related to the design just recompile the serv
 cd $GOPATH/src/user-microservice
 go build -o user
 ./user
+```
+
+## Set up MongoDB
+See: [Set up MongoDB](https://github.com/JormungandrK/jormungandr-infrastructure#mongodb--v346-)
+Create users database with default username and password:
+```
+export MS_DBNAME=users
+./mongo/run.sh
+```
+Then install mgo package:
+```
+cd $GOPATH
+go get gopkg.in/mgo.v2
 ```
