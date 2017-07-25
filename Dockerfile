@@ -1,7 +1,7 @@
 ### Multi-stage build
 FROM golang:1.8.3-alpine3.6 as build
 
-RUN apk --no-cache add git
+RUN apk --no-cache add git curl
 RUN go get -u github.com/goadesign/goa/...
 
 COPY . /go/src/user-microservice

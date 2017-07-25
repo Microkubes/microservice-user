@@ -3,12 +3,28 @@
 package main
 
 import (
+	"microservice-tools/gateway"
+	"net/http"
+	"os"
+	"user-microservice/app"
+
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
-	"user-microservice/app"
 )
 
 func main() {
+	gatewayURL, configFile := loadGatewaySettings()
+	registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
+	if err != nil {
+		panic(err)
+	}
+	err = registration.SelfRegister()
+	if err != nil {
+		panic(err)
+	}
+
+	defer registration.Unregister()
+
 	// Create service
 	service := goa.New("user")
 
@@ -30,4 +46,18 @@ func main() {
 		service.LogError("startup", "err", err)
 	}
 
+}
+
+func loadGatewaySettings() (string, string) {
+	gatewayURL := os.Getenv("API_GATEWAY_URL")
+	serviceConfigFile := os.Getenv("SERVICE_CONFIG_FILE")
+
+	if gatewayURL == "" {
+		gatewayURL = "http://localhost:8001"
+	}
+	if serviceConfigFile == "" {
+		serviceConfigFile = "config.json"
+	}
+
+	return gatewayURL, serviceConfigFile
 }
