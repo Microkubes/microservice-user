@@ -5,16 +5,21 @@ import (
 	"user-microservice/app"
 
 	"github.com/goadesign/goa"
+	"gopkg.in/mgo.v2"
 )
 
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
+	usersCollection *mgo.Collection
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service) *UserController {
-	return &UserController{Controller: service.NewController("UserController")}
+func NewUserController(service *goa.Service, usersCollection *mgo.Collection) *UserController {
+	return &UserController{
+		Controller:      service.NewController("UserController"),
+		usersCollection: usersCollection,
+	}
 }
 
 // Create runs the create action.
@@ -24,6 +29,7 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	// Put your logic here
 
 	// UserController_Create: end_implement
+
 	return nil
 }
 

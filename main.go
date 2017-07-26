@@ -10,6 +10,14 @@ import (
 
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
+	"gopkg.in/mgo.v2"
+)
+
+const (
+	Host     = "127.0.0.1:27017"
+	Username = "restapi"
+	Password = "restapi"
+	Database = "users"
 )
 
 func main() {
@@ -34,11 +42,44 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
+	// Connnect to MongoDB
+	session, err := mgo.DialWithInfo(&mgo.DialInfo{
+		Addrs:    []string{Host},
+		Username: Username,
+		Password: Password,
+		Database: Database,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	// At the end close session
+	defer session.Close()
+
+	// SetMode - consistency mode for the session.
+	session.SetMode(mgo.Monotonic, true)
+
+	// Create usersCollection collection
+	usersCollection := session.DB("users").C("users")
+
+	// Define indexes
+	index := mgo.Index{
+		Key:        []string{"username", "email"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+	// Create indexes
+	if err = usersCollection.EnsureIndex(index); err != nil {
+		panic(err)
+	}
+
 	// Mount "swagger" controller
 	c1 := NewSwaggerController(service)
 	app.MountSwaggerController(service, c1)
 	// Mount "user" controller
-	c2 := NewUserController(service)
+	c2 := NewUserController(service, usersCollection)
 	app.MountUserController(service, c2)
 
 	// Start service
