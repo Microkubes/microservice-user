@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/goadesign/goa"
 	"user-microservice/app"
+
+	"github.com/goadesign/goa"
 )
 
 // UserController implements the user resource.
@@ -37,12 +38,12 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 	roles := []string{"admin", "owner"}
 
 	// Build the resource using the generated data structure
-	user := &app.Users {
-		ID:   ctx.UserID,
-		Username: fmt.Sprintf("User #%d", ctx.UserID),
-		Email: "example@gmail.com",
+	user := &app.Users{
+		ID:         ctx.UserID,
+		Username:   fmt.Sprintf("User #%d", ctx.UserID),
+		Email:      "example@gmail.com",
 		ExternalID: "qwe23adsa213saqqw",
-		Roles: roles,
+		Roles:      roles,
 	}
 
 	// UserController_Get: end_implement
