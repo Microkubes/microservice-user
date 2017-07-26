@@ -4,6 +4,7 @@ import (
 	"sync"
 	"errors"
 	"user-microservice/app"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // DB emulates a database driver using in-memory data structures.
@@ -42,9 +43,11 @@ func (db *DB) Reset() {
 }
 
 // Mock implementation
-func (db *DB) FindByID(id string, mediaType *app.Users) error {
+func (db *DB) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
 	db.Lock()
 	defer db.Unlock()
+
+	id := objectId.Hex()
 
 	if user, ok := db.users[id]; ok {
 		mediaType.ID = user.ID

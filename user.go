@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gopkg.in/mgo.v2/bson"
 	"github.com/goadesign/goa"
 	"user-microservice/app"
 	"user-microservice/store"
@@ -36,8 +37,21 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 	// Build the resource using the generated data structure.
 	res := &app.Users{}
 
+	// Return whether ctx.UserID is a valid hex representation of an ObjectId.
+	if bson.IsObjectIdHex(ctx.UserID) != true {
+		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
+	}
+
+	// Return an ObjectId from the provided hex representation. 
+    userId := bson.ObjectIdHex(ctx.UserID)
+
+	// Return true if userId is valid. A valid userId must contain exactly 12 bytes.
+	if userId.Valid() != true {
+		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
+	}
+
 	// Return one user by id.
-	if err := c.usersCollection.FindByID(ctx.UserID, res); err != nil {
+	if err := c.usersCollection.FindByID(userId, res); err != nil {
 		return ctx.NotFound(goa.ErrNotFound(err))
 	}
 

@@ -1,10 +1,10 @@
 package store
 
 import (
-	"errors"
+	"user-microservice/app"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"user-microservice/app"
+
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 )
 
 type Collection interface {
-	FindByID(id string, mediaType *app.Users) error
+	FindByID(id bson.ObjectId, mediaType *app.Users) error
 }
 
 type MongoCollection struct {
@@ -63,24 +63,9 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 }
 
 // Find collection by Id in hex representation - real database
-func (c *MongoCollection) FindByID(id string, mediaType *app.Users) error {
-	// Return whether ctx.UserID is a valid hex representation of an ObjectId.
-	if bson.IsObjectIdHex(id) != true {
-		err := errors.New("Invalid Id")
-		return err
-	}
-
-	// Return an ObjectId from the provided hex representation. 
-    userId := bson.ObjectIdHex(id)
-
-	// Return true if userId is valid. A valid userId must contain exactly 12 bytes.
-	if userId.Valid() != true {
-		err := errors.New("Invalid Id")
-		return err
-	}
-
+func (c *MongoCollection) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
 	// Return one user by id.
-	if err := c.FindId(userId).One(&mediaType); err != nil {
+	if err := c.FindId(objectId).One(&mediaType); err != nil {
 		return err
 	}
 
