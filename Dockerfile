@@ -8,7 +8,8 @@ RUN chmod 700 /root/.ssh/id_rsa && \
     echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config && \
     git config --global url."ssh://git@github.com:".insteadOf "https://github.com"
 
-RUN go get -u github.com/goadesign/goa/...
+RUN go get -u github.com/goadesign/goa/... && \
+    go get -u gopkg.in/mgo.v2
 RUN git clone git@github.com:JormungandrK/microservice-tools.git /go/src/microservice-tools && \
     cd /go/src/microservice-tools && \
     git checkout -f task-7
