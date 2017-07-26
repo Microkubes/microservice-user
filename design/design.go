@@ -32,24 +32,24 @@ var _ = Resource("user", func() {
                 Description("Get user by id")
                 Routing(GET("/:userId"))
                 Params(func() {
-                        Param("userId", Integer, "User ID")
+                        Param("userId", String, "User ID")
                 })
                 Response(OK)
-                Response(NotFound)
+                Response(NotFound, ErrorMedia)
         })
 
         Action("getMe", func() {
                 Description("Retrieves the user information for the authenticated user")
                 Routing(GET("/me"))
                 Response(OK)
-                Response(NotFound)
+                Response(NotFound, ErrorMedia)
         })
 
         Action("update", func() {
             Description("Update user")
             Routing(PUT("/:userId"))
             Params(func() {
-                    Param("userId", Integer, "User ID")
+                    Param("userId", String, "User ID")
             })
             Payload(UserPayload)
             Response(NotFound)
@@ -63,7 +63,7 @@ var UserMedia = MediaType("application/vnd.goa.user+json", func() {
         Reference(UserPayload)
 
         Attributes(func() {                         
-                Attribute("id", Integer, "Unique user ID")
+                Attribute("id", String, "Unique user ID")
                 Attribute("username")
                 Attribute("email")
                 Attribute("roles")
