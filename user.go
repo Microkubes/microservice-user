@@ -62,12 +62,6 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 
 // GetMe runs the getMe action.
 func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
-	// Temporary. Should be removed in the future
-	if ctx.UserID == nil {
-		HexObjectId := "5975c461f9f8eb02aae053f3" 
-		ctx.UserID = &HexObjectId		
-	}
-
 	// Build the resource using the generated data structure.
 	res := &app.Users{}
 
