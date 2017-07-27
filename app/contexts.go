@@ -84,6 +84,7 @@ type GetMeUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
+	UserID *string
 }
 
 // NewGetMeUserContext parses the incoming request URL and body, performs validations and creates the
@@ -95,6 +96,11 @@ func NewGetMeUserContext(ctx context.Context, r *http.Request, service *goa.Serv
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := GetMeUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramUserID := req.Params["userId"]
+	if len(paramUserID) > 0 {
+		rawUserID := paramUserID[0]
+		rctx.UserID = &rawUserID
+	}
 	return &rctx, err
 }
 

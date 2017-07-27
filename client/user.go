@@ -98,8 +98,8 @@ func GetMeUserPath() string {
 }
 
 // Retrieves the user information for the authenticated user
-func (c *Client) GetMeUser(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.NewGetMeUserRequest(ctx, path)
+func (c *Client) GetMeUser(ctx context.Context, path string, userID *string) (*http.Response, error) {
+	req, err := c.NewGetMeUserRequest(ctx, path, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -107,12 +107,17 @@ func (c *Client) GetMeUser(ctx context.Context, path string) (*http.Response, er
 }
 
 // NewGetMeUserRequest create the request corresponding to the getMe action endpoint of the user resource.
-func (c *Client) NewGetMeUserRequest(ctx context.Context, path string) (*http.Request, error) {
+func (c *Client) NewGetMeUserRequest(ctx context.Context, path string, userID *string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	if userID != nil {
+		values.Set("userId", *userID)
+	}
+	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err

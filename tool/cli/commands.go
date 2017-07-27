@@ -45,6 +45,8 @@ type (
 
 	// GetMeUserCommand is the command line data structure for the getMe action of user
 	GetMeUserCommand struct {
+		// User ID
+		UserID      string
 		PrettyPrint bool
 	}
 
@@ -437,7 +439,7 @@ func (cmd *GetMeUserCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.GetMeUser(ctx, path)
+	resp, err := c.GetMeUser(ctx, path, stringFlagVal("userId", cmd.UserID))
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -449,6 +451,8 @@ func (cmd *GetMeUserCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *GetMeUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var userID string
+	cc.Flags().StringVar(&cmd.UserID, "userId", userID, `User ID`)
 }
 
 // Run makes the HTTP request corresponding to the UpdateUserCommand command.

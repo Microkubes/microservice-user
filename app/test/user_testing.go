@@ -242,7 +242,7 @@ func GetUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, error) {
+func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID *string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -262,14 +262,24 @@ func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.S
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if userID != nil {
+		sliceVal := []string{*userID}
+		query["userId"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/me"),
+		Path:     fmt.Sprintf("/users/me"),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	if userID != nil {
+		sliceVal := []string{*userID}
+		prms["userId"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -306,7 +316,7 @@ func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.S
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetMeUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, *app.Users) {
+func GetMeUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID *string) (http.ResponseWriter, *app.Users) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -326,14 +336,24 @@ func GetMeUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if userID != nil {
+		sliceVal := []string{*userID}
+		query["userId"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/me"),
+		Path:     fmt.Sprintf("/users/me"),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	if userID != nil {
+		sliceVal := []string{*userID}
+		prms["userId"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
