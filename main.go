@@ -3,10 +3,11 @@
 package main
 
 import (
-	"microservice-tools/gateway"
 	"net/http"
 	"os"
 	"user-microservice/app"
+
+	"github.com/JormungandrK/microservice-tools/gateway"
 
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"

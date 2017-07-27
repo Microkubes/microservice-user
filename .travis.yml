@@ -11,10 +11,10 @@ go:
 before_install:
   - go get github.com/axw/gocov/gocov
   - go get github.com/AlekSi/gocov-xml
-  - go get github.com/JormungandrK/microservice-tools
 
 install:
   - go get -u gopkg.in/h2non/gock.v1
+  - go get github.com/JormungandrK/microservice-tools
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter

@@ -10,8 +10,9 @@ RUN chmod 700 /root/.ssh/id_rsa && \
 
 RUN go get -u github.com/goadesign/goa/... && \
     go get -u gopkg.in/mgo.v2
-RUN git clone git@github.com:JormungandrK/microservice-tools.git /go/src/microservice-tools && \
-    cd /go/src/microservice-tools && \
+    
+RUN go get -u github.com/JormungandrK/microservice-tools ; exit 0
+RUN cd /go/src/github.com/JormungandrK/microservice-tools && \
     git checkout -f task-7
 
 COPY . /go/src/user-microservice
