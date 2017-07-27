@@ -13,8 +13,8 @@ var (
 	service 		= goa.New("user-test")
 	db      		= store.NewDB()
 	ctrl    		= NewUserController(service, db)
-	HexObjectId     = "5975c461f9f8eb02aae053f3"
-	FakeHexObjectId = "fakeobjectidab02aae053f3"
+	HexObjectId     	= "5975c461f9f8eb02aae053f3"
+	FakeHexObjectId 	= "fakeobjectidab02aae053f3"
 )
 
 func TestGetUserOK(t *testing.T) {
