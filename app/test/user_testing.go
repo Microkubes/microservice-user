@@ -105,10 +105,10 @@ func CreateUserCreated(t goatest.TInterface, ctx context.Context, service *goa.S
 }
 
 // GetUserNotFound runs the method Get of the given controller with the given parameters.
-// It returns the response writer so it's possible to inspect the response headers.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID int) http.ResponseWriter {
+func GetUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -156,16 +156,24 @@ func GetUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Ser
 	if rw.Code != 404 {
 		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
 	}
+	var mt error
+	if resp != nil {
+		var ok bool
+		mt, ok = resp.(error)
+		if !ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
 
 	// Return results
-	return rw
+	return rw, mt
 }
 
 // GetUserOK runs the method Get of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID int) (http.ResponseWriter, *app.Users) {
+func GetUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID string) (http.ResponseWriter, *app.Users) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -231,10 +239,10 @@ func GetUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, 
 }
 
 // GetMeUserNotFound runs the method GetMe of the given controller with the given parameters.
-// It returns the response writer so it's possible to inspect the response headers.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) http.ResponseWriter {
+func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID *string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -254,14 +262,24 @@ func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.S
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if userID != nil {
+		sliceVal := []string{*userID}
+		query["userId"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/me"),
+		Path:     fmt.Sprintf("/users/me"),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	if userID != nil {
+		sliceVal := []string{*userID}
+		prms["userId"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -281,16 +299,24 @@ func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.S
 	if rw.Code != 404 {
 		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
 	}
+	var mt error
+	if resp != nil {
+		var ok bool
+		mt, ok = resp.(error)
+		if !ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
 
 	// Return results
-	return rw
+	return rw, mt
 }
 
 // GetMeUserOK runs the method GetMe of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetMeUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, *app.Users) {
+func GetMeUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID *string) (http.ResponseWriter, *app.Users) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -310,14 +336,24 @@ func GetMeUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if userID != nil {
+		sliceVal := []string{*userID}
+		query["userId"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/me"),
+		Path:     fmt.Sprintf("/users/me"),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	if userID != nil {
+		sliceVal := []string{*userID}
+		prms["userId"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -358,7 +394,7 @@ func GetMeUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func UpdateUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID int, payload *app.UserPayload) http.ResponseWriter {
+func UpdateUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID string, payload *app.UserPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -427,7 +463,7 @@ func UpdateUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func UpdateUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID int, payload *app.UserPayload) (http.ResponseWriter, *app.Users) {
+func UpdateUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, userID string, payload *app.UserPayload) (http.ResponseWriter, *app.Users) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer

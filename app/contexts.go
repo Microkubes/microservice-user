@@ -14,7 +14,6 @@ import (
 	"context"
 	"github.com/goadesign/goa"
 	"net/http"
-	"strconv"
 )
 
 // CreateUserContext provides the user create action context.
@@ -48,7 +47,7 @@ type GetUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	UserID int
+	UserID string
 }
 
 // NewGetUserContext parses the incoming request URL and body, performs validations and creates the
@@ -63,11 +62,7 @@ func NewGetUserContext(ctx context.Context, r *http.Request, service *goa.Servic
 	paramUserID := req.Params["userId"]
 	if len(paramUserID) > 0 {
 		rawUserID := paramUserID[0]
-		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = userID
-		} else {
-			err = goa.MergeErrors(err, goa.InvalidParamTypeError("userId", rawUserID, "integer"))
-		}
+		rctx.UserID = rawUserID
 	}
 	return &rctx, err
 }
@@ -79,9 +74,9 @@ func (ctx *GetUserContext) OK(r *Users) error {
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *GetUserContext) NotFound() error {
-	ctx.ResponseData.WriteHeader(404)
-	return nil
+func (ctx *GetUserContext) NotFound(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
 // GetMeUserContext provides the user getMe action context.
@@ -89,6 +84,7 @@ type GetMeUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
+	UserID *string
 }
 
 // NewGetMeUserContext parses the incoming request URL and body, performs validations and creates the
@@ -100,6 +96,11 @@ func NewGetMeUserContext(ctx context.Context, r *http.Request, service *goa.Serv
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := GetMeUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramUserID := req.Params["userId"]
+	if len(paramUserID) > 0 {
+		rawUserID := paramUserID[0]
+		rctx.UserID = &rawUserID
+	}
 	return &rctx, err
 }
 
@@ -110,9 +111,9 @@ func (ctx *GetMeUserContext) OK(r *Users) error {
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *GetMeUserContext) NotFound() error {
-	ctx.ResponseData.WriteHeader(404)
-	return nil
+func (ctx *GetMeUserContext) NotFound(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
 // UpdateUserContext provides the user update action context.
@@ -120,7 +121,7 @@ type UpdateUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	UserID  int
+	UserID  string
 	Payload *UserPayload
 }
 
@@ -136,11 +137,7 @@ func NewUpdateUserContext(ctx context.Context, r *http.Request, service *goa.Ser
 	paramUserID := req.Params["userId"]
 	if len(paramUserID) > 0 {
 		rawUserID := paramUserID[0]
-		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = userID
-		} else {
-			err = goa.MergeErrors(err, goa.InvalidParamTypeError("userId", rawUserID, "integer"))
-		}
+		rctx.UserID = rawUserID
 	}
 	return &rctx, err
 }

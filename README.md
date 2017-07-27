@@ -9,8 +9,7 @@ export PATH=$GOPATH/bin:$PATH
 ```
 Install goa and goagen:
 ```
-
-
+cd $GOPATH
 go get -u github.com/goadesign/goa/...
 ```
 
@@ -46,6 +45,12 @@ cd $GOPATH/src/user-microservice
 go build -o user
 ./user
 ```
+
+## Tests
+For testing we use controller_test.go files which call the generated test helpers which package that data into HTTP requests and calls the actual controller functions. The test helpers retrieve the written responses, deserialize them, validate the generated data structures (against the validations written in the design) and make them available to the tests. Run:
+```
+go test -v
+``` 
 
 ## Set up MongoDB
 Create users database with default username and password.

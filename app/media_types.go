@@ -25,7 +25,7 @@ type Users struct {
 	// External id of user
 	ExternalID string `form:"externalId" json:"externalId" xml:"externalId"`
 	// Unique user ID
-	ID int `form:"id" json:"id" xml:"id"`
+	ID string `form:"id" json:"id" xml:"id"`
 	// Roles of user
 	Roles []string `form:"roles" json:"roles" xml:"roles"`
 	// Name of user
@@ -34,7 +34,9 @@ type Users struct {
 
 // Validate validates the Users media type instance.
 func (mt *Users) Validate() (err error) {
-
+	if mt.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
 	if mt.Username == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "username"))
 	}
