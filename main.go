@@ -3,13 +3,31 @@
 package main
 
 import (
+	"net/http"
+	"os"
+	"user-microservice/app"
+
+	"github.com/JormungandrK/microservice-tools/gateway"
+
+	"user-microservice/store"
+
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
-	"user-microservice/store"
-	"user-microservice/app"
 )
 
 func main() {
+	gatewayURL, configFile := loadGatewaySettings()
+	registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
+	if err != nil {
+		panic(err)
+	}
+	err = registration.SelfRegister()
+	if err != nil {
+		panic(err)
+	}
+
+	defer registration.Unregister()
+
 	// Create service
 	service := goa.New("user")
 
@@ -26,14 +44,14 @@ func main() {
 	defer session.Close()
 
 	// Create users collection and indexes
-	indexes :=  []string{"username", "email"}
+	indexes := []string{"username", "email"}
 	usersCollection := store.PrepareDB(session, "users", "users", indexes)
 
 	// Mount "swagger" controller
 	c1 := NewSwaggerController(service)
 	app.MountSwaggerController(service, c1)
 	// Mount "user" controller
-	c2 := NewUserController(service, &store.MongoCollection{usersCollection})
+	c2 := NewUserController(service, &store.MongoCollection{Collection: usersCollection})
 	app.MountUserController(service, c2)
 
 	// Start service
@@ -41,4 +59,18 @@ func main() {
 		service.LogError("startup", "err", err)
 	}
 
+}
+
+func loadGatewaySettings() (string, string) {
+	gatewayURL := os.Getenv("API_GATEWAY_URL")
+	serviceConfigFile := os.Getenv("SERVICE_CONFIG_FILE")
+
+	if gatewayURL == "" {
+		gatewayURL = "http://localhost:8001"
+	}
+	if serviceConfigFile == "" {
+		serviceConfigFile = "config.json"
+	}
+
+	return gatewayURL, serviceConfigFile
 }

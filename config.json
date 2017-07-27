@@ -1,0 +1,8 @@
+{
+  "name": "user-microservice",
+  "port": 8080,
+  "virtual_host": "user.services.jormugandr.org",
+  "hosts": ["localhost", "user.services.jormugandr.org"],
+  "weight": 10,
+  "slots": 100
+}

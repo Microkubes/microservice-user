@@ -1,0 +1,25 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=76d39151044b1db7f724abf58fca2fc0ffc0193d2432bceaea74f3ae456a18a1
+    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
+
+language: go
+
+go:
+  - 1.8.x
+
+before_install:
+  - go get github.com/axw/gocov/gocov
+  - go get github.com/AlekSi/gocov-xml
+
+install:
+  - go get -u gopkg.in/h2non/gock.v1
+  - go get github.com/JormungandrK/microservice-tools
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+
+script:
+  - gocov test | gocov-xml > coverage.xml
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build; fi
