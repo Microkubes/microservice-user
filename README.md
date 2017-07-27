@@ -47,12 +47,15 @@ go build -o user
 ./user
 ```
 
+<<<<<<< HEAD
 ## Tests
 For testing we use controller_test.go files which call the generated test helpers which package that data into HTTP requests and calls the actual controller functions. The test helpers retrieve the written responses, deserialize them, validate the generated data structures (against the validations written in the design) and make them available to the tests. Run:
 ```
 go test -v
 ``` 
 
+=======
+>>>>>>> 36f676c390cae772e49a246e9059e903805ebf64
 ## Set up MongoDB
 Create users database with default username and password.
 See: [Set up MongoDB](https://github.com/JormungandrK/jormungandr-infrastructure#mongodb--v346-)
