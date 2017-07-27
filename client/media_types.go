@@ -15,6 +15,13 @@ import (
 	"net/http"
 )
 
+// DecodeErrorResponse decodes the ErrorResponse instance encoded in resp body.
+func (c *Client) DecodeErrorResponse(resp *http.Response) (*goa.ErrorResponse, error) {
+	var decoded goa.ErrorResponse
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // users media type (default view)
 //
 // Identifier: application/vnd.goa.user+json; view=default
@@ -26,7 +33,7 @@ type Users struct {
 	// External id of user
 	ExternalID string `form:"externalId" json:"externalId" xml:"externalId"`
 	// Unique user ID
-	ID int `form:"id" json:"id" xml:"id"`
+	ID string `form:"id" json:"id" xml:"id"`
 	// Roles of user
 	Roles []string `form:"roles" json:"roles" xml:"roles"`
 	// Name of user
@@ -35,7 +42,9 @@ type Users struct {
 
 // Validate validates the Users media type instance.
 func (mt *Users) Validate() (err error) {
-
+	if mt.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
 	if mt.Username == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "username"))
 	}

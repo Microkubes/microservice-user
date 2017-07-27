@@ -19,6 +19,7 @@ import (
 	uuid "github.com/goadesign/goa/uuid"
 	"github.com/spf13/cobra"
 	"log"
+	"net/url"
 	"os"
 	"path"
 	"strconv"
@@ -38,7 +39,7 @@ type (
 	// GetUserCommand is the command line data structure for the get action of user
 	GetUserCommand struct {
 		// User ID
-		UserID      int
+		UserID      string
 		PrettyPrint bool
 	}
 
@@ -52,7 +53,7 @@ type (
 		Payload     string
 		ContentType string
 		// User ID
-		UserID      int
+		UserID      string
 		PrettyPrint bool
 	}
 
@@ -80,12 +81,13 @@ Payload example:
 
 {
    "active": true,
-   "email": "thea@funkvonrueden.net",
-   "externalId": "Occaecati qui esse voluptas et voluptas veritatis.",
-   "password": "7tux75md87",
+   "email": "brigitte_koepp@ferry.net",
+   "externalId": "Veritatis veniam sed voluptatibus.",
+   "password": "x75md877qp",
    "roles": [
-      "In sit reprehenderit ea quam.",
-      "In sit reprehenderit ea quam."
+      "Placeat reprehenderit similique quo.",
+      "Placeat reprehenderit similique quo.",
+      "Placeat reprehenderit similique quo."
    ],
    "username": "ApPq"
 }`,
@@ -137,12 +139,13 @@ Payload example:
 
 {
    "active": true,
-   "email": "thea@funkvonrueden.net",
-   "externalId": "Occaecati qui esse voluptas et voluptas veritatis.",
-   "password": "7tux75md87",
+   "email": "brigitte_koepp@ferry.net",
+   "externalId": "Veritatis veniam sed voluptatibus.",
+   "password": "x75md877qp",
    "roles": [
-      "In sit reprehenderit ea quam.",
-      "In sit reprehenderit ea quam."
+      "Placeat reprehenderit similique quo.",
+      "Placeat reprehenderit similique quo.",
+      "Placeat reprehenderit similique quo."
    ],
    "username": "ApPq"
 }`,
@@ -404,7 +407,7 @@ func (cmd *GetUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/users/%v", cmd.UserID)
+		path = fmt.Sprintf("/users/%v", url.QueryEscape(cmd.UserID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -420,8 +423,8 @@ func (cmd *GetUserCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *GetUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var userID int
-	cc.Flags().IntVar(&cmd.UserID, "userId", userID, `User ID`)
+	var userID string
+	cc.Flags().StringVar(&cmd.UserID, "userId", userID, `User ID`)
 }
 
 // Run makes the HTTP request corresponding to the GetMeUserCommand command.
@@ -454,7 +457,7 @@ func (cmd *UpdateUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/users/%v", cmd.UserID)
+		path = fmt.Sprintf("/users/%v", url.QueryEscape(cmd.UserID))
 	}
 	var payload client.UserPayload
 	if cmd.Payload != "" {
@@ -479,6 +482,6 @@ func (cmd *UpdateUserCommand) Run(c *client.Client, args []string) error {
 func (cmd *UpdateUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var userID int
-	cc.Flags().IntVar(&cmd.UserID, "userId", userID, `User ID`)
+	var userID string
+	cc.Flags().StringVar(&cmd.UserID, "userId", userID, `User ID`)
 }

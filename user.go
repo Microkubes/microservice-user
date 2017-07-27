@@ -1,20 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"gopkg.in/mgo.v2/bson"
 	"github.com/goadesign/goa"
 	"user-microservice/app"
-	"gopkg.in/mgo.v2"
+	"user-microservice/store"
 )
 
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-	usersCollection *mgo.Collection
+	usersCollection store.Collection
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service, usersCollection *mgo.Collection) *UserController {
+func NewUserController(service *goa.Service, usersCollection store.Collection) *UserController {
 	return &UserController{
 		Controller: service.NewController("UserController"),
 		usersCollection: usersCollection,
@@ -28,31 +28,35 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	// Put your logic here
 
 	// UserController_Create: end_implement
-
 	return nil
 }
 
 // Get runs the get action.
 func (c *UserController) Get(ctx *app.GetUserContext) error {
-	// UserController_Get: start_implement
-	if ctx.UserID == 0 {
-		// Emulate a missing record with ID 0
-		return ctx.NotFound()
+	// Build the resource using the generated data structure.
+	res := &app.Users{}
+
+	// Return whether ctx.UserID is a valid hex representation of an ObjectId.
+	if bson.IsObjectIdHex(ctx.UserID) != true {
+		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
 	}
 
-	roles := []string{"admin", "owner"}
+	// Return an ObjectId from the provided hex representation. 
+    userId := bson.ObjectIdHex(ctx.UserID)
 
-	// Build the resource using the generated data structure
-	user := &app.Users {
-		ID:   ctx.UserID,
-		Username: fmt.Sprintf("User #%d", ctx.UserID),
-		Email: "example@gmail.com",
-		ExternalID: "qwe23adsa213saqqw",
-		Roles: roles,
+	// Return true if userId is valid. A valid userId must contain exactly 12 bytes.
+	if userId.Valid() != true {
+		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
 	}
 
-	// UserController_Get: end_implement
-	return ctx.OK(user)
+	// Return one user by id.
+	if err := c.usersCollection.FindByID(userId, res); err != nil {
+		return ctx.NotFound(goa.ErrNotFound(err))
+	}
+
+	res.ID = ctx.UserID
+	
+	return ctx.OK(res)
 }
 
 // GetMe runs the getMe action.
