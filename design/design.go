@@ -41,6 +41,9 @@ var _ = Resource("user", func() {
         Action("getMe", func() {
                 Description("Retrieves the user information for the authenticated user")
                 Routing(GET("/me"))
+                Params(func() {
+                    Param("userId", String, "User ID")
+                })
                 Response(OK)
                 Response(NotFound, ErrorMedia)
         })
