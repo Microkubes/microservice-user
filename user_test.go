@@ -53,3 +53,9 @@ func TestGetMeUserOK(t *testing.T) {
 func TestGetMeUserNotFound(t *testing.T) {
 	test.GetMeUserNotFound(t, context.Background(), service, ctrl, &FakeHexObjectId)
 }
+
+
+func CreateUserOK(t *Testing.T) {
+	return nil
+	// define payload
+}

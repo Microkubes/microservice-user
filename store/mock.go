@@ -20,7 +20,8 @@ type UserModel struct {
 	ExternalID string 
 	ID string
 	Roles []string 
-	Username string 
+	Username string
+	Password string
 }
 
 // NewDB initializes a new "DB" with dummy data.
@@ -33,6 +34,7 @@ func NewDB() *DB {
 		ID: "5975c461f9f8eb02aae053f3",
 		Roles: roles,
 		Username: "User1",
+		Password: "pass",
 	}
 	return &DB{users: map[string]*UserModel{"5975c461f9f8eb02aae053f3": user}}
 }
@@ -61,5 +63,28 @@ func (db *DB) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
 		return err				
 	}
 
+	return nil
+}
+
+func (db *DB) Insert(docs ...interface{}) error {
+	db.Lock()
+	defer db.Unlock()
+
+
+	// email := docs.(struct{Email string}).Email
+	roles := []string{"admin", "user"}
+
+	user := &UserModel{
+        Active: false,
+        Email: "email@gmail.com",
+        ExternalID: "exidnew5975c461f9f8eb02aae053f3",
+        ID: "new5975c461f9f8eb02aae053f3",
+        Roles: roles,
+        Username: "user",
+		Password: "pass",
+    }
+    
+	db.users["5975c461f9f8eb02aae053f4"] = user
+	
 	return nil
 }

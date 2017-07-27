@@ -5,6 +5,7 @@ import (
 	"github.com/goadesign/goa"
 	"user-microservice/app"
 	"user-microservice/store"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // UserController implements the user resource.
@@ -21,14 +22,38 @@ func NewUserController(service *goa.Service, usersCollection store.Collection) *
 	}
 }
 
-// Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
-	// UserController_Create: start_implement
-
-	// Put your logic here
-
-	// UserController_Create: end_implement
-	return nil
+    payload := goa.ContextRequest(ctx).Payload
+    fmt.Println(payload)
+    // Hashing
+    userPassword := ctx.Payload.Password
+    hashedPassword, error := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
+    if error != nil {
+        panic(error)
+    }
+    
+    ctx.Payload.Password = string(hashedPassword)
+    
+    // Generate ID
+    // ctx.Payload.ID = bson.NewObjectId()
+    py := &app.Users {
+        ID:   bson.NewObjectId().Hex(),
+        Username: ctx.Payload.Username,
+        Email: ctx.Payload.Email,
+        ExternalID: ctx.Payload.ExternalID,
+        Roles: ctx.Payload.Roles,
+    }
+    // Insert Datas
+    err := c.usersc.Insert(py)
+	
+    // Handle errors
+    if err != nil {
+            if mgo.IsDup(err) {
+                return ctx.BadRequest(goa.ErrBadRequest(err, "Email or Username already exists in the database"))
+            }
+            return err
+    }
+    return ctx.Created(py)
 }
 
 // Get runs the get action.

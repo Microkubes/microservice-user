@@ -16,6 +16,7 @@ const (
 
 type Collection interface {
 	FindByID(id bson.ObjectId, mediaType *app.Users) error
+	Insert(docs ...interface{}) error
 }
 
 type MongoCollection struct {
