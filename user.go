@@ -28,7 +28,6 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	// Put your logic here
 
 	// UserController_Create: end_implement
-
 	return nil
 }
 

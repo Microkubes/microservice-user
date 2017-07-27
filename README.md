@@ -9,8 +9,7 @@ export PATH=$GOPATH/bin:$PATH
 ```
 Install goa and goagen:
 ```
-
-
+cd $GOPATH
 go get -u github.com/goadesign/goa/...
 ```
 
