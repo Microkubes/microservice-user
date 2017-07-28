@@ -93,6 +93,10 @@ To run the user-microservice you'll need to set up some ENV variables:
 
  * **SERVICE_CONFIG_FILE** - Location of the configuration JSON file (default: config.json)
  * **API_GATEWAY_URL** - Kong API url (default: http://localhost:8001)
+ * **MONGO_URL** - Host IP(example: 192.168.1.10:27017)
+ * **MS_USERNAME** - Mongo username
+ * **MS_PASSWORD** - Mongo password
+ * **MS_DBNAME** - Mongo database name
 
 Run the docker image:
 ```bash
@@ -131,7 +135,7 @@ Find your host IP using ```ifconfig``` or ```ip addr```.
 Assuming your host IP is 192.168.1.10, then run:
 
 ```bash
-docker run -ti -e API_GATEWAY_URL=http://192.168.1.10:80001 user-microservice
+docker run -ti -e API_GATEWAY_URL=http://192.168.1.10:8001 -e MONGO_URL=192.168.1.10:27017 user-microservice
 ```
 
 If there are no errors, on a different terminal try calling Kong on port :8000

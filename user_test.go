@@ -4,8 +4,9 @@ import (
 	"testing"
 	"context"
 
-	"user-microservice/app/test"
+	"user-microservice/app"
 	"user-microservice/store"
+	"user-microservice/app/test"
 	"github.com/goadesign/goa"
 )
 
@@ -13,8 +14,8 @@ var (
 	service 		= goa.New("user-test")
 	db      		= store.NewDB()
 	ctrl    		= NewUserController(service, db)
-	HexObjectId     	= "5975c461f9f8eb02aae053f3"
-	FakeHexObjectId 	= "fakeobjectidab02aae053f3"
+	HexObjectId     = "5975c461f9f8eb02aae053f3"
+	FakeHexObjectId = "fakeobjectidab02aae053f3"
 )
 
 func TestGetUserOK(t *testing.T) {
@@ -52,4 +53,22 @@ func TestGetMeUserOK(t *testing.T) {
 
 func TestGetMeUserNotFound(t *testing.T) {
 	test.GetMeUserNotFound(t, context.Background(), service, ctrl, &FakeHexObjectId)
+}
+
+func TestCreateUserOK(t *testing.T) {
+	roles := []string{"admin", "user"}
+	userPayload := &app.UserPayload {
+		Username:	"username",
+		Password:	"password",
+		Email:		"examlple@some.com",
+		ExternalID: "qwerc461f9f8eb02aae053f3",
+		Roles:		roles,
+	}
+
+	//CreateUserCreated
+	_, user := test.CreateUserCreated(t, context.Background(), service, ctrl, userPayload)
+
+	if user == nil {
+		t.Fatal("User not created")
+	}
 }

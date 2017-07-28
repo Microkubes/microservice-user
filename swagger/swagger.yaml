@@ -202,12 +202,17 @@ paths:
         schema:
           $ref: '#/definitions/UserPayload'
       produces:
+      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "201":
           description: Created
           schema:
             $ref: '#/definitions/users'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
       schemes:
       - http
       summary: create user
