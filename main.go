@@ -1,5 +1,3 @@
-//go:generate goagen bootstrap -d user-microservice/design
-
 package main
 
 import (

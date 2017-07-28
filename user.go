@@ -75,15 +75,15 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 	}
 
 	// Return an ObjectId from the provided hex representation. 
-	userId := bson.ObjectIdHex(ctx.UserID)
+	userID := bson.ObjectIdHex(ctx.UserID)
 
-	// Return true if userId is valid. A valid userId must contain exactly 12 bytes.
-	if userId.Valid() != true {
+	// Return true if userID is valid. A valid userID must contain exactly 12 bytes.
+	if userID.Valid() != true {
 		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
 	}
 
 	// Return one user by id.
-	if err := c.usersCollection.FindByID(userId, res); err != nil {
+	if err := c.usersCollection.FindByID(userID, res); err != nil {
 		return ctx.NotFound(goa.ErrNotFound(err))
 	}
 
@@ -103,15 +103,15 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 	}
 
 	// Return an ObjectId from the provided hex representation.
-	userId := bson.ObjectIdHex(*ctx.UserID)
+	userID := bson.ObjectIdHex(*ctx.UserID)
 
-	// Return true if userId is valid. A valid userId must contain exactly 12 bytes.
-	if userId.Valid() != true {
+	// Return true if userID is valid. A valid userID must contain exactly 12 bytes.
+	if userID.Valid() != true {
 		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
 	}
 
 	// Return one user by id.
-	if err := c.usersCollection.FindByID(userId, res); err != nil {
+	if err := c.usersCollection.FindByID(userID, res); err != nil {
 		return ctx.NotFound(goa.ErrNotFound(err))
 	}
 
