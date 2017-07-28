@@ -1,10 +1,11 @@
 package main
 
 import (
-	"gopkg.in/mgo.v2/bson"
-	"github.com/goadesign/goa"
 	"user-microservice/app"
 	"user-microservice/store"
+	"github.com/goadesign/goa"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,8 +24,8 @@ func NewUserController(service *goa.Service, usersCollection store.Collection) *
 }
 
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
-    payload := goa.ContextRequest(ctx).Payload
-    fmt.Println(payload)
+    // payload := goa.ContextRequest(ctx).Payload
+
     // Hashing
     userPassword := ctx.Payload.Password
     hashedPassword, error := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
@@ -44,14 +45,14 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
         Roles: ctx.Payload.Roles,
     }
     // Insert Datas
-    err := c.usersc.Insert(py)
+    err := c.usersCollection.Insert(py)
 	
     // Handle errors
     if err != nil {
-            if mgo.IsDup(err) {
-                return ctx.BadRequest(goa.ErrBadRequest(err, "Email or Username already exists in the database"))
-            }
-            return err
+        if mgo.IsDup(err) {
+            // return ctx.BadRequest(goa.ErrBadRequest(err, "Email or Username already exists in the database"))
+        }
+        return err
     }
     return ctx.Created(py)
 }

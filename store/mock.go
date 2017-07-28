@@ -2,7 +2,9 @@ package store
 
 import (
 	"sync"
-	"errors"
+	// "errors"
+	"reflect"
+
 	"user-microservice/app"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -10,38 +12,26 @@ import (
 // DB emulates a database driver using in-memory data structures.
 type DB struct {
 	sync.Mutex
-	users		map[string]*UserModel
-}
-
-// UserModel is the database "users" for users
-type UserModel struct {
-	Active bool 
-	Email string 
-	ExternalID string 
-	ID string
-	Roles []string 
-	Username string
-	Password string
+	users		map[string]interface{}
 }
 
 // NewDB initializes a new "DB" with dummy data.
 func NewDB() *DB {
 	roles := []string{"admin", "user"}
-	user := &UserModel{
+	user := &app.UserPayload{
 		Active: false,
 		Email: "frieda@oberbrunnerkirlin.name",
 		ExternalID: "qwerc461f9f8eb02aae053f3",
-		ID: "5975c461f9f8eb02aae053f3",
 		Roles: roles,
 		Username: "User1",
 		Password: "pass",
 	}
-	return &DB{users: map[string]*UserModel{"5975c461f9f8eb02aae053f3": user}}
+	return &DB{users: map[string]interface{}{"5975c461f9f8eb02aae053f3": user}}
 }
 
 // Reset removes all entries from the database.
 func (db *DB) Reset() {
-	db.users = make(map[string]*UserModel)
+	db.users = make(map[string]interface{})
 }
 
 // Mock implementation
@@ -52,8 +42,16 @@ func (db *DB) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
 	id := objectId.Hex()
 
 	if user, ok := db.users[id]; ok {
-		mediaType.ID = user.ID
-		mediaType.Active = user.Active
+		s := reflect.ValueOf(&user)
+		typeOfUser := s.Type()
+		// for i := 0; i < s.NumField(); i++ {
+		// 	f := s.Field(i)
+
+		// 	fmt.Printf("%d: %s %s = %v\n", i,
+		// 		typeOfT.Field(i).Name, f.Type(), f.Interface())
+		// }
+		mediaType.ID = id
+		mediaType.Active = s.FieldByName("Active").(bool)
 		mediaType.Email = user.Email
 		mediaType.ExternalID = user.ExternalID
 		mediaType.Roles = user.Roles
@@ -70,21 +68,7 @@ func (db *DB) Insert(docs ...interface{}) error {
 	db.Lock()
 	defer db.Unlock()
 
+	db.users["3375c461f9f8eb02aae053q4"] = docs				
 
-	// email := docs.(struct{Email string}).Email
-	roles := []string{"admin", "user"}
-
-	user := &UserModel{
-        Active: false,
-        Email: "email@gmail.com",
-        ExternalID: "exidnew5975c461f9f8eb02aae053f3",
-        ID: "new5975c461f9f8eb02aae053f3",
-        Roles: roles,
-        Username: "user",
-		Password: "pass",
-    }
-    
-	db.users["5975c461f9f8eb02aae053f4"] = user
-	
 	return nil
 }
