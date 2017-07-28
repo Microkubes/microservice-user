@@ -1,6 +1,7 @@
 package store
 
 import (
+	"time"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"user-microservice/app"
@@ -22,6 +23,7 @@ func NewSession(Host string, Username string, Password string, Database string) 
 		Username: Username,
 		Password: Password,
 		Database: Database,
+		Timeout:  30 * time.Second,
 	})
 	if err != nil {
 		panic(err)
@@ -39,17 +41,20 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 	collection := session.DB(db).C(dbCollection)
 
 	// Define indexes
-	index := mgo.Index{
-		Key:        indexes,
-		Unique:     true,
-		DropDups:   true,
-		Background: true,
-		Sparse:     true,
-	}
+	for _, elem := range indexes {
+		i := []string{elem}	
+		index := mgo.Index{
+			Key:        i,
+			Unique:     true,
+			DropDups:   true,
+			Background: true,
+			Sparse:     true,
+		}
 
-	// Create indexes
-	if err := collection.EnsureIndex(index); err != nil {
-		panic(err)
+		// Create indexes
+		if err := collection.EnsureIndex(index); err != nil {
+			panic(err)
+		}		
 	}
 
 	return collection

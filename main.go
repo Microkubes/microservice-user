@@ -47,7 +47,7 @@ func main() {
 
 	// Create users collection and indexes
 	indexes :=  []string{"username", "email"}
-	usersCollection := store.PrepareDB(session, "users", "users", indexes)
+	usersCollection := store.PrepareDB(session, database, "users", indexes)
 
 	// Mount "swagger" controller
 	c1 := NewSwaggerController(service)

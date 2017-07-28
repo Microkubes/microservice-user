@@ -1,6 +1,7 @@
 package main
 
 import (
+	"time"
 	"user-microservice/app"
 	"user-microservice/store"
 	"github.com/goadesign/goa"
@@ -31,20 +32,17 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	if err != nil {
 		return err
 	}
-	
-	ctx.Payload.Password = string(hashedPassword)
-	
-	// Define user
-	py := &app.Users {
-		ID:			bson.NewObjectId().Hex(),
-		Username:	ctx.Payload.Username,
-		Email:		ctx.Payload.Email,
-		ExternalID:	ctx.Payload.ExternalID,
-		Roles:		ctx.Payload.Roles,
-	}
-
+ 
 	// Insert Data
-	err = c.usersCollection.Insert(py)
+	id := bson.NewObjectIdWithTime(time.Now())
+	err = c.usersCollection.Insert(bson.M{
+		"_id": id, 
+		"username": ctx.Payload.Username,
+		"email": ctx.Payload.Email,
+		"password": string(hashedPassword),
+		"externalId": ctx.Payload.ExternalID,
+		"roles": ctx.Payload.Roles,
+	})
 	
 	// Handle errors
 	if err != nil {
@@ -53,6 +51,16 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		}
 		return err
 	}
+	
+	// Define user media type
+	py := &app.Users {
+		ID:			id.Hex(),
+		Username:	ctx.Payload.Username,
+		Email:		ctx.Payload.Email,
+		ExternalID:	ctx.Payload.ExternalID,
+		Roles:		ctx.Payload.Roles,
+	}
+
 	return ctx.Created(py)
 }
 
