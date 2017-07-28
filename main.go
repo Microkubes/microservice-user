@@ -3,14 +3,31 @@
 package main
 
 import (
+	"net/http"
 	"os"
+	"user-microservice/app"
+
+	"github.com/JormungandrK/microservice-tools/gateway"
+
+	"user-microservice/store"
+
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
-	"user-microservice/store"
-	"user-microservice/app"
 )
 
 func main() {
+	gatewayURL, configFile := loadGatewaySettings()
+	registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
+	if err != nil {
+		panic(err)
+	}
+	err = registration.SelfRegister()
+	if err != nil {
+		panic(err)
+	}
+
+	defer registration.Unregister()
+
 	// Create service
 	service := goa.New("user")
 
@@ -23,7 +40,7 @@ func main() {
 	// Load MongoDB ENV variables
 	host, username, password, database := loadMongnoSettings()
 	// Create new session to MongoDB
-	session := store.NewSession(host, usersname, password, database)
+	session := store.NewSession(host, username, password, database)
 
 	// At the end close session
 	defer session.Close()
@@ -65,4 +82,18 @@ func loadMongnoSettings() (string, string, string, string) {
     }
 
     return host, username, password, database
+}
+
+func loadGatewaySettings() (string, string) {
+	gatewayURL := os.Getenv("API_GATEWAY_URL")
+	serviceConfigFile := os.Getenv("SERVICE_CONFIG_FILE")
+
+	if gatewayURL == "" {
+		gatewayURL = "http://localhost:8001"
+	}
+	if serviceConfigFile == "" {
+		serviceConfigFile = "config.json"
+	}
+
+	return gatewayURL, serviceConfigFile
 }

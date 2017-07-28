@@ -23,6 +23,7 @@ func NewUserController(service *goa.Service, usersCollection store.Collection) *
 	}
 }
 
+// Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	// Hashing
 	userPassword := ctx.Payload.Password
