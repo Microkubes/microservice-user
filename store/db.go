@@ -1,17 +1,9 @@
 package store
 
 import (
-	"user-microservice/app"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-)
-
-const (
-    Host     = "127.0.0.1:27017"
-    Username = "restapi"
-    Password = "restapi"
-    Database = "users"
+	"user-microservice/app"
 )
 
 type Collection interface {
@@ -24,7 +16,7 @@ type MongoCollection struct {
 }
 
 // NewSession returns a new Mongo Session.
-func NewSession() *mgo.Session {
+func NewSession(Host string, Username string, Password string, Database string) *mgo.Session {
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
 		Addrs:    []string{Host},
 		Username: Username,

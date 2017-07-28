@@ -24,37 +24,35 @@ func NewUserController(service *goa.Service, usersCollection store.Collection) *
 }
 
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
-    // payload := goa.ContextRequest(ctx).Payload
-
-    // Hashing
-    userPassword := ctx.Payload.Password
-    hashedPassword, error := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
-    if error != nil {
-        panic(error)
-    }
-    
-    ctx.Payload.Password = string(hashedPassword)
-    
-    // Generate ID
-    // ctx.Payload.ID = bson.NewObjectId()
-    py := &app.Users {
-        ID:   bson.NewObjectId().Hex(),
-        Username: ctx.Payload.Username,
-        Email: ctx.Payload.Email,
-        ExternalID: ctx.Payload.ExternalID,
-        Roles: ctx.Payload.Roles,
-    }
-    // Insert Datas
-    err := c.usersCollection.Insert(py)
+	// Hashing
+	userPassword := ctx.Payload.Password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
 	
-    // Handle errors
-    if err != nil {
-        if mgo.IsDup(err) {
-            // return ctx.BadRequest(goa.ErrBadRequest(err, "Email or Username already exists in the database"))
-        }
-        return err
-    }
-    return ctx.Created(py)
+	ctx.Payload.Password = string(hashedPassword)
+	
+	// Define user
+	py := &app.Users {
+		ID:			bson.NewObjectId().Hex(),
+		Username:	ctx.Payload.Username,
+		Email:		ctx.Payload.Email,
+		ExternalID:	ctx.Payload.ExternalID,
+		Roles:		ctx.Payload.Roles,
+	}
+
+	// Insert Data
+	err = c.usersCollection.Insert(py)
+	
+	// Handle errors
+	if err != nil {
+		if mgo.IsDup(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err, "Email or Username already exists in the database"))
+		}
+		return err
+	}
+	return ctx.Created(py)
 }
 
 // Get runs the get action.

@@ -3,6 +3,7 @@
 package main
 
 import (
+	"os"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	"user-microservice/store"
@@ -19,8 +20,10 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
+	// Load MongoDB ENV variables
+	host, username, password, database := loadMongnoSettings()
 	// Create new session to MongoDB
-	session := store.NewSession()
+	session := store.NewSession(host, usersname, password, database)
 
 	// At the end close session
 	defer session.Close()
@@ -40,5 +43,26 @@ func main() {
 	if err := service.ListenAndServe(":8080"); err != nil {
 		service.LogError("startup", "err", err)
 	}
+}
 
+func loadMongnoSettings() (string, string, string, string) {
+	host     := os.Getenv("MONGO_URL")
+    username := os.Getenv("MS_USERNAME")
+    password := os.Getenv("MS_PASSWORD")
+    database := os.Getenv("MS_DBNAME")
+
+    if host == "" {
+    	host = "127.0.0.1:27017"
+    }
+    if username == "" {
+    	username = "restapi"
+    }
+    if password == "" {
+    	password = "restapi"
+    }
+    if database == "" {
+    	database = "users"
+    }
+
+    return host, username, password, database
 }
