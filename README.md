@@ -165,6 +165,6 @@ Configuration properties:
  * **name** - ```"user-microservice"``` - the name of the service, do not change this.
  * **port** - ```8080``` - port on which the microservice is running
  * **virtual_host** - ```"user.services.jormugandr.org"``` domain name of the service group/cluster. Don't change if not sure.
- * **hosts** - list of valid hosts. Used for proxying and load-balancing of the incoming request. You need to have at least the **virtual_host** in the list.
+ * **hosts** - list of valid hosts. Used for proxying and load balancing of the incoming request. You need to have at least the **virtual_host** in the list.
  * **weight** - instance weight - user for load balancing
  * **slots** - maximal number of service instances under ```"user.services.jormugandr.org"```
