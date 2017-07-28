@@ -3,7 +3,6 @@ package store
 import (
 	"sync"
 	"errors"
-	// "reflect"
 
 	"user-microservice/app"
 	"gopkg.in/mgo.v2/bson"
@@ -34,7 +33,7 @@ func (db *DB) Reset() {
 	db.users = make(map[string]*app.UserPayload)
 }
 
-// Mock implementation
+// FindByID mock implementation
 func (db *DB) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
 	db.Lock()
 	defer db.Unlock()
@@ -56,7 +55,7 @@ func (db *DB) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
 	return nil
 }
 
-// Insert mock.
+// Insert mock implementation
 func (db *DB) Insert(docs ...interface{}) error {
 	return nil
 }

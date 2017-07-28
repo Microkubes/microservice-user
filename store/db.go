@@ -7,11 +7,13 @@ import (
 	"user-microservice/app"
 )
 
+// Collection is an interface to access to the collection struct.
 type Collection interface {
 	FindByID(id bson.ObjectId, mediaType *app.Users) error
 	Insert(docs ...interface{}) error
 }
 
+// MongoCollection wraps a mgo.Collection to embed methods in models.
 type MongoCollection struct {
 	*mgo.Collection
 }
@@ -61,9 +63,9 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 }
 
 // Find collection by Id in hex representation - real database
-func (c *MongoCollection) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
+func (c *MongoCollection) FindByID(objectID bson.ObjectId, mediaType *app.Users) error {
 	// Return one user by id.
-	if err := c.FindId(objectId).One(&mediaType); err != nil {
+	if err := c.FindId(objectID).One(&mediaType); err != nil {
 		return err
 	}
 
