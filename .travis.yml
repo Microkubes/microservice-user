@@ -19,10 +19,8 @@ before_install:
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
+  - mv ${GOPATH}/github.com/JormungandrK/user-microservice ${GOPATH}/user-microservice
 
 script:
-  - pwd
-  - ls /home/travis/gopath/src/github.com
-  - ls /home/travis/.gimme/versions/go1.8.3.linux.amd64/src/github.com
-  - gocov test github.com/JormungandrK/user-microservice | gocov-xml > coverage.xml
+  - gocov test user-microservice | gocov-xml > coverage.xml
   - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build; fi
