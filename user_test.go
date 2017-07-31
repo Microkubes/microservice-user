@@ -1,20 +1,20 @@
 package main
 
 import (
-	"testing"
 	"context"
+	"testing"
 
-	"user-microservice/app/test"
-	"user-microservice/store"
+	"github.com/JormungandrK/user-microservice/app/test"
+	"github.com/JormungandrK/user-microservice/store"
 	"github.com/goadesign/goa"
 )
 
 var (
-	service 		= goa.New("user-test")
-	db      		= store.NewDB()
-	ctrl    		= NewUserController(service, db)
-	HexObjectId     	= "5975c461f9f8eb02aae053f3"
-	FakeHexObjectId 	= "fakeobjectidab02aae053f3"
+	service         = goa.New("user-test")
+	db              = store.NewDB()
+	ctrl            = NewUserController(service, db)
+	HexObjectId     = "5975c461f9f8eb02aae053f3"
+	FakeHexObjectId = "fakeobjectidab02aae053f3"
 )
 
 func TestGetUserOK(t *testing.T) {
@@ -22,30 +22,30 @@ func TestGetUserOK(t *testing.T) {
 	// correct type (i.e. uses view "default") and validates the media type.
 	// Also, it ckecks the returned status code
 	_, user := test.GetUserOK(t, context.Background(), service, ctrl, HexObjectId)
-	
+
 	if user == nil {
 		t.Fatal("Nil user")
 	}
 
 	if user.ID != HexObjectId {
-		t.Errorf("Invalid user ID, expected %s, got %s",HexObjectId, user.ID)
+		t.Errorf("Invalid user ID, expected %s, got %s", HexObjectId, user.ID)
 	}
 }
 
 func TestGetUserNotFound(t *testing.T) {
 	// The test helper takes care of validating the status code for us
-	test.GetUserNotFound(t, context.Background(), service, ctrl, FakeHexObjectId)	
+	test.GetUserNotFound(t, context.Background(), service, ctrl, FakeHexObjectId)
 }
 
 func TestGetMeUserOK(t *testing.T) {
-	_, user := test.GetMeUserOK(t, context.Background(), service, ctrl, &HexObjectId)	
+	_, user := test.GetMeUserOK(t, context.Background(), service, ctrl, &HexObjectId)
 
 	if user == nil {
 		t.Fatal("Nil user")
 	}
 
 	if user.ID != HexObjectId {
-		t.Errorf("Invalid user ID, expected %s, got %s",HexObjectId, user.ID)
+		t.Errorf("Invalid user ID, expected %s, got %s", HexObjectId, user.ID)
 	}
 
 }

@@ -22,5 +22,5 @@ before_script:
   - chmod +x ./cc-test-reporter
 
 script:
-  - gocov test github.com/JormungandrK/user-microservice | gocov-xml > coverage.xml
+  - gocov test github.com/JormungandrK/user-microservice/... | gocov-xml > coverage.xml
   - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build; fi
