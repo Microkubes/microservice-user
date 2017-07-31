@@ -26,6 +26,7 @@ var _ = Resource("user", func() {
             Routing(POST("/"))
             Payload(UserPayload)
             Response(Created, UserMedia)
+            Response(BadRequest, ErrorMedia)
         })
 
         Action("get", func() {

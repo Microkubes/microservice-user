@@ -42,6 +42,12 @@ func (ctx *CreateUserContext) Created(r *Users) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateUserContext) BadRequest(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
 // GetUserContext provides the user get action context.
 type GetUserContext struct {
 	context.Context
