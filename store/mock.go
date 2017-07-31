@@ -1,38 +1,39 @@
 package store
 
 import (
-	"sync"
 	"errors"
-	"user-microservice/app"
+	"sync"
+
+	"github.com/JormungandrK/user-microservice/app"
 	"gopkg.in/mgo.v2/bson"
 )
 
 // DB emulates a database driver using in-memory data structures.
 type DB struct {
 	sync.Mutex
-	users		map[string]*UserModel
+	users map[string]*UserModel
 }
 
 // UserModel is the database "users" for users
 type UserModel struct {
-	Active bool 
-	Email string 
-	ExternalID string 
-	ID string
-	Roles []string 
-	Username string 
+	Active     bool
+	Email      string
+	ExternalID string
+	ID         string
+	Roles      []string
+	Username   string
 }
 
 // NewDB initializes a new "DB" with dummy data.
 func NewDB() *DB {
 	roles := []string{"admin", "user"}
 	user := &UserModel{
-		Active: false,
-		Email: "frieda@oberbrunnerkirlin.name",
+		Active:     false,
+		Email:      "frieda@oberbrunnerkirlin.name",
 		ExternalID: "qwerc461f9f8eb02aae053f3",
-		ID: "5975c461f9f8eb02aae053f3",
-		Roles: roles,
-		Username: "User1",
+		ID:         "5975c461f9f8eb02aae053f3",
+		Roles:      roles,
+		Username:   "User1",
 	}
 	return &DB{users: map[string]*UserModel{"5975c461f9f8eb02aae053f3": user}}
 }
@@ -58,7 +59,7 @@ func (db *DB) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
 		mediaType.Username = user.Username
 	} else {
 		err := errors.New("Cannot retrieve collection by Id")
-		return err				
+		return err
 	}
 
 	return nil

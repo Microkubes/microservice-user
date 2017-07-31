@@ -1,17 +1,16 @@
 package store
 
 import (
-	"user-microservice/app"
+	"github.com/JormungandrK/user-microservice/app"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
 )
 
 const (
-    Host     = "127.0.0.1:27017"
-    Username = "restapi"
-    Password = "restapi"
-    Database = "users"
+	Host     = "127.0.0.1:27017"
+	Username = "restapi"
+	Password = "restapi"
+	Database = "users"
 )
 
 type Collection interface {
@@ -37,7 +36,7 @@ func NewSession() *mgo.Session {
 	// SetMode - consistency mode for the session.
 	session.SetMode(mgo.Monotonic, true)
 
-	return session 
+	return session
 }
 
 // PrepareDB ensure presence of persistent and immutable data in the DB.

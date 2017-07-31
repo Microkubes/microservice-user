@@ -1,8 +1,8 @@
 package main
 
 import (
-	"user-microservice/app"
-	"user-microservice/store"
+	"github.com/JormungandrK/user-microservice/app"
+	"github.com/JormungandrK/user-microservice/store"
 
 	"github.com/goadesign/goa"
 	"gopkg.in/mgo.v2/bson"

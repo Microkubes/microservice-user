@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=user-microservice/design
-// --out=$(GOPATH)/src/user-microservice
+// --design=github.com/JormungandrK/user-microservice/design
+// --out=$(GOPATH)/src/github.com/JormungandrK/user-microservice
 // --version=v1.2.0-dirty
 
 package client
