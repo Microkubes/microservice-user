@@ -11,6 +11,7 @@ import (
 type Collection interface {
 	FindByID(id bson.ObjectId, mediaType *app.Users) error
 	Insert(docs ...interface{}) error
+	Update(selector interface{}, update interface{}) error
 }
 
 // MongoCollection wraps a mgo.Collection to embed methods in models.
