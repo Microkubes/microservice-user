@@ -1,13 +1,15 @@
 package main
 
 import (
+	"github.com/JormungandrK/user-microservice/app"
+	"github.com/JormungandrK/user-microservice/store"
+
 	"time"
-	"user-microservice/app"
-	"user-microservice/store"
+
 	"github.com/goadesign/goa"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // UserController implements the user resource.
@@ -19,7 +21,7 @@ type UserController struct {
 // NewUserController creates a user controller.
 func NewUserController(service *goa.Service, usersCollection store.Collection) *UserController {
 	return &UserController{
-		Controller: service.NewController("UserController"),
+		Controller:      service.NewController("UserController"),
 		usersCollection: usersCollection,
 	}
 }
@@ -32,18 +34,18 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	if err != nil {
 		return err
 	}
- 
+
 	// Insert Data
 	id := bson.NewObjectIdWithTime(time.Now())
 	err = c.usersCollection.Insert(bson.M{
-		"_id": id, 
-		"username": ctx.Payload.Username,
-		"email": ctx.Payload.Email,
-		"password": string(hashedPassword),
+		"_id":        id,
+		"username":   ctx.Payload.Username,
+		"email":      ctx.Payload.Email,
+		"password":   string(hashedPassword),
 		"externalId": ctx.Payload.ExternalID,
-		"roles": ctx.Payload.Roles,
+		"roles":      ctx.Payload.Roles,
 	})
-	
+
 	// Handle errors
 	if err != nil {
 		if mgo.IsDup(err) {
@@ -51,14 +53,14 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		}
 		return err
 	}
-	
+
 	// Define user media type
-	py := &app.Users {
-		ID:			id.Hex(),
-		Username:	ctx.Payload.Username,
-		Email:		ctx.Payload.Email,
-		ExternalID:	ctx.Payload.ExternalID,
-		Roles:		ctx.Payload.Roles,
+	py := &app.Users{
+		ID:         id.Hex(),
+		Username:   ctx.Payload.Username,
+		Email:      ctx.Payload.Email,
+		ExternalID: ctx.Payload.ExternalID,
+		Roles:      ctx.Payload.Roles,
 	}
 
 	return ctx.Created(py)
@@ -74,7 +76,7 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
 	}
 
-	// Return an ObjectId from the provided hex representation. 
+	// Return an ObjectId from the provided hex representation.
 	userID := bson.ObjectIdHex(ctx.UserID)
 
 	// Return true if userID is valid. A valid userID must contain exactly 12 bytes.
@@ -88,7 +90,7 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 	}
 
 	res.ID = ctx.UserID
-	
+
 	return ctx.OK(res)
 }
 
