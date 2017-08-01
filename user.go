@@ -9,6 +9,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"golang.org/x/crypto/bcrypt"
 	"fmt"
+	"reflect"
 )
 
 // UserController implements the user resource.
@@ -123,22 +124,21 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 
 // Update runs the update action.
 func (c *UserController) Update(ctx *app.UpdateUserContext) error {
-	payload := ctx.Payload
-	fmt.Println(payload)
-
 	email    :=  ctx.Payload.Email
 	password := ctx.Payload.Password
 	roles    := ctx.Payload.Roles
 	username := ctx.Payload.Username
 	id       := ctx.UserID
 
-	err := c.usersCollection.Update(bson.M{"_id": id}, bson.M{"$set": bson.M{"username": username, "roles": roles, "password": password, "email": email}})
-
+	// Update
+	docId := bson.M{"_id":  bson.ObjectIdHex(id)}
+	change := bson.M{"$set": bson.M{"username": username, "roles": roles, "password": password, "email": email}}
+	
+	err := c.usersCollection.Update(docId, change)
 	if err != nil {
 		return err
 	}
 
 	res := &app.Users{}
 	return ctx.OK(res)
-
 }
