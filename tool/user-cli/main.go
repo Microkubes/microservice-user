@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	goaclient "github.com/goadesign/goa/client"
-	"github.com/spf13/cobra"
 	"net/http"
 	"os"
 	"time"
-	"user-microservice/client"
-	"user-microservice/tool/cli"
+
+	"github.com/JormungandrK/user-microservice/client"
+	"github.com/JormungandrK/user-microservice/tool/cli"
+	goaclient "github.com/goadesign/goa/client"
+	"github.com/spf13/cobra"
 )
 
 func main() {

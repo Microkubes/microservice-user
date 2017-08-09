@@ -4,10 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"user-microservice/app"
-	"user-microservice/app/test"
-	"user-microservice/store"
-
+	"github.com/JormungandrK/user-microservice/app"
+	"github.com/JormungandrK/user-microservice/app/test"
+	"github.com/JormungandrK/user-microservice/store"
 	"github.com/goadesign/goa"
 )
 
@@ -83,5 +82,8 @@ func TestUpdateUserOK(t *testing.T) {
 		ExternalID: "qwerc461f9f8eb02aae053f3",
 		Roles:      roles,
 	}
-	_, users := test.UpdateUserOK(t, ctx, service, ctrl, HexObjectId, userPayload)
+	_, users := test.UpdateUserOK(t, context.Background(), service, ctrl, HexObjectId, userPayload)
+	if users == nil {
+		t.Fatal("Expected the update user data.")
+	}
 }

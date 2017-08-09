@@ -2,9 +2,10 @@ package store
 
 import (
 	"time"
+
+	"github.com/JormungandrK/user-microservice/app"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"user-microservice/app"
 )
 
 // Collection is an interface to access to the collection struct.
@@ -35,7 +36,7 @@ func NewSession(Host string, Username string, Password string, Database string) 
 	// SetMode - consistency mode for the session.
 	session.SetMode(mgo.Monotonic, true)
 
-	return session 
+	return session
 }
 
 // PrepareDB ensure presence of persistent and immutable data in the DB.
@@ -45,7 +46,7 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 
 	// Define indexes
 	for _, elem := range indexes {
-		i := []string{elem}	
+		i := []string{elem}
 		index := mgo.Index{
 			Key:        i,
 			Unique:     true,
@@ -57,7 +58,7 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 		// Create indexes
 		if err := collection.EnsureIndex(index); err != nil {
 			panic(err)
-		}		
+		}
 	}
 
 	return collection
