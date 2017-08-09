@@ -62,7 +62,5 @@ func (db *DB) Insert(docs ...interface{}) error {
 }
 
 func (db *DB) Update(selector interface{}, update interface{}) error {
-	print(selector)
-	print(update)
 	return nil
 }

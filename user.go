@@ -142,7 +142,7 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 	res := &app.Users{}
 
 	if err = c.usersCollection.FindByID(bson.ObjectIdHex(id), res); err != nil {
-		return ctx.Err()
+		return ctx.NotFound()
 	}
 	return ctx.OK(res)
 }

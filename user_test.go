@@ -15,6 +15,7 @@ var (
 	db              = store.NewDB()
 	ctrl            = NewUserController(service, db)
 	HexObjectId     = "5975c461f9f8eb02aae053f3"
+	DiffHexObjectId = "6975c461f9f8eb02aae053f3"
 	FakeHexObjectId = "fakeobjectidab02aae053f3"
 )
 
@@ -60,7 +61,7 @@ func TestCreateUserOK(t *testing.T) {
 	userPayload := &app.UserPayload{
 		Username:   "username",
 		Password:   "password",
-		Email:      "examlple@some.com",
+		Email:      "example@some.com",
 		ExternalID: "qwerc461f9f8eb02aae053f3",
 		Roles:      roles,
 	}
@@ -78,7 +79,7 @@ func TestUpdateUserOK(t *testing.T) {
 	userPayload := &app.UserPayload{
 		Username:   "username",
 		Password:   "password",
-		Email:      "examlple@some.com",
+		Email:      "example@some.com",
 		ExternalID: "qwerc461f9f8eb02aae053f3",
 		Roles:      roles,
 	}
@@ -86,4 +87,17 @@ func TestUpdateUserOK(t *testing.T) {
 	if users == nil {
 		t.Fatal("Expected the update user data.")
 	}
+}
+
+func TestUpdateUserNotFound(t *testing.T) {
+	roles := []string{"admin", "user"}
+	userPayload := &app.UserPayload{
+		Username:   "username",
+		Password:   "password",
+		Email:      "example@some.com",
+		ExternalID: "qwerc461f9f8eb02aae053f3",
+		Roles:      roles,
+	}
+	
+	test.UpdateUserNotFound(t, context.Background(), service, ctrl, DiffHexObjectId, userPayload)
 }
