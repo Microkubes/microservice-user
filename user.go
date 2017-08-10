@@ -124,11 +124,25 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 
 // Update runs the update action.
 func (c *UserController) Update(ctx *app.UpdateUserContext) error {
-	// UserController_Update: start_implement
+	email := ctx.Payload.Email
+	password := ctx.Payload.Password
+	roles := ctx.Payload.Roles
+	username := ctx.Payload.Username
+	id := ctx.UserID
 
-	// Put your logic here
+	// Update
+	docID := bson.M{"_id": bson.ObjectIdHex(id)}
+	change := bson.M{"$set": bson.M{"username": username, "roles": roles, "password": password, "email": email}}
 
-	// UserController_Update: end_implement
+	err := c.usersCollection.Update(docID, change)
+	if err != nil {
+		return err
+	}
+
 	res := &app.Users{}
+
+	if err = c.usersCollection.FindByID(bson.ObjectIdHex(id), res); err != nil {
+		return ctx.NotFound()
+	}
 	return ctx.OK(res)
 }

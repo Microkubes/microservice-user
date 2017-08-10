@@ -45,14 +45,14 @@ func main() {
 	defer session.Close()
 
 	// Create users collection and indexes
-	indexes :=  []string{"username", "email"}
+	indexes := []string{"username", "email"}
 	usersCollection := store.PrepareDB(session, database, "users", indexes)
 
 	// Mount "swagger" controller
 	c1 := NewSwaggerController(service)
 	app.MountSwaggerController(service, c1)
 	// Mount "user" controller
-	c2 := NewUserController(service, &store.MongoCollection{usersCollection})
+	c2 := NewUserController(service, &store.MongoCollection{Collection: usersCollection})
 	app.MountUserController(service, c2)
 
 	// Start service
@@ -62,25 +62,25 @@ func main() {
 }
 
 func loadMongnoSettings() (string, string, string, string) {
-	host     := os.Getenv("MONGO_URL")
-    username := os.Getenv("MS_USERNAME")
-    password := os.Getenv("MS_PASSWORD")
-    database := os.Getenv("MS_DBNAME")
+	host := os.Getenv("MONGO_URL")
+	username := os.Getenv("MS_USERNAME")
+	password := os.Getenv("MS_PASSWORD")
+	database := os.Getenv("MS_DBNAME")
 
-    if host == "" {
-    	host = "127.0.0.1:27017"
-    }
-    if username == "" {
-    	username = "restapi"
-    }
-    if password == "" {
-    	password = "restapi"
-    }
-    if database == "" {
-    	database = "users"
-    }
+	if host == "" {
+		host = "127.0.0.1:27017"
+	}
+	if username == "" {
+		username = "restapi"
+	}
+	if password == "" {
+		password = "restapi"
+	}
+	if database == "" {
+		database = "users"
+	}
 
-    return host, username, password, database
+	return host, username, password, database
 }
 
 func loadGatewaySettings() (string, string) {

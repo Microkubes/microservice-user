@@ -35,11 +35,11 @@ func (db *DB) Reset() {
 }
 
 // FindByID mock implementation
-func (db *DB) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
+func (db *DB) FindByID(objectID bson.ObjectId, mediaType *app.Users) error {
 	db.Lock()
 	defer db.Unlock()
 
-	id := objectId.Hex()
+	id := objectID.Hex()
 
 	if user, ok := db.users[id]; ok {
 		mediaType.ID = id
@@ -58,5 +58,10 @@ func (db *DB) FindByID(objectId bson.ObjectId, mediaType *app.Users) error {
 
 // Insert mock implementation
 func (db *DB) Insert(docs ...interface{}) error {
+	return nil
+}
+
+// Update mock implementation
+func (db *DB) Update(selector interface{}, update interface{}) error {
 	return nil
 }
