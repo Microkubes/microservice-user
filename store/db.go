@@ -64,7 +64,7 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 	return collection
 }
 
-// Find collection by Id in hex representation - real database
+// FindByID collection by Id in hex representation - real database
 func (c *MongoCollection) FindByID(objectID bson.ObjectId, mediaType *app.Users) error {
 	// Return one user by id.
 	if err := c.FindId(objectID).One(&mediaType); err != nil {

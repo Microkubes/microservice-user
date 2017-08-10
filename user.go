@@ -131,10 +131,10 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 	id := ctx.UserID
 
 	// Update
-	docId := bson.M{"_id": bson.ObjectIdHex(id)}
+	docID := bson.M{"_id": bson.ObjectIdHex(id)}
 	change := bson.M{"$set": bson.M{"username": username, "roles": roles, "password": password, "email": email}}
 
-	err := c.usersCollection.Update(docId, change)
+	err := c.usersCollection.Update(docID, change)
 	if err != nil {
 		return err
 	}
