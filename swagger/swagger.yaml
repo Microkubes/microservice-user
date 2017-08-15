@@ -274,6 +274,46 @@ paths:
       summary: update user
       tags:
       - user
+  /users/find:
+    post:
+      description: Find a user by username+password
+      operationId: user#find
+      parameters:
+      - description: Password
+        in: query
+        name: password
+        required: false
+        type: string
+      - description: Username
+        in: query
+        name: username
+        pattern: ^([a-zA-Z0-9@]{4,30})$
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.user+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: find user
+      tags:
+      - user
   /users/me:
     get:
       description: Retrieves the user information for the authenticated user

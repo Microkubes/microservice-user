@@ -13,6 +13,7 @@ type Collection interface {
 	FindByID(id bson.ObjectId, mediaType *app.Users) error
 	Insert(docs ...interface{}) error
 	Update(selector interface{}, update interface{}) error
+	FindByUsernameAndPassword(username, password string) (*app.Users, error)
 }
 
 // MongoCollection wraps a mgo.Collection to embed methods in models.
@@ -72,4 +73,17 @@ func (c *MongoCollection) FindByID(objectID bson.ObjectId, mediaType *app.Users)
 	}
 
 	return nil
+}
+
+func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
+	query := bson.M{"username": bson.M{"$eq": username}}
+	user := &app.Users{}
+	err := c.Collection.Find(query).Limit(1).One(user)
+	if err != nil {
+		return nil, err
+	}
+	if user.Username == "" {
+		return nil, nil
+	}
+	return user, nil
 }

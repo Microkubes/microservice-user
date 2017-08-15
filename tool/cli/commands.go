@@ -36,6 +36,15 @@ type (
 		PrettyPrint bool
 	}
 
+	// FindUserCommand is the command line data structure for the find action of user
+	FindUserCommand struct {
+		// Password
+		Password string
+		// Username
+		Username    string
+		PrettyPrint bool
+	}
+
 	// GetUserCommand is the command line data structure for the get action of user
 	GetUserCommand struct {
 		// User ID
@@ -100,12 +109,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get",
-		Short: `Get user by id`,
+		Use:   "find",
+		Short: `Find a user by username+password`,
 	}
-	tmp2 := new(GetUserCommand)
+	tmp2 := new(FindUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/USERID"]`,
+		Use:   `user ["/users/find"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -114,12 +123,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get-me",
-		Short: `Retrieves the user information for the authenticated user`,
+		Use:   "get",
+		Short: `Get user by id`,
 	}
-	tmp3 := new(GetMeUserCommand)
+	tmp3 := new(GetUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/me"]`,
+		Use:   `user ["/users/USERID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -128,10 +137,24 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "get-me",
+		Short: `Retrieves the user information for the authenticated user`,
+	}
+	tmp4 := new(GetMeUserCommand)
+	sub = &cobra.Command{
+		Use:   `user ["/users/me"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+	}
+	tmp4.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "update",
 		Short: `Update user`,
 	}
-	tmp4 := new(UpdateUserCommand)
+	tmp5 := new(UpdateUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/USERID"]`,
 		Short: ``,
@@ -151,10 +174,10 @@ Payload example:
    ],
    "username": "ApPq"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
-	tmp4.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp5.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -401,6 +424,34 @@ func (cmd *CreateUserCommand) Run(c *client.Client, args []string) error {
 func (cmd *CreateUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
+// Run makes the HTTP request corresponding to the FindUserCommand command.
+func (cmd *FindUserCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/users/find"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.FindUser(ctx, path, stringFlagVal("password", cmd.Password), stringFlagVal("username", cmd.Username))
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *FindUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var password string
+	cc.Flags().StringVar(&cmd.Password, "password", password, `Password`)
+	var username string
+	cc.Flags().StringVar(&cmd.Username, "username", username, `Username`)
 }
 
 // Run makes the HTTP request corresponding to the GetUserCommand command.

@@ -59,6 +59,7 @@ func MountSwaggerController(service *goa.Service, ctrl SwaggerController) {
 type UserController interface {
 	goa.Muxer
 	Create(*CreateUserContext) error
+	Find(*FindUserContext) error
 	Get(*GetUserContext) error
 	GetMe(*GetMeUserContext) error
 	Update(*UpdateUserContext) error
@@ -89,6 +90,21 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	}
 	service.Mux.Handle("POST", "/users/", ctrl.MuxHandler("create", h, unmarshalCreateUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "Create", "route", "POST /users/")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewFindUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Find(rctx)
+	}
+	service.Mux.Handle("POST", "/users/find", ctrl.MuxHandler("find", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "Find", "route", "POST /users/find")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

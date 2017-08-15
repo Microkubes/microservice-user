@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/JormungandrK/user-microservice/app"
 	"github.com/JormungandrK/user-microservice/store"
 
@@ -145,4 +147,23 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 		return ctx.NotFound()
 	}
 	return ctx.OK(res)
+}
+
+func (c *UserController) Find(ctx *app.FindUserContext) error {
+
+	if ctx.Username == nil || ctx.Password == nil {
+		return ctx.BadRequest(fmt.Errorf("Username and password required"))
+	}
+
+	user, err := c.usersCollection.FindByUsernameAndPassword(*ctx.Username, *ctx.Password)
+
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	if user == nil {
+		return ctx.NotFound()
+	}
+
+	return ctx.OK(user)
 }

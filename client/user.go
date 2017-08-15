@@ -61,6 +61,43 @@ func (c *Client) NewCreateUserRequest(ctx context.Context, path string, payload 
 	return req, nil
 }
 
+// FindUserPath computes a request path to the find action of user.
+func FindUserPath() string {
+
+	return fmt.Sprintf("/users/find")
+}
+
+// Find a user by username+password
+func (c *Client) FindUser(ctx context.Context, path string, password *string, username *string) (*http.Response, error) {
+	req, err := c.NewFindUserRequest(ctx, path, password, username)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewFindUserRequest create the request corresponding to the find action endpoint of the user resource.
+func (c *Client) NewFindUserRequest(ctx context.Context, path string, password *string, username *string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	if password != nil {
+		values.Set("password", *password)
+	}
+	if username != nil {
+		values.Set("username", *username)
+	}
+	u.RawQuery = values.Encode()
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
 // GetUserPath computes a request path to the get action of user.
 func GetUserPath(userID string) string {
 	param0 := userID
