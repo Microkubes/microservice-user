@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/JormungandrK/user-microservice/app"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -76,14 +77,19 @@ func (c *MongoCollection) FindByID(objectID bson.ObjectId, mediaType *app.Users)
 }
 
 func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
-	query := bson.M{"username": bson.M{"$eq": username}}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	query := bson.M{"username": bson.M{"$eq": username}, "password": bson.M{"$eq": hashedPassword}}
 	user := &app.Users{}
-	err := c.Collection.Find(query).Limit(1).One(user)
+	err = c.Collection.Find(query).Limit(1).One(user)
 	if err != nil {
 		return nil, err
 	}
 	if user.Username == "" {
 		return nil, nil
 	}
+
 	return user, nil
 }
