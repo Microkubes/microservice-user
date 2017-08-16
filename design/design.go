@@ -63,10 +63,7 @@ var _ = Resource("user", func() {
 	Action("find", func() {
 		Description("Find a user by username+password")
 		Routing(POST("find"))
-		Params(func() {
-			Param("username", String, "Username")
-			Param("password", String, "Password")
-		})
+		Payload(CredentialsPayload)
 		Response(OK, UserMedia)
 		Response(NotFound)
 		Response(BadRequest, ErrorMedia)
@@ -120,6 +117,18 @@ var UserPayload = Type("UserPayload", func() {
 	})
 
 	Required("username", "email", "password", "roles", "externalId")
+})
+
+var CredentialsPayload = Type("Credentials", func() {
+	Description("Username and password credentials")
+	Attribute("username", String, "Name of user", func() {
+		Pattern("^([a-zA-Z0-9@]{4,30})$")
+	})
+	Attribute("password", String, "Password of user", func() {
+		MinLength(6)
+		MaxLength(30)
+	})
+	Required("username", "password")
 })
 
 // Swagger UI

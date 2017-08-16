@@ -179,11 +179,11 @@ func CreateUserCreated(t goatest.TInterface, ctx context.Context, service *goa.S
 	return rw, mt
 }
 
-// FindUserBadRequest runs the method Find of the given controller with the given parameters.
+// FindUserBadRequest runs the method Find of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func FindUserBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, password *string, username *string) (http.ResponseWriter, error) {
+func FindUserBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, payload *app.Credentials) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -201,58 +201,51 @@ func FindUserBadRequest(t goatest.TInterface, ctx context.Context, service *goa.
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		return nil, e
+	}
+
 	// Setup request context
 	rw := httptest.NewRecorder()
-	query := url.Values{}
-	if password != nil {
-		sliceVal := []string{*password}
-		query["password"] = sliceVal
-	}
-	if username != nil {
-		sliceVal := []string{*username}
-		query["username"] = sliceVal
-	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users/find"),
-		RawQuery: query.Encode(),
+		Path: fmt.Sprintf("/users/find"),
 	}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
+	req, _err := http.NewRequest("POST", u.String(), nil)
+	if _err != nil {
+		panic("invalid test " + _err.Error()) // bug
 	}
 	prms := url.Values{}
-	if password != nil {
-		sliceVal := []string{*password}
-		prms["password"] = sliceVal
-	}
-	if username != nil {
-		sliceVal := []string{*username}
-		prms["username"] = sliceVal
-	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "UserTest"), rw, req, prms)
-	findCtx, _err := app.NewFindUserContext(goaCtx, req, service)
-	if _err != nil {
-		panic("invalid test data " + _err.Error()) // bug
+	findCtx, __err := app.NewFindUserContext(goaCtx, req, service)
+	if __err != nil {
+		panic("invalid test data " + __err.Error()) // bug
 	}
+	findCtx.Payload = payload
 
 	// Perform action
-	_err = ctrl.Find(findCtx)
+	__err = ctrl.Find(findCtx)
 
 	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
 	}
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
 	}
 	var mt error
 	if resp != nil {
-		var ok bool
-		mt, ok = resp.(error)
-		if !ok {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
 			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
 		}
 	}
@@ -261,11 +254,11 @@ func FindUserBadRequest(t goatest.TInterface, ctx context.Context, service *goa.
 	return rw, mt
 }
 
-// FindUserInternalServerError runs the method Find of the given controller with the given parameters.
+// FindUserInternalServerError runs the method Find of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func FindUserInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, password *string, username *string) (http.ResponseWriter, error) {
+func FindUserInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, payload *app.Credentials) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -283,58 +276,51 @@ func FindUserInternalServerError(t goatest.TInterface, ctx context.Context, serv
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		return nil, e
+	}
+
 	// Setup request context
 	rw := httptest.NewRecorder()
-	query := url.Values{}
-	if password != nil {
-		sliceVal := []string{*password}
-		query["password"] = sliceVal
-	}
-	if username != nil {
-		sliceVal := []string{*username}
-		query["username"] = sliceVal
-	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users/find"),
-		RawQuery: query.Encode(),
+		Path: fmt.Sprintf("/users/find"),
 	}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
+	req, _err := http.NewRequest("POST", u.String(), nil)
+	if _err != nil {
+		panic("invalid test " + _err.Error()) // bug
 	}
 	prms := url.Values{}
-	if password != nil {
-		sliceVal := []string{*password}
-		prms["password"] = sliceVal
-	}
-	if username != nil {
-		sliceVal := []string{*username}
-		prms["username"] = sliceVal
-	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "UserTest"), rw, req, prms)
-	findCtx, _err := app.NewFindUserContext(goaCtx, req, service)
-	if _err != nil {
-		panic("invalid test data " + _err.Error()) // bug
+	findCtx, __err := app.NewFindUserContext(goaCtx, req, service)
+	if __err != nil {
+		panic("invalid test data " + __err.Error()) // bug
 	}
+	findCtx.Payload = payload
 
 	// Perform action
-	_err = ctrl.Find(findCtx)
+	__err = ctrl.Find(findCtx)
 
 	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
 	}
 	if rw.Code != 500 {
 		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
 	}
 	var mt error
 	if resp != nil {
-		var ok bool
-		mt, ok = resp.(error)
-		if !ok {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
 			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
 		}
 	}
@@ -343,11 +329,11 @@ func FindUserInternalServerError(t goatest.TInterface, ctx context.Context, serv
 	return rw, mt
 }
 
-// FindUserNotFound runs the method Find of the given controller with the given parameters.
+// FindUserNotFound runs the method Find of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func FindUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, password *string, username *string) http.ResponseWriter {
+func FindUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, payload *app.Credentials) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -365,49 +351,43 @@ func FindUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Se
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
 	// Setup request context
 	rw := httptest.NewRecorder()
-	query := url.Values{}
-	if password != nil {
-		sliceVal := []string{*password}
-		query["password"] = sliceVal
-	}
-	if username != nil {
-		sliceVal := []string{*username}
-		query["username"] = sliceVal
-	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users/find"),
-		RawQuery: query.Encode(),
+		Path: fmt.Sprintf("/users/find"),
 	}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
+	req, _err := http.NewRequest("POST", u.String(), nil)
+	if _err != nil {
+		panic("invalid test " + _err.Error()) // bug
 	}
 	prms := url.Values{}
-	if password != nil {
-		sliceVal := []string{*password}
-		prms["password"] = sliceVal
-	}
-	if username != nil {
-		sliceVal := []string{*username}
-		prms["username"] = sliceVal
-	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "UserTest"), rw, req, prms)
-	findCtx, _err := app.NewFindUserContext(goaCtx, req, service)
-	if _err != nil {
-		panic("invalid test data " + _err.Error()) // bug
+	findCtx, __err := app.NewFindUserContext(goaCtx, req, service)
+	if __err != nil {
+		panic("invalid test data " + __err.Error()) // bug
 	}
+	findCtx.Payload = payload
 
 	// Perform action
-	_err = ctrl.Find(findCtx)
+	__err = ctrl.Find(findCtx)
 
 	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
 	}
 	if rw.Code != 404 {
 		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
@@ -417,11 +397,11 @@ func FindUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Se
 	return rw
 }
 
-// FindUserOK runs the method Find of the given controller with the given parameters.
+// FindUserOK runs the method Find of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func FindUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, password *string, username *string) (http.ResponseWriter, *app.Users) {
+func FindUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, payload *app.Credentials) (http.ResponseWriter, *app.Users) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -439,63 +419,57 @@ func FindUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service,
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil, nil
+	}
+
 	// Setup request context
 	rw := httptest.NewRecorder()
-	query := url.Values{}
-	if password != nil {
-		sliceVal := []string{*password}
-		query["password"] = sliceVal
-	}
-	if username != nil {
-		sliceVal := []string{*username}
-		query["username"] = sliceVal
-	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users/find"),
-		RawQuery: query.Encode(),
+		Path: fmt.Sprintf("/users/find"),
 	}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
+	req, _err := http.NewRequest("POST", u.String(), nil)
+	if _err != nil {
+		panic("invalid test " + _err.Error()) // bug
 	}
 	prms := url.Values{}
-	if password != nil {
-		sliceVal := []string{*password}
-		prms["password"] = sliceVal
-	}
-	if username != nil {
-		sliceVal := []string{*username}
-		prms["username"] = sliceVal
-	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "UserTest"), rw, req, prms)
-	findCtx, _err := app.NewFindUserContext(goaCtx, req, service)
-	if _err != nil {
-		panic("invalid test data " + _err.Error()) // bug
+	findCtx, __err := app.NewFindUserContext(goaCtx, req, service)
+	if __err != nil {
+		panic("invalid test data " + __err.Error()) // bug
 	}
+	findCtx.Payload = payload
 
 	// Perform action
-	_err = ctrl.Find(findCtx)
+	__err = ctrl.Find(findCtx)
 
 	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
 	}
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
 	var mt *app.Users
 	if resp != nil {
-		var ok bool
-		mt, ok = resp.(*app.Users)
-		if !ok {
+		var _ok bool
+		mt, _ok = resp.(*app.Users)
+		if !_ok {
 			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Users", resp, resp)
 		}
-		_err = mt.Validate()
-		if _err != nil {
-			t.Errorf("invalid response media type: %s", _err)
+		__err = mt.Validate()
+		if __err != nil {
+			t.Errorf("invalid response media type: %s", __err)
 		}
 	}
 

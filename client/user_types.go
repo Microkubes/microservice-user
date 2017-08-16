@@ -15,6 +15,80 @@ import (
 	"unicode/utf8"
 )
 
+// Username and password credentials
+type credentials struct {
+	// Password of user
+	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	// Name of user
+	Username *string `form:"username,omitempty" json:"username,omitempty" xml:"username,omitempty"`
+}
+
+// Validate validates the credentials type instance.
+func (ut *credentials) Validate() (err error) {
+	if ut.Username == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "username"))
+	}
+	if ut.Password == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "password"))
+	}
+	if ut.Password != nil {
+		if utf8.RuneCountInString(*ut.Password) < 6 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`response.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 6, true))
+		}
+	}
+	if ut.Password != nil {
+		if utf8.RuneCountInString(*ut.Password) > 30 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`response.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 30, false))
+		}
+	}
+	if ut.Username != nil {
+		if ok := goa.ValidatePattern(`^([a-zA-Z0-9@]{4,30})$`, *ut.Username); !ok {
+			err = goa.MergeErrors(err, goa.InvalidPatternError(`response.username`, *ut.Username, `^([a-zA-Z0-9@]{4,30})$`))
+		}
+	}
+	return
+}
+
+// Publicize creates Credentials from credentials
+func (ut *credentials) Publicize() *Credentials {
+	var pub Credentials
+	if ut.Password != nil {
+		pub.Password = *ut.Password
+	}
+	if ut.Username != nil {
+		pub.Username = *ut.Username
+	}
+	return &pub
+}
+
+// Username and password credentials
+type Credentials struct {
+	// Password of user
+	Password string `form:"password" json:"password" xml:"password"`
+	// Name of user
+	Username string `form:"username" json:"username" xml:"username"`
+}
+
+// Validate validates the Credentials type instance.
+func (ut *Credentials) Validate() (err error) {
+	if ut.Username == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "username"))
+	}
+	if ut.Password == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "password"))
+	}
+	if utf8.RuneCountInString(ut.Password) < 6 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.password`, ut.Password, utf8.RuneCountInString(ut.Password), 6, true))
+	}
+	if utf8.RuneCountInString(ut.Password) > 30 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.password`, ut.Password, utf8.RuneCountInString(ut.Password), 30, false))
+	}
+	if ok := goa.ValidatePattern(`^([a-zA-Z0-9@]{4,30})$`, ut.Username); !ok {
+		err = goa.MergeErrors(err, goa.InvalidPatternError(`response.username`, ut.Username, `^([a-zA-Z0-9@]{4,30})$`))
+	}
+	return
+}
+
 // UserPayload
 type userPayload struct {
 	// Status of user account

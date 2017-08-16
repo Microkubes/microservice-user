@@ -53,8 +53,7 @@ type FindUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Password *string
-	Username *string
+	Payload *Credentials
 }
 
 // NewFindUserContext parses the incoming request URL and body, performs validations and creates the
@@ -66,21 +65,6 @@ func NewFindUserContext(ctx context.Context, r *http.Request, service *goa.Servi
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := FindUserContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramPassword := req.Params["password"]
-	if len(paramPassword) > 0 {
-		rawPassword := paramPassword[0]
-		rctx.Password = &rawPassword
-	}
-	paramUsername := req.Params["username"]
-	if len(paramUsername) > 0 {
-		rawUsername := paramUsername[0]
-		rctx.Username = &rawUsername
-		if rctx.Username != nil {
-			if ok := goa.ValidatePattern(`^([a-zA-Z0-9@]{4,30})$`, *rctx.Username); !ok {
-				err = goa.MergeErrors(err, goa.InvalidPatternError(`username`, *rctx.Username, `^([a-zA-Z0-9@]{4,30})$`))
-			}
-		}
-	}
 	return &rctx, err
 }
 

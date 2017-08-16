@@ -65,3 +65,7 @@ func (db *DB) Insert(docs ...interface{}) error {
 func (db *DB) Update(selector interface{}, update interface{}) error {
 	return nil
 }
+
+func (db *DB) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
+	return nil, nil
+}

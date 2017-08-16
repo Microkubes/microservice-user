@@ -70,6 +70,7 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 
 // Get runs the get action.
 func (c *UserController) Get(ctx *app.GetUserContext) error {
+	println("AJDEEE")
 	// Build the resource using the generated data structure.
 	res := &app.Users{}
 
@@ -149,16 +150,13 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 	return ctx.OK(res)
 }
 
+// Find looks up a user by its username and password. Intended for internal use.
 func (c *UserController) Find(ctx *app.FindUserContext) error {
-
-	if ctx.Username == nil || ctx.Password == nil {
-		return ctx.BadRequest(fmt.Errorf("Username and password required"))
-	}
-
-	user, err := c.usersCollection.FindByUsernameAndPassword(*ctx.Username, *ctx.Password)
+	user, err := c.usersCollection.FindByUsernameAndPassword(ctx.Payload.Username, ctx.Payload.Password)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		fmt.Printf("Failed to find user. Error: %s", err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	if user == nil {

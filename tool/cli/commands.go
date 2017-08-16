@@ -38,10 +38,8 @@ type (
 
 	// FindUserCommand is the command line data structure for the find action of user
 	FindUserCommand struct {
-		// Password
-		Password string
-		// Username
-		Username    string
+		Payload     string
+		ContentType string
 		PrettyPrint bool
 	}
 
@@ -116,7 +114,15 @@ Payload example:
 	sub = &cobra.Command{
 		Use:   `user ["/users/find"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "password": "0arnperc",
+   "username": "wFhMfno"
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
 	tmp2.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
@@ -434,9 +440,16 @@ func (cmd *FindUserCommand) Run(c *client.Client, args []string) error {
 	} else {
 		path = "/users/find"
 	}
+	var payload client.Credentials
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.FindUser(ctx, path, stringFlagVal("password", cmd.Password), stringFlagVal("username", cmd.Username))
+	resp, err := c.FindUser(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -448,10 +461,8 @@ func (cmd *FindUserCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *FindUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var password string
-	cc.Flags().StringVar(&cmd.Password, "password", password, `Password`)
-	var username string
-	cc.Flags().StringVar(&cmd.Username, "username", username, `Username`)
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
 
 // Run makes the HTTP request corresponding to the GetUserCommand command.
