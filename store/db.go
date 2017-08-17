@@ -77,6 +77,8 @@ func (c *MongoCollection) FindByID(objectID bson.ObjectId, mediaType *app.Users)
 	return nil
 }
 
+// FindByUsernameAndPassword looks up a user by its username and password.
+// This is used primarily by other microservices to validate user credentials.
 func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
 	query := bson.M{"username": bson.M{"$eq": username}}
 
