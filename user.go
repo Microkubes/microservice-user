@@ -70,7 +70,6 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 
 // Get runs the get action.
 func (c *UserController) Get(ctx *app.GetUserContext) error {
-	println("AJDEEE")
 	// Build the resource using the generated data structure.
 	res := &app.Users{}
 

@@ -131,10 +131,7 @@ func TestFindUserOK(t *testing.T) {
 		Username: "validuser",
 		Password: "valid-pass",
 	}
-	user, err := test.FindUserOK(t, context.Background(), service, ctrl, payload)
-	if err != nil {
-		t.Fatal(err)
-	}
+	_, user := test.FindUserOK(t, context.Background(), service, ctrl, payload)
 	if user == nil {
 		t.Fatal("Expected user")
 	}
