@@ -116,6 +116,7 @@ func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (
 		ID:         userData["_id"].(bson.ObjectId).Hex(),
 		Roles:      roles,
 		ExternalID: userData["externalId"].(string),
+		Username:   userData["username"].(string),
 	}
 	return user, nil
 }
