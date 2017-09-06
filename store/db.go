@@ -1,9 +1,11 @@
 package store
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/JormungandrK/user-microservice/app"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -13,6 +15,7 @@ type Collection interface {
 	FindByID(id bson.ObjectId, mediaType *app.Users) error
 	Insert(docs ...interface{}) error
 	Update(selector interface{}, update interface{}) error
+	FindByUsernameAndPassword(username, password string) (*app.Users, error)
 }
 
 // MongoCollection wraps a mgo.Collection to embed methods in models.
@@ -72,4 +75,50 @@ func (c *MongoCollection) FindByID(objectID bson.ObjectId, mediaType *app.Users)
 	}
 
 	return nil
+}
+
+// FindByUsernameAndPassword looks up a user by its username and password.
+// This is used primarily by other microservices to validate user credentials.
+func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
+	query := bson.M{"username": bson.M{"$eq": username}}
+
+	userData := map[string]interface{}{}
+	err := c.Collection.Find(query).Limit(1).One(userData)
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, nil
+		}
+		print(reflect.TypeOf(err))
+		return nil, err
+	}
+	if _, ok := userData["username"]; !ok {
+		return nil, nil
+	}
+	if _, ok := userData["password"]; !ok {
+		return nil, nil
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(userData["password"].(string)), []byte(password))
+
+	if err != nil {
+		return nil, nil
+	}
+	active, _ := userData["active"].(bool)
+	roles := []string{}
+	if rolesArr, ok := userData["roles"].([]interface{}); ok {
+		for _, role := range rolesArr {
+			if roleStr, isString := role.(string); isString {
+				roles = append(roles, roleStr)
+			}
+		}
+	}
+	user := &app.Users{
+		Active:     active,
+		Email:      userData["email"].(string),
+		ID:         userData["_id"].(bson.ObjectId).Hex(),
+		Roles:      roles,
+		ExternalID: userData["externalId"].(string),
+		Username:   userData["username"].(string),
+	}
+	return user, nil
 }

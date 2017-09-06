@@ -48,6 +48,50 @@ func (ctx *CreateUserContext) BadRequest(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
 }
 
+// FindUserContext provides the user find action context.
+type FindUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *Credentials
+}
+
+// NewFindUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller find action.
+func NewFindUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*FindUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := FindUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *FindUserContext) OK(r *Users) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.user+json")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *FindUserContext) BadRequest(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *FindUserContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *FindUserContext) InternalServerError(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // GetUserContext provides the user get action context.
 type GetUserContext struct {
 	context.Context

@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/JormungandrK/user-microservice/app"
@@ -64,4 +65,21 @@ func (db *DB) Insert(docs ...interface{}) error {
 // Update mock implementation
 func (db *DB) Update(selector interface{}, update interface{}) error {
 	return nil
+}
+
+func (db *DB) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
+	if username == "validuser" && password == "valid-pass" {
+		return &app.Users{
+			Active:     true,
+			Email:      "email@example.com",
+			ExternalID: "1234",
+			ID:         "000000000000001",
+			Roles:      []string{"user"},
+			Username:   "validuser",
+		}, nil
+	}
+	if username == "internal-error-user" {
+		return nil, fmt.Errorf("Internal server error")
+	}
+	return nil, nil
 }

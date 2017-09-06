@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	println("AJDEE")
 	gatewayURL, configFile := loadGatewaySettings()
 	registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
 	if err != nil {

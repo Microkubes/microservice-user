@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/JormungandrK/user-microservice/app"
 	"github.com/JormungandrK/user-microservice/store"
 
@@ -145,4 +147,20 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 		return ctx.NotFound()
 	}
 	return ctx.OK(res)
+}
+
+// Find looks up a user by its username and password. Intended for internal use.
+func (c *UserController) Find(ctx *app.FindUserContext) error {
+	user, err := c.usersCollection.FindByUsernameAndPassword(ctx.Payload.Username, ctx.Payload.Password)
+
+	if err != nil {
+		fmt.Printf("Failed to find user. Error: %s", err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	if user == nil {
+		return ctx.NotFound()
+	}
+
+	return ctx.OK(user)
 }

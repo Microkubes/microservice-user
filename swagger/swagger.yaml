@@ -4,6 +4,28 @@ consumes:
 - application/gob
 - application/x-gob
 definitions:
+  Credentials:
+    description: Username and password credentials
+    example:
+      password: 0arnperc
+      username: wFhMfno
+    properties:
+      password:
+        description: Password of user
+        example: 0arnperc
+        maxLength: 30
+        minLength: 6
+        type: string
+      username:
+        description: Name of user
+        example: wFhMfno
+        pattern: ^([a-zA-Z0-9@]{4,30})$
+        type: string
+    required:
+    - username
+    - password
+    title: Credentials
+    type: object
   UserPayload:
     description: UserPayload
     example:
@@ -272,6 +294,41 @@ paths:
       schemes:
       - http
       summary: update user
+      tags:
+      - user
+  /users/find:
+    post:
+      description: Find a user by username+password
+      operationId: user#find
+      parameters:
+      - description: Username and password credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/Credentials'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.user+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: find user
       tags:
       - user
   /users/me:

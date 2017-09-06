@@ -101,3 +101,38 @@ func TestUpdateUserNotFound(t *testing.T) {
 
 	test.UpdateUserNotFound(t, context.Background(), service, ctrl, DiffHexObjectID, userPayload)
 }
+
+func TestFindUserBadRequest(t *testing.T) {
+	payload := &app.Credentials{
+		Username: "",
+		Password: "",
+	}
+	test.FindUserBadRequest(t, context.Background(), service, ctrl, payload)
+}
+
+func TestFindUserInternalServerError(t *testing.T) {
+	payload := &app.Credentials{
+		Username: "internal-error-user",
+		Password: "the-pass",
+	}
+	test.FindUserInternalServerError(t, context.Background(), service, ctrl, payload)
+}
+
+func TestFindUserNotFound(t *testing.T) {
+	payload := &app.Credentials{
+		Username: "nonexisting",
+		Password: "the-pass",
+	}
+	test.FindUserNotFound(t, context.Background(), service, ctrl, payload)
+}
+
+func TestFindUserOK(t *testing.T) {
+	payload := &app.Credentials{
+		Username: "validuser",
+		Password: "valid-pass",
+	}
+	_, user := test.FindUserOK(t, context.Background(), service, ctrl, payload)
+	if user == nil {
+		t.Fatal("Expected user")
+	}
+}
