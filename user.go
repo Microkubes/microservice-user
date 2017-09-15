@@ -3,15 +3,10 @@ package main
 import (
 	"fmt"
 
+	"github.com/JormungandrK/microservice-security/auth"
 	"github.com/JormungandrK/user-microservice/app"
 	"github.com/JormungandrK/user-microservice/store"
-
-	"time"
-
 	"github.com/goadesign/goa"
-	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // UserController implements the user resource.
@@ -30,38 +25,31 @@ func NewUserController(service *goa.Service, usersCollection store.Collection) *
 
 // Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
-	// Hashing
-	userPassword := ctx.Payload.Password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
+	id, err := c.usersCollection.CreateUser(ctx.Payload)
 	if err != nil {
-		return err
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 400:
+			return ctx.BadRequest(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
 	}
 
-	// Insert Data
-	id := bson.NewObjectIdWithTime(time.Now())
-	err = c.usersCollection.Insert(bson.M{
-		"_id":        id,
-		"username":   ctx.Payload.Username,
-		"email":      ctx.Payload.Email,
-		"password":   string(hashedPassword),
-		"externalId": ctx.Payload.ExternalID,
-		"roles":      ctx.Payload.Roles,
-	})
-
-	// Handle errors
-	if err != nil {
-		if mgo.IsDup(err) {
-			return ctx.BadRequest(goa.ErrBadRequest(err, "Email or Username already exists in the database"))
-		}
-		return err
+	var externalID string
+	if ctx.Payload.ExternalID == nil {
+		externalID = ""
+	} else {
+		externalID = *ctx.Payload.ExternalID
 	}
 
 	// Define user media type
 	py := &app.Users{
-		ID:         id.Hex(),
+		ID:         *id,
 		Username:   ctx.Payload.Username,
 		Email:      ctx.Payload.Email,
-		ExternalID: ctx.Payload.ExternalID,
+		ExternalID: externalID,
 		Roles:      ctx.Payload.Roles,
 	}
 
@@ -73,22 +61,18 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 	// Build the resource using the generated data structure.
 	res := &app.Users{}
 
-	// Return whether ctx.UserID is a valid hex representation of an ObjectId.
-	if bson.IsObjectIdHex(ctx.UserID) != true {
-		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
-	}
-
-	// Return an ObjectId from the provided hex representation.
-	userID := bson.ObjectIdHex(ctx.UserID)
-
-	// Return true if userID is valid. A valid userID must contain exactly 12 bytes.
-	if userID.Valid() != true {
-		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
-	}
-
 	// Return one user by id.
-	if err := c.usersCollection.FindByID(userID, res); err != nil {
-		return ctx.NotFound(goa.ErrNotFound(err))
+	if err := c.usersCollection.FindByID(ctx.UserID, res); err != nil {
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 400:
+			return ctx.BadRequest(err)
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
 	}
 
 	res.ID = ctx.UserID
@@ -97,55 +81,56 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 }
 
 // GetMe runs the getMe action.
+// Get the userID from the auth ibject and return the authenticated user
 func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
-	// Build the resource using the generated data structure.
+	var authObj *auth.Auth
+
+	hasAuth := auth.HasAuth(ctx)
+
+	if hasAuth {
+		authObj = auth.GetAuth(ctx.Context)
+	} else {
+		return ctx.InternalServerError(goa.ErrInternal("Auth has not been set"))
+	}
+
+	userID := authObj.UserID
 	res := &app.Users{}
 
-	// Return whether ctx.UserID is a valid hex representation of an ObjectId.
-	if bson.IsObjectIdHex(*ctx.UserID) != true {
-		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
-	}
-
-	// Return an ObjectId from the provided hex representation.
-	userID := bson.ObjectIdHex(*ctx.UserID)
-
-	// Return true if userID is valid. A valid userID must contain exactly 12 bytes.
-	if userID.Valid() != true {
-		return ctx.NotFound(goa.ErrNotFound("Invalid Id"))
-	}
-
-	// Return one user by id.
 	if err := c.usersCollection.FindByID(userID, res); err != nil {
-		return ctx.NotFound(goa.ErrNotFound(err))
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 400:
+			return ctx.BadRequest(err)
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
 	}
 
-	res.ID = *ctx.UserID
+	res.ID = userID
 
 	return ctx.OK(res)
 }
 
 // Update runs the update action.
 func (c *UserController) Update(ctx *app.UpdateUserContext) error {
-	email := ctx.Payload.Email
-	password := ctx.Payload.Password
-	roles := ctx.Payload.Roles
-	username := ctx.Payload.Username
-	id := ctx.UserID
+	res, err := c.usersCollection.UpdateUser(ctx.UserID, ctx.Payload)
 
-	// Update
-	docID := bson.M{"_id": bson.ObjectIdHex(id)}
-	change := bson.M{"$set": bson.M{"username": username, "roles": roles, "password": password, "email": email}}
-
-	err := c.usersCollection.Update(docID, change)
 	if err != nil {
-		return err
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 400:
+			return ctx.BadRequest(err)
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
 	}
 
-	res := &app.Users{}
-
-	if err = c.usersCollection.FindByID(bson.ObjectIdHex(id), res); err != nil {
-		return ctx.NotFound()
-	}
 	return ctx.OK(res)
 }
 
@@ -160,6 +145,22 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 
 	if user == nil {
 		return ctx.NotFound()
+	}
+
+	return ctx.OK(user)
+}
+
+func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
+	user, err := c.usersCollection.FindByEmail(ctx.Payload.Email)
+	if err != nil {
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
 	}
 
 	return ctx.OK(user)

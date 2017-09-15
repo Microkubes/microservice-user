@@ -5,17 +5,21 @@ import (
 	"time"
 
 	"github.com/JormungandrK/user-microservice/app"
+	"github.com/goadesign/goa"
+
 	"golang.org/x/crypto/bcrypt"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 // Collection is an interface to access to the collection struct.
 type Collection interface {
-	FindByID(id bson.ObjectId, mediaType *app.Users) error
-	Insert(docs ...interface{}) error
-	Update(selector interface{}, update interface{}) error
+	CreateUser(payload *app.UserPayload) (*string, error)
+	UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error)
+	FindByID(userID string, mediaType *app.Users) error
 	FindByUsernameAndPassword(username, password string) (*app.Users, error)
+	FindByEmail(email string) (*app.Users, error)
 }
 
 // MongoCollection wraps a mgo.Collection to embed methods in models.
@@ -67,11 +71,89 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 	return collection
 }
 
+// CreateUser creates a user if payload is valid, otherwise it returns error
+func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) {
+	if payload.Password == nil && payload.ExternalID == nil {
+		return nil, goa.ErrBadRequest("password or externalID must be specified!")
+	}
+
+	if payload.Password != nil {
+		// Hashing password
+		userPassword := *payload.Password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, goa.ErrInternal(err)
+		}
+		pass := string(hashedPassword)
+		payload.Password = &pass
+	}
+
+	// Insert Data
+	id := bson.NewObjectIdWithTime(time.Now())
+	err := c.Insert(bson.M{
+		"_id":        id,
+		"username":   payload.Username,
+		"email":      payload.Email,
+		"password":   payload.Password,
+		"externalId": payload.ExternalID,
+		"roles":      payload.Roles,
+	})
+
+	// Handle errors
+	if err != nil {
+		if mgo.IsDup(err) {
+			return nil, goa.ErrBadRequest("email or username already exists in the database")
+		}
+		return nil, goa.ErrInternal(err)
+	}
+
+	userID := id.Hex()
+
+	return &userID, nil
+}
+
+func (c *MongoCollection) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error) {
+	objectID, err := hexToObjectID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Update(
+		bson.M{"_id": objectID},
+		bson.M{"$set": payload},
+	)
+
+	if err != nil {
+		if err.Error() == "not found" {
+			return nil, goa.ErrNotFound(err)
+		} else {
+			return nil, goa.ErrInternal(err)
+		}
+	}
+
+	res := &app.Users{}
+
+	if err = c.FindByID(userID, res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 // FindByID collection by Id in hex representation - real database
-func (c *MongoCollection) FindByID(objectID bson.ObjectId, mediaType *app.Users) error {
+func (c *MongoCollection) FindByID(userID string, mediaType *app.Users) error {
+	objectID, err := hexToObjectID(userID)
+	if err != nil {
+		return err
+	}
+
 	// Return one user by id.
 	if err := c.FindId(objectID).One(&mediaType); err != nil {
-		return err
+		if err.Error() == "not found" {
+			return goa.ErrNotFound("user not found")
+		} else {
+			return goa.ErrInternal(err)
+		}
 	}
 
 	return nil
@@ -121,4 +203,57 @@ func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (
 		Username:   userData["username"].(string),
 	}
 	return user, nil
+}
+
+func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
+	query := bson.M{"email": bson.M{"$eq": email}}
+
+	userData := map[string]interface{}{}
+	err := c.Collection.Find(query).Limit(1).One(userData)
+	if err != nil {
+		if err.Error() == "not found" {
+			return nil, goa.ErrNotFound("user not found")
+		} else {
+			return nil, goa.ErrInternal(err)
+		}
+	}
+
+	active, _ := userData["active"].(bool)
+	roles := []string{}
+	if rolesArr, ok := userData["roles"].([]interface{}); ok {
+		for _, role := range rolesArr {
+			if roleStr, isString := role.(string); isString {
+				roles = append(roles, roleStr)
+			}
+		}
+	}
+
+	user := &app.Users{
+		Active:     active,
+		Email:      userData["email"].(string),
+		ID:         userData["_id"].(bson.ObjectId).Hex(),
+		Roles:      roles,
+		ExternalID: userData["externalId"].(string),
+		Username:   userData["username"].(string),
+	}
+
+	return user, nil
+}
+
+// Convert hex representation of object id to bson object id
+func hexToObjectID(hexID string) (bson.ObjectId, error) {
+	// Return whether userID is a valid hex representation of object id.
+	if bson.IsObjectIdHex(hexID) != true {
+		return "", goa.ErrBadRequest("invalid user ID")
+	}
+
+	// Return an ObjectId from the provided hex representation.
+	objectID := bson.ObjectIdHex(hexID)
+
+	// Return true if objectID is valid. A valid objectID must contain exactly 12 bytes.
+	if objectID.Valid() != true {
+		return "", goa.ErrInternal("invalid object ID")
+	}
+
+	return objectID, nil
 }
