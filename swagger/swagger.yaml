@@ -7,18 +7,18 @@ definitions:
   Credentials:
     description: Username and password credentials
     example:
-      password: 0arnperc
-      username: wFhMfno
+      password: 23v789xuu4
+      username: YWZpQ
     properties:
       password:
         description: Password of user
-        example: 0arnperc
+        example: 23v789xuu4
         maxLength: 30
         minLength: 6
         type: string
       username:
         description: Name of user
-        example: wFhMfno
+        example: YWZpQ
         pattern: ^([a-zA-Z0-9@]{4,30})$
         type: string
     required:
@@ -26,18 +26,30 @@ definitions:
     - password
     title: Credentials
     type: object
+  EmailPayload:
+    description: Email payload
+    example:
+      email: lesly.stracke@corwin.biz
+    properties:
+      email:
+        description: Email of user
+        example: lesly.stracke@corwin.biz
+        format: email
+        type: string
+    required:
+    - email
+    title: EmailPayload
+    type: object
   UserPayload:
     description: UserPayload
     example:
       active: true
-      email: brigitte_koepp@ferry.net
-      externalId: Veritatis veniam sed voluptatibus.
-      password: x75md877qp
+      email: lauretta.beer@schneiderterry.biz
+      externalId: Cupiditate cumque quibusdam accusantium et.
+      password: arnpercd
       roles:
       - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      username: ApPq
+      username: 9ifp30qa
     properties:
       active:
         default: false
@@ -46,16 +58,16 @@ definitions:
         type: boolean
       email:
         description: Email of user
-        example: brigitte_koepp@ferry.net
+        example: lauretta.beer@schneiderterry.biz
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Veritatis veniam sed voluptatibus.
+        example: Cupiditate cumque quibusdam accusantium et.
         type: string
       password:
         description: Password of user
-        example: x75md877qp
+        example: arnpercd
         maxLength: 30
         minLength: 6
         type: string
@@ -63,23 +75,20 @@ definitions:
         description: Roles of user
         example:
         - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
         items:
           example: Placeat reprehenderit similique quo.
           type: string
         type: array
       username:
         description: Name of user
-        example: ApPq
-        pattern: ^([a-zA-Z0-9@]{4,30})$
+        example: 9ifp30qa
+        maxLength: 50
+        minLength: 4
         type: string
     required:
     - username
     - email
-    - password
     - roles
-    - externalId
     title: UserPayload
     type: object
   error:
@@ -130,7 +139,7 @@ definitions:
       - Placeat reprehenderit similique quo.
       - Placeat reprehenderit similique quo.
       - Placeat reprehenderit similique quo.
-      username: dkPRrKW
+      username: s5gsubpgbu
     properties:
       active:
         default: false
@@ -162,8 +171,9 @@ definitions:
         type: array
       username:
         description: Name of user
-        example: dkPRrKW
-        pattern: ^([a-zA-Z0-9@]{4,30})$
+        example: s5gsubpgbu
+        maxLength: 50
+        minLength: 4
         type: string
     required:
     - id
@@ -212,7 +222,7 @@ paths:
       schemes:
       - http
       summary: Download swagger/swagger.json
-  /users/:
+  /users:
     post:
       description: Creates user
       operationId: user#create
@@ -226,6 +236,7 @@ paths:
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.user+json
+      - application/vnd.goa.error
       responses:
         "201":
           description: Created
@@ -233,6 +244,10 @@ paths:
             $ref: '#/definitions/users'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/error'
       schemes:
@@ -252,14 +267,24 @@ paths:
         type: string
       produces:
       - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
           description: OK
           schema:
             $ref: '#/definitions/users'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/error'
       schemes:
@@ -283,14 +308,27 @@ paths:
         schema:
           $ref: '#/definitions/UserPayload'
       produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
           description: OK
           schema:
             $ref: '#/definitions/users'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
       schemes:
       - http
       summary: update user
@@ -331,17 +369,19 @@ paths:
       summary: find user
       tags:
       - user
-  /users/me:
-    get:
-      description: Retrieves the user information for the authenticated user
-      operationId: user#getMe
+  /users/find/email:
+    post:
+      description: Find a user by email
+      operationId: user#findByEmail
       parameters:
-      - description: User ID
-        in: query
-        name: userId
-        required: false
-        type: string
+      - description: Email payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/EmailPayload'
       produces:
+      - application/vnd.goa.error
       - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
@@ -351,6 +391,41 @@ paths:
             $ref: '#/definitions/users'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: findByEmail user
+      tags:
+      - user
+  /users/me:
+    get:
+      description: Retrieves the user information for the authenticated user
+      operationId: user#getMe
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.user+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/error'
       schemes:

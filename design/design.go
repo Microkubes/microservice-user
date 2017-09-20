@@ -23,10 +23,11 @@ var _ = Resource("user", func() {
 	// Actions define a single API endpoint
 	Action("create", func() {
 		Description("Creates user")
-		Routing(POST("/"))
+		Routing(POST(""))
 		Payload(UserPayload)
 		Response(Created, UserMedia)
 		Response(BadRequest, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
 	})
 
 	Action("get", func() {
@@ -37,16 +38,17 @@ var _ = Resource("user", func() {
 		})
 		Response(OK)
 		Response(NotFound, ErrorMedia)
+		Response(BadRequest, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
 	})
 
 	Action("getMe", func() {
 		Description("Retrieves the user information for the authenticated user")
 		Routing(GET("/me"))
-		Params(func() {
-			Param("userId", String, "User ID")
-		})
 		Response(OK)
 		Response(NotFound, ErrorMedia)
+		Response(BadRequest, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
 	})
 
 	Action("update", func() {
@@ -56,8 +58,10 @@ var _ = Resource("user", func() {
 			Param("userId", String, "User ID")
 		})
 		Payload(UserPayload)
-		Response(NotFound)
 		Response(OK, UserMedia)
+		Response(NotFound, ErrorMedia)
+		Response(BadRequest, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
 	})
 
 	Action("find", func() {
@@ -67,6 +71,15 @@ var _ = Resource("user", func() {
 		Response(OK, UserMedia)
 		Response(NotFound)
 		Response(BadRequest, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+
+	Action("findByEmail", func() {
+		Description("Find a user by email")
+		Routing(POST("find/email"))
+		Payload(EmailPayload)
+		Response(OK, UserMedia)
+		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
 })
@@ -101,7 +114,8 @@ var UserPayload = Type("UserPayload", func() {
 	Description("UserPayload")
 
 	Attribute("username", String, "Name of user", func() {
-		Pattern("^([a-zA-Z0-9@]{4,30})$")
+		MinLength(4)
+		MaxLength(50)
 	})
 	Attribute("email", String, "Email of user", func() {
 		Format("email")
@@ -116,7 +130,7 @@ var UserPayload = Type("UserPayload", func() {
 		Default(false)
 	})
 
-	Required("username", "email", "password", "roles", "externalId")
+	Required("username", "email", "roles")
 })
 
 var CredentialsPayload = Type("Credentials", func() {
@@ -129,6 +143,14 @@ var CredentialsPayload = Type("Credentials", func() {
 		MaxLength(30)
 	})
 	Required("username", "password")
+})
+
+var EmailPayload = Type("EmailPayload", func() {
+	Description("Email payload")
+	Attribute("email", String, "Email of user", func() {
+		Format("email")
+	})
+	Required("email")
 })
 
 // Swagger UI

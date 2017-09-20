@@ -15,7 +15,6 @@ import (
 )
 
 func main() {
-	println("AJDEE")
 	gatewayURL, configFile := loadGatewaySettings()
 	registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
 	if err != nil {
@@ -57,7 +56,7 @@ func main() {
 	app.MountUserController(service, c2)
 
 	// Start service
-	if err := service.ListenAndServe(":8080"); err != nil {
+	if err := service.ListenAndServe(":8081"); err != nil {
 		service.LogError("startup", "err", err)
 	}
 }
