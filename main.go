@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/JormungandrK/microservice-security/chain"
+	"github.com/JormungandrK/microservice-security/jwt"
 	"github.com/JormungandrK/user-microservice/app"
 
 	"github.com/JormungandrK/microservice-tools/gateway"
@@ -27,6 +29,10 @@ func main() {
 
 	defer registration.Unregister()
 
+	jwtMiddleware := jwt.NewJWTSecurity("keys", app.NewJWTSecurity())
+
+	securityChain := chain.NewSecurityChain()
+	securityChain.AddMiddleware(jwtMiddleware)
 	// Create service
 	service := goa.New("user")
 
@@ -35,6 +41,8 @@ func main() {
 	service.Use(middleware.LogRequest(true))
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
+
+	service.Use(chain.AsGoaMiddleware(securityChain))
 
 	// Load MongoDB ENV variables
 	host, username, password, database := loadMongnoSettings()

@@ -224,7 +224,11 @@ paths:
       summary: Download swagger/swagger.json
   /users:
     post:
-      description: Creates user
+      description: |-
+        Creates user
+
+        Required security scopes:
+          * `api:read`
       operationId: user#create
       parameters:
       - description: UserPayload
@@ -252,12 +256,19 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - jwt:
+        - api:read
       summary: create user
       tags:
       - user
   /users/{userId}:
     get:
-      description: Get user by id
+      description: |-
+        Get user by id
+
+        Required security scopes:
+          * `api:read`
       operationId: user#get
       parameters:
       - description: User ID
@@ -289,11 +300,18 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - jwt:
+        - api:read
       summary: get user
       tags:
       - user
     put:
-      description: Update user
+      description: |-
+        Update user
+
+        Required security scopes:
+          * `api:read`
       operationId: user#update
       parameters:
       - description: User ID
@@ -331,12 +349,19 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - jwt:
+        - api:read
       summary: update user
       tags:
       - user
   /users/find:
     post:
-      description: Find a user by username+password
+      description: |-
+        Find a user by username+password
+
+        Required security scopes:
+          * `api:read`
       operationId: user#find
       parameters:
       - description: Username and password credentials
@@ -366,12 +391,19 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - jwt:
+        - api:read
       summary: find user
       tags:
       - user
   /users/find/email:
     post:
-      description: Find a user by email
+      description: |-
+        Find a user by email
+
+        Required security scopes:
+          * `api:read`
       operationId: user#findByEmail
       parameters:
       - description: Email payload
@@ -399,12 +431,19 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - jwt:
+        - api:read
       summary: findByEmail user
       tags:
       - user
   /users/me:
     get:
-      description: Retrieves the user information for the authenticated user
+      description: |-
+        Retrieves the user information for the authenticated user
+
+        Required security scopes:
+          * `api:read`
       operationId: user#getMe
       produces:
       - application/vnd.goa.error
@@ -430,6 +469,9 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - jwt:
+        - api:read
       summary: getMe user
       tags:
       - user
@@ -447,4 +489,15 @@ responses:
       $ref: '#/definitions/users'
 schemes:
 - http
+securityDefinitions:
+  jwt:
+    description: |2-
+
+
+      **Security Scopes**:
+        * `api:read`: Read API resource
+        * `api:write`: Write API resource
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

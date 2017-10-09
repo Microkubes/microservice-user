@@ -19,6 +19,9 @@ var _ = API("user", func() {
 var _ = Resource("user", func() {
 	BasePath("/users")
 	DefaultMedia(UserMedia)
+	Security(JWT, func() {
+		Scope("api:read")
+	})
 
 	// Actions define a single API endpoint
 	Action("create", func() {
@@ -159,4 +162,10 @@ var _ = Resource("swagger", func() {
 
 	Files("swagger.json", "swagger/swagger.json")
 	Files("swagger-ui/*filepath", "swagger-ui/dist")
+})
+
+var JWT = JWTSecurity("jwt", func() {
+	Header("Authorization")
+	Scope("api:read", "Read API resource")
+	Scope("api:write", "Write API resource")
 })
