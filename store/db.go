@@ -194,6 +194,11 @@ func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (
 			}
 		}
 	}
+
+	if userData["externalId"] == nil {
+		userData["externalId"] = ""
+	}
+
 	user := &app.Users{
 		Active:     active,
 		Email:      userData["email"].(string),
