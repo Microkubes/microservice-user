@@ -58,9 +58,6 @@ func (c *Client) NewCreateUserRequest(ctx context.Context, path string, payload 
 	} else {
 		header.Set("Content-Type", contentType)
 	}
-	if c.JWTSigner != nil {
-		c.JWTSigner.Sign(req)
-	}
 	return req, nil
 }
 
@@ -103,9 +100,6 @@ func (c *Client) NewFindUserRequest(ctx context.Context, path string, payload *C
 		header.Set("Content-Type", "application/json")
 	} else {
 		header.Set("Content-Type", contentType)
-	}
-	if c.JWTSigner != nil {
-		c.JWTSigner.Sign(req)
 	}
 	return req, nil
 }
@@ -150,9 +144,6 @@ func (c *Client) NewFindByEmailUserRequest(ctx context.Context, path string, pay
 	} else {
 		header.Set("Content-Type", contentType)
 	}
-	if c.JWTSigner != nil {
-		c.JWTSigner.Sign(req)
-	}
 	return req, nil
 }
 
@@ -183,9 +174,6 @@ func (c *Client) NewGetUserRequest(ctx context.Context, path string) (*http.Requ
 	if err != nil {
 		return nil, err
 	}
-	if c.JWTSigner != nil {
-		c.JWTSigner.Sign(req)
-	}
 	return req, nil
 }
 
@@ -214,9 +202,6 @@ func (c *Client) NewGetMeUserRequest(ctx context.Context, path string) (*http.Re
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
-	}
-	if c.JWTSigner != nil {
-		c.JWTSigner.Sign(req)
 	}
 	return req, nil
 }
@@ -261,9 +246,6 @@ func (c *Client) NewUpdateUserRequest(ctx context.Context, path string, payload 
 		header.Set("Content-Type", "application/json")
 	} else {
 		header.Set("Content-Type", contentType)
-	}
-	if c.JWTSigner != nil {
-		c.JWTSigner.Sign(req)
 	}
 	return req, nil
 }
