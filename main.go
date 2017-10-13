@@ -5,7 +5,8 @@ import (
 	"os"
 
 	"github.com/JormungandrK/microservice-security/chain"
-	"github.com/JormungandrK/microservice-security/jwt"
+	"github.com/JormungandrK/microservice-security/flow"
+	"github.com/JormungandrK/microservice-tools/config"
 	"github.com/JormungandrK/user-microservice/app"
 
 	"github.com/JormungandrK/microservice-tools/gateway"
@@ -18,10 +19,15 @@ import (
 
 func main() {
 	gatewayURL, configFile := loadGatewaySettings()
-	registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
+
+	serviceConfig, err := config.LoadConfig(configFile)
 	if err != nil {
 		panic(err)
 	}
+
+	//registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
+	registration := gateway.NewKongGateway(gatewayURL, &http.Client{}, serviceConfig.Service)
+
 	err = registration.SelfRegister()
 	if err != nil {
 		panic(err)
@@ -29,10 +35,13 @@ func main() {
 
 	defer registration.Unregister()
 
-	jwtMiddleware := jwt.NewJWTSecurity("keys", app.NewJWTSecurity())
+	securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
+	if err != nil {
+		panic(err)
+	}
 
-	securityChain := chain.NewSecurityChain()
-	securityChain.AddMiddleware(jwtMiddleware)
+	defer cleanup()
+
 	// Create service
 	service := goa.New("user")
 

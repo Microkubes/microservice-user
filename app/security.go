@@ -21,6 +21,18 @@ type (
 	authMiddlewareKey string
 )
 
+// UseOauth2ClientBasicAuthMiddleware mounts the oauth2_client_basic_auth auth middleware onto the service.
+func UseOauth2ClientBasicAuthMiddleware(service *goa.Service, middleware goa.Middleware) {
+	service.Context = context.WithValue(service.Context, authMiddlewareKey("oauth2_client_basic_auth"), middleware)
+}
+
+// NewOauth2ClientBasicAuthSecurity creates a oauth2_client_basic_auth security definition.
+func NewOauth2ClientBasicAuthSecurity() *goa.BasicAuthSecurity {
+	def := goa.BasicAuthSecurity{}
+	def.Description = "Basic auth used by client to make the requests needed to retrieve and refresh access tokens"
+	return &def
+}
+
 // UseJWTMiddleware mounts the jwt auth middleware onto the service.
 func UseJWTMiddleware(service *goa.Service, middleware goa.Middleware) {
 	service.Context = context.WithValue(service.Context, authMiddlewareKey("jwt"), middleware)
@@ -37,6 +49,24 @@ func NewJWTSecurity() *goa.JWTSecurity {
 			"api:write": "Write API resource",
 		},
 	}
+	return &def
+}
+
+// UseOAuth2Middleware mounts the OAuth2 auth middleware onto the service.
+func UseOAuth2Middleware(service *goa.Service, middleware goa.Middleware) {
+	service.Context = context.WithValue(service.Context, authMiddlewareKey("OAuth2"), middleware)
+}
+
+// NewOAuth2Security creates a OAuth2 security definition.
+func NewOAuth2Security() *goa.OAuth2Security {
+	def := goa.OAuth2Security{
+		Flow:             "accessCode",
+		TokenURL:         "http://localhost:8080/oauth2/token",
+		AuthorizationURL: "http://localhost:8080/oauth2/authorize",
+		Scopes: map[string]string{
+			"api:read":  "no description",
+			"api:write": "no description",
+		}}
 	return &def
 }
 
