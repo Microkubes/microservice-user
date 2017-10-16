@@ -4,7 +4,6 @@ package design
 import (
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/apidsl"
-	. "github.com/goadesign/oauth2/design"
 )
 
 // Define default description and default global property values
@@ -161,15 +160,4 @@ var _ = Resource("swagger", func() {
 
 	Files("swagger.json", "swagger/swagger.json")
 	Files("swagger-ui/*filepath", "swagger-ui/dist")
-})
-
-var JWT = JWTSecurity("jwt", func() {
-	Header("Authorization")
-	Scope("api:read", "Read API resource")
-	Scope("api:write", "Write API resource")
-})
-
-var OAuth2Sec = OAuth2("/oauth2/authorize", "/oauth2/token", func() {
-	Scope("api:read")
-	Scope("api:write")
 })
