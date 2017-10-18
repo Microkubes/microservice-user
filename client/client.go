@@ -18,8 +18,11 @@ import (
 // Client is the user service client.
 type Client struct {
 	*goaclient.Client
-	Encoder *goa.HTTPEncoder
-	Decoder *goa.HTTPDecoder
+	Oauth2ClientBasicAuthSigner goaclient.Signer
+	JWTSigner                   goaclient.Signer
+	OAuth2Signer                goaclient.Signer
+	Encoder                     *goa.HTTPEncoder
+	Decoder                     *goa.HTTPDecoder
 }
 
 // New instantiates the client.
@@ -43,4 +46,19 @@ func New(c goaclient.Doer) *Client {
 	client.Decoder.Register(goa.NewJSONDecoder, "*/*")
 
 	return client
+}
+
+// SetOauth2ClientBasicAuthSigner sets the request signer for the oauth2_client_basic_auth security scheme.
+func (c *Client) SetOauth2ClientBasicAuthSigner(signer goaclient.Signer) {
+	c.Oauth2ClientBasicAuthSigner = signer
+}
+
+// SetJWTSigner sets the request signer for the jwt security scheme.
+func (c *Client) SetJWTSigner(signer goaclient.Signer) {
+	c.JWTSigner = signer
+}
+
+// SetOAuth2Signer sets the request signer for the OAuth2 security scheme.
+func (c *Client) SetOAuth2Signer(signer goaclient.Signer) {
+	c.OAuth2Signer = signer
 }

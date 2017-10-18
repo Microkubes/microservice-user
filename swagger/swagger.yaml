@@ -7,12 +7,12 @@ definitions:
   Credentials:
     description: Username and password credentials
     example:
-      password: 23v789xuu4
+      password: 45mlyz
       username: YWZpQ
     properties:
       password:
         description: Password of user
-        example: 23v789xuu4
+        example: 45mlyz
         maxLength: 30
         minLength: 6
         type: string
@@ -29,59 +29,171 @@ definitions:
   EmailPayload:
     description: Email payload
     example:
-      email: lesly.stracke@corwin.biz
+      email: solon@reicherttreutel.org
     properties:
       email:
         description: Email of user
-        example: lesly.stracke@corwin.biz
+        example: solon@reicherttreutel.org
         format: email
         type: string
     required:
     - email
     title: EmailPayload
     type: object
+  OAuth2ErrorMedia:
+    description: OAuth2 error response, see https://tools.ietf.org/html/rfc6749#section-5.2
+      (default view)
+    example:
+      error: invalid_grant
+      error_description: In laudantium quibusdam molestias inventore.
+      error_uri: Et et est qui eaque in corporis.
+    properties:
+      error:
+        description: Error returned by authorization server
+        enum:
+        - invalid_request
+        - invalid_client
+        - invalid_grant
+        - unauthorized_client
+        - unsupported_grant_type
+        example: invalid_grant
+        type: string
+      error_description:
+        description: Human readable ASCII text providing additional information
+        example: In laudantium quibusdam molestias inventore.
+        type: string
+      error_uri:
+        description: A URI identifying a human-readable web page with information
+          about the error
+        example: Et et est qui eaque in corporis.
+        type: string
+    required:
+    - error
+    title: 'Mediatype identifier: application/vnd.goa.example.oauth2.error+json; view=default'
+    type: object
+  TokenMedia:
+    description: OAuth2 access token request successful response, see https://tools.ietf.org/html/rfc6749#section-5.1
+      (default view)
+    example:
+      access_token: Eos magnam fugit.
+      expires_in: 9.096471e+18
+      refresh_token: Aliquid ex.
+      scope: Minima ea atque pariatur.
+      token_type: Sit culpa perspiciatis rerum laboriosam et.
+    properties:
+      access_token:
+        description: The access token issued by the authorization server
+        example: Eos magnam fugit.
+        type: string
+      expires_in:
+        description: The lifetime in seconds of the access token
+        example: 9.096471e+18
+        format: int64
+        type: integer
+      refresh_token:
+        description: The refresh token
+        example: Aliquid ex.
+        type: string
+      scope:
+        description: The scope of the access token
+        example: Minima ea atque pariatur.
+        type: string
+      token_type:
+        description: The type of the token issued, e.g. "bearer" or "mac"
+        example: Sit culpa perspiciatis rerum laboriosam et.
+        type: string
+    required:
+    - access_token
+    - token_type
+    title: 'Mediatype identifier: application/vnd.goa.example.oauth2.token+json; view=default'
+    type: object
+  TokenPayload:
+    description: |-
+      Payload sent by client to obtain refresh and access token or to refresh an access token.
+      see https://tools.ietf.org/html/rfc6749#section-4.1.3 and https://tools.ietf.org/html/rfc6749#section-6
+    example:
+      code: Voluptatibus at consequatur.
+      grant_type: refresh_token
+      redirect_uri: Optio repudiandae eaque quia cupiditate.
+      refresh_token: Quibusdam accusantium.
+      scope: Nostrum consequatur.
+    properties:
+      code:
+        description: The authorization code received from the authorization server,
+          used for initial refresh and access token request
+        example: Voluptatibus at consequatur.
+        type: string
+      grant_type:
+        description: |-
+          Value MUST be set to "authorization_code" when obtaining initial refresh and access token.
+          Value MUST be set to "refresh_token" when refreshing an access token.
+        enum:
+        - authorization_code
+        - refresh_token
+        example: refresh_token
+        type: string
+      redirect_uri:
+        description: The redirect_uri parameter specified when making the authorize
+          request to obtain the authorization code, used for initial refresh and access
+          token request
+        example: Optio repudiandae eaque quia cupiditate.
+        type: string
+      refresh_token:
+        description: The refresh token issued to the client, used for refreshing an
+          access token
+        example: Quibusdam accusantium.
+        type: string
+      scope:
+        description: The scope of the access request, used for refreshing an access
+          token
+        example: Nostrum consequatur.
+        type: string
+    required:
+    - grant_type
+    title: TokenPayload
+    type: object
   UserPayload:
     description: UserPayload
     example:
-      active: true
-      email: lauretta.beer@schneiderterry.biz
-      externalId: Cupiditate cumque quibusdam accusantium et.
-      password: arnpercd
+      active: false
+      email: claude_mcglynn@kuhlman.net
+      externalId: Officiis assumenda asperiores similique voluptas.
+      password: d4xhlrtxfh
       roles:
-      - Placeat reprehenderit similique quo.
-      username: 9ifp30qa
+      - Ipsum voluptatem est debitis quis et et.
+      username: 3fj228pe
     properties:
       active:
         default: false
         description: Status of user account
-        example: true
+        example: false
         type: boolean
       email:
         description: Email of user
-        example: lauretta.beer@schneiderterry.biz
+        example: claude_mcglynn@kuhlman.net
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Cupiditate cumque quibusdam accusantium et.
+        example: Officiis assumenda asperiores similique voluptas.
         type: string
       password:
         description: Password of user
-        example: arnpercd
+        example: d4xhlrtxfh
         maxLength: 30
         minLength: 6
         type: string
       roles:
         description: Roles of user
         example:
-        - Placeat reprehenderit similique quo.
+        - Ipsum voluptatem est debitis quis et et.
         items:
-          example: Placeat reprehenderit similique quo.
+          example: Ipsum voluptatem est debitis quis et et.
           type: string
         type: array
       username:
         description: Name of user
-        example: 9ifp30qa
+        example: 3fj228pe
         maxLength: 50
         minLength: 4
         type: string
@@ -131,47 +243,45 @@ definitions:
   users:
     description: users media type (default view)
     example:
-      active: true
-      email: thad@herman.name
-      externalId: Possimus ullam occaecati quae.
-      id: Rerum aliquid in sit reprehenderit ea.
+      active: false
+      email: fredy.kuphal@beier.info
+      externalId: Provident fugit corrupti dignissimos nisi voluptatum.
+      id: Mollitia sint.
       roles:
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      username: s5gsubpgbu
+      - Ipsum voluptatem est debitis quis et et.
+      - Ipsum voluptatem est debitis quis et et.
+      username: 01rdii1sqx
     properties:
       active:
         default: false
         description: Status of user account
-        example: true
+        example: false
         type: boolean
       email:
         description: Email of user
-        example: thad@herman.name
+        example: fredy.kuphal@beier.info
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Possimus ullam occaecati quae.
+        example: Provident fugit corrupti dignissimos nisi voluptatum.
         type: string
       id:
         description: Unique user ID
-        example: Rerum aliquid in sit reprehenderit ea.
+        example: Mollitia sint.
         type: string
       roles:
         description: Roles of user
         example:
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
+        - Ipsum voluptatem est debitis quis et et.
+        - Ipsum voluptatem est debitis quis et et.
         items:
-          example: Placeat reprehenderit similique quo.
+          example: Ipsum voluptatem est debitis quis et et.
           type: string
         type: array
       username:
         description: Name of user
-        example: s5gsubpgbu
+        example: 01rdii1sqx
         maxLength: 50
         minLength: 4
         type: string
@@ -190,6 +300,90 @@ info:
   title: The user microservice
   version: "1.0"
 paths:
+  /oauth2/authorize:
+    get:
+      description: Authorize OAuth2 client
+      operationId: oauth2_provider#authorize
+      parameters:
+      - description: The client identifier
+        in: query
+        name: client_id
+        required: true
+        type: string
+      - description: Redirection endpoint
+        in: query
+        name: redirect_uri
+        required: false
+        type: string
+      - description: Value MUST be set to "code"
+        enum:
+        - code
+        in: query
+        name: response_type
+        required: true
+        type: string
+      - description: The scope of the access request
+        in: query
+        name: scope
+        required: false
+        type: string
+      - description: An opaque value used by the client to maintain state between
+          the request and callback
+        in: query
+        name: state
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.example.oauth2.error+json
+      responses:
+        "302":
+          description: Found
+          headers:
+            Location:
+              description: Redirect URL containing the authorization code and state
+                param if any
+              type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/OAuth2ErrorMedia'
+      schemes:
+      - http
+      summary: authorize oauth2_provider
+      tags:
+      - oauth2_provider
+  /oauth2/token:
+    post:
+      description: Get access token from authorization code or refresh token
+      operationId: oauth2_provider#get_token
+      parameters:
+      - description: |-
+          Payload sent by client to obtain refresh and access token or to refresh an access token.
+          see https://tools.ietf.org/html/rfc6749#section-4.1.3 and https://tools.ietf.org/html/rfc6749#section-6
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/TokenPayload'
+      produces:
+      - application/vnd.goa.example.oauth2.error+json
+      - application/vnd.goa.example.oauth2.token+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/TokenMedia'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/OAuth2ErrorMedia'
+      schemes:
+      - http
+      security:
+      - oauth2_client_basic_auth: []
+      summary: get_token oauth2_provider
+      tags:
+      - oauth2_provider
   /swagger-ui/{filepath}:
     get:
       operationId: swagger#/swagger-ui/*filepath
@@ -447,4 +641,27 @@ responses:
       $ref: '#/definitions/users'
 schemes:
 - http
+securityDefinitions:
+  OAuth2:
+    authorizationUrl: http://localhost:8080/oauth2/authorize
+    flow: accessCode
+    scopes:
+      api:read: no description
+      api:write: no description
+    tokenUrl: http://localhost:8080/oauth2/token
+    type: oauth2
+  jwt:
+    description: |2-
+
+
+      **Security Scopes**:
+        * `api:read`: Read API resource
+        * `api:write`: Write API resource
+    in: header
+    name: Authorization
+    type: apiKey
+  oauth2_client_basic_auth:
+    description: Basic auth used by client to make the requests needed to retrieve
+      and refresh access tokens
+    type: basic
 swagger: "2.0"

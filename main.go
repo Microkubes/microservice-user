@@ -4,6 +4,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/JormungandrK/microservice-security/chain"
+	"github.com/JormungandrK/microservice-security/flow"
+	"github.com/JormungandrK/microservice-tools/config"
 	"github.com/JormungandrK/user-microservice/app"
 
 	"github.com/JormungandrK/microservice-tools/gateway"
@@ -16,16 +19,28 @@ import (
 
 func main() {
 	gatewayURL, configFile := loadGatewaySettings()
-	registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
+
+	serviceConfig, err := config.LoadConfig(configFile)
 	if err != nil {
 		panic(err)
 	}
+
+	//registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
+	registration := gateway.NewKongGateway(gatewayURL, &http.Client{}, serviceConfig.Service)
+
 	err = registration.SelfRegister()
 	if err != nil {
 		panic(err)
 	}
 
 	defer registration.Unregister()
+
+	securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	defer cleanup()
 
 	// Create service
 	service := goa.New("user")
@@ -35,6 +50,8 @@ func main() {
 	service.Use(middleware.LogRequest(true))
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
+
+	service.Use(chain.AsGoaMiddleware(securityChain))
 
 	// Load MongoDB ENV variables
 	host, username, password, database := loadMongnoSettings()
@@ -56,7 +73,7 @@ func main() {
 	app.MountUserController(service, c2)
 
 	// Start service
-	if err := service.ListenAndServe(":8081"); err != nil {
+	if err := service.ListenAndServe(":8080"); err != nil {
 		service.LogError("startup", "err", err)
 	}
 }

@@ -19,6 +19,7 @@ var _ = API("user", func() {
 var _ = Resource("user", func() {
 	BasePath("/users")
 	DefaultMedia(UserMedia)
+	// Do not setup security here!
 
 	// Actions define a single API endpoint
 	Action("create", func() {

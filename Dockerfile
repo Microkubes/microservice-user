@@ -11,7 +11,7 @@ RUN chmod 700 /root/.ssh/id_rsa && \
 RUN go get -u github.com/goadesign/goa/... && \
     go get -u gopkg.in/mgo.v2 && \
     go get -u golang.org/x/crypto/bcrypt && \
-    go get -u github.com/JormungandrK/microservice-security && \
+    go get -u github.com/JormungandrK/microservice-security/... && \
     go get -u github.com/JormungandrK/microservice-tools
 
 COPY . /go/src/github.com/JormungandrK/user-microservice
