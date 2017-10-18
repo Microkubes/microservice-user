@@ -1,4 +1,9 @@
 # User microservice
+
+[![Build](https://travis-ci.com/JormungandrK/user-microservice.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/JormungandrK/user-microservice)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/2cf4d5d4a0ade7c5c358/test_coverage)](https://codeclimate.com/repos/5971a9ed730e750274000347/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/2cf4d5d4a0ade7c5c358/maintainability)](https://codeclimate.com/repos/5971a9ed730e750274000347/maintainability)
+
 User microservice
 
 ## Prerequisite
@@ -50,7 +55,7 @@ go build -o user
 For testing we use controller_test.go files which call the generated test helpers which package that data into HTTP requests and calls the actual controller functions. The test helpers retrieve the written responses, deserialize them, validate the generated data structures (against the validations written in the design) and make them available to the tests. Run:
 ```
 go test -v
-``` 
+```
 
 ## Set up MongoDB
 Create users database with default username and password.
