@@ -1,35 +1,35 @@
 {
   "service":{
     "name": "user-microservice",
-    "port": 8081,
+    "port": 8080,
     "virtual_host": "user.services.jormungandr.org",
     "hosts": ["localhost", "user.services.jormungandr.org"],
     "weight": 10,
     "slots": 100
   },
-  "gatewayUrl": "http://localhost:8000",
+  "gatewayUrl": "http://192.168.99.100:8001",
   "security":{
-    "keysDir": "keys",
+    "keysDir": "/run/secrets",
     "jwt":{
       "name": "JWTSecurity",
       "description": "JWT security middleware",
-      "tokenUrl": "http://localhost:8000/jwt"
+      "tokenUrl": "http://192.168.99.100:8000/jwt"
     },
     "saml":{
-      "certFile": "keys/user-service.cert",
-      "keyFile": "keys/user-service.key",
-      "identityProviderUrl": "http://localhost:8000/saml/idp",
-      "userServiceUrl": "http://localhost:8000/user",
-      "registrationServiceUrl": "http://localhost:8000/user/register"
+      "certFile": "/run/secrets/service.cert",
+      "keyFile": "/run/secrets/service.key",
+      "identityProviderUrl": "http://192.168.99.100:8000/saml/idp",
+      "userServiceUrl": "http://192.168.99.100:8000/user",
+      "registrationServiceUrl": "http://192.168.99.100:8000/user/register"
     },
     "oauth2":{
       "description": "OAuth2 security middleware",
-      "tokenUrl": "https://localhost:8000/oauth2/token",
-      "authorizeUrl": "https://localhost:8000/oauth2/authorize"
+      "tokenUrl": "https://192.168.99.100:8000/oauth2/token",
+      "authorizeUrl": "https://192.168.99.100:8000/oauth2/authorize"
     }
   },
   "database":{
-    "host": "127.0.0.1:27017",
+    "host": "192.168.99.100:27017",
     "database": "users",
     "user": "restapi",
     "pass": "restapi"
