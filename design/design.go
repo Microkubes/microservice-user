@@ -134,6 +134,7 @@ var UserPayload = Type("UserPayload", func() {
 	Required("username", "email", "roles")
 })
 
+// CredentialsPayload defines the payload for the credentials.
 var CredentialsPayload = Type("Credentials", func() {
 	Description("Username and password credentials")
 	Attribute("username", String, "Name of user", func() {
@@ -146,6 +147,7 @@ var CredentialsPayload = Type("Credentials", func() {
 	Required("username", "password")
 })
 
+// EmailPayload defines the payload for the email.
 var EmailPayload = Type("EmailPayload", func() {
 	Description("Email payload")
 	Attribute("email", String, "Email of user", func() {
