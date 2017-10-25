@@ -18,11 +18,15 @@ import (
 )
 
 func main() {
+	// Create service
+	service := goa.New("user")
+
 	_, configFile := loadGatewaySettings()
 
 	serviceConfig, err := config.LoadConfig(configFile)
 	if err != nil {
-		panic(err)
+		service.LogError("config", "err", err)
+		return
 	}
 
 	//registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
@@ -41,9 +45,6 @@ func main() {
 	}
 
 	defer cleanup()
-
-	// Create service
-	service := goa.New("user")
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
@@ -107,7 +108,7 @@ func loadGatewaySettings() (string, string) {
 		gatewayURL = "http://localhost:8001"
 	}
 	if serviceConfigFile == "" {
-		serviceConfigFile = "config.json"
+		serviceConfigFile = "/run/secrets/microservice_user_config.json"
 	}
 
 	return gatewayURL, serviceConfigFile
