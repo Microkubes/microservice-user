@@ -89,8 +89,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Create(rctx)
 	}
-	service.Mux.Handle("POST", "/users", ctrl.MuxHandler("create", h, unmarshalCreateUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "Create", "route", "POST /users")
+	service.Mux.Handle("POST", "/", ctrl.MuxHandler("create", h, unmarshalCreateUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "Create", "route", "POST /")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -110,8 +110,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Find(rctx)
 	}
-	service.Mux.Handle("POST", "/users/find", ctrl.MuxHandler("find", h, unmarshalFindUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "Find", "route", "POST /users/find")
+	service.Mux.Handle("POST", "/find", ctrl.MuxHandler("find", h, unmarshalFindUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "Find", "route", "POST /find")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -131,8 +131,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.FindByEmail(rctx)
 	}
-	service.Mux.Handle("POST", "/users/find/email", ctrl.MuxHandler("findByEmail", h, unmarshalFindByEmailUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "FindByEmail", "route", "POST /users/find/email")
+	service.Mux.Handle("POST", "/find/email", ctrl.MuxHandler("findByEmail", h, unmarshalFindByEmailUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "FindByEmail", "route", "POST /find/email")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -146,8 +146,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Get(rctx)
 	}
-	service.Mux.Handle("GET", "/users/:userId", ctrl.MuxHandler("get", h, nil))
-	service.LogInfo("mount", "ctrl", "User", "action", "Get", "route", "GET /users/:userId")
+	service.Mux.Handle("GET", "/:userId", ctrl.MuxHandler("get", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "Get", "route", "GET /:userId")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -161,8 +161,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.GetMe(rctx)
 	}
-	service.Mux.Handle("GET", "/users/me", ctrl.MuxHandler("getMe", h, nil))
-	service.LogInfo("mount", "ctrl", "User", "action", "GetMe", "route", "GET /users/me")
+	service.Mux.Handle("GET", "/me", ctrl.MuxHandler("getMe", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "GetMe", "route", "GET /me")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -182,8 +182,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Update(rctx)
 	}
-	service.Mux.Handle("PUT", "/users/:userId", ctrl.MuxHandler("update", h, unmarshalUpdateUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "Update", "route", "PUT /users/:userId")
+	service.Mux.Handle("PUT", "/:userId", ctrl.MuxHandler("update", h, unmarshalUpdateUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "Update", "route", "PUT /:userId")
 }
 
 // unmarshalCreateUserPayload unmarshals the request body into the context request data Payload field.

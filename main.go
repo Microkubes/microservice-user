@@ -21,7 +21,7 @@ func main() {
 	// Create service
 	service := goa.New("user")
 
-	gatewayURL, configFile := loadGatewaySettings()
+	_, configFile := loadGatewaySettings()
 
 	serviceConfig, err := config.LoadConfig(configFile)
 	if err != nil {
@@ -30,7 +30,7 @@ func main() {
 	}
 
 	//registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
-	registration := gateway.NewKongGateway(gatewayURL, &http.Client{}, serviceConfig.Service)
+	registration := gateway.NewKongGateway(serviceConfig.GatewayAdminURL, &http.Client{}, serviceConfig.Service)
 
 	err = registration.SelfRegister()
 	if err != nil {
@@ -54,17 +54,16 @@ func main() {
 
 	service.Use(chain.AsGoaMiddleware(securityChain))
 
-	// Load MongoDB ENV variables
-	host, username, password, database := loadMongnoSettings()
+	dbConf := serviceConfig.DBConfig
 	// Create new session to MongoDB
-	session := store.NewSession(host, username, password, database)
+	session := store.NewSession(dbConf.Host, dbConf.Username, dbConf.Password, dbConf.DatabaseName)
 
 	// At the end close session
 	defer session.Close()
 
 	// Create users collection and indexes
 	indexes := []string{"username", "email"}
-	usersCollection := store.PrepareDB(session, database, "users", indexes)
+	usersCollection := store.PrepareDB(session, dbConf.DatabaseName, "users", indexes)
 
 	// Mount "swagger" controller
 	c1 := NewSwaggerController(service)
