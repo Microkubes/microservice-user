@@ -62,7 +62,7 @@ func (db *DB) FindByID(userID string, mediaType *app.Users) error {
 	return nil
 }
 
-// Insert mock implementation
+// CreateUser mock implementation
 func (db *DB) CreateUser(payload *app.UserPayload) (*string, error) {
 	if payload.Password == nil && payload.ExternalID == nil {
 		return nil, goa.ErrBadRequest("password or externalID must be specified!")
@@ -77,7 +77,7 @@ func (db *DB) CreateUser(payload *app.UserPayload) (*string, error) {
 	return &id, nil
 }
 
-// Update mock implementation
+// UpdateUser mock implementation
 func (db *DB) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error) {
 	if userID == "6975c461f9f8eb02aae053f4" {
 		return nil, goa.ErrInternal("internal server error")
@@ -97,13 +97,11 @@ func (db *DB) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, e
 			Roles:      user.Roles,
 			Username:   user.Username,
 		}, nil
-	} else {
-		return nil, goa.ErrNotFound("user not found")
 	}
-
-	return nil, nil
+	return nil, goa.ErrNotFound("user not found")
 }
 
+// FindByUsernameAndPassword mock implementation
 func (db *DB) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
 	if username == "validuser" && password == "valid-pass" {
 		return &app.Users{
@@ -121,6 +119,7 @@ func (db *DB) FindByUsernameAndPassword(username, password string) (*app.Users, 
 	return nil, nil
 }
 
+// FindByEmail mock implementation
 func (db *DB) FindByEmail(email string) (*app.Users, error) {
 	if email == "frieda@oberbrunnerkirlin.name" {
 		return &app.Users{

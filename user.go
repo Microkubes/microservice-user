@@ -150,6 +150,7 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 	return ctx.OK(user)
 }
 
+// FindByEmail looks up a user by its email.
 func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
 	user, err := c.usersCollection.FindByEmail(ctx.Payload.Email)
 	if err != nil {

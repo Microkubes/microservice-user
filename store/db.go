@@ -112,6 +112,7 @@ func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) 
 	return &userID, nil
 }
 
+// UpdateUser updates a user if payload is valid, otherwise it returns error
 func (c *MongoCollection) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error) {
 	objectID, err := hexToObjectID(userID)
 	if err != nil {
@@ -126,9 +127,8 @@ func (c *MongoCollection) UpdateUser(userID string, payload *app.UserPayload) (*
 	if err != nil {
 		if err.Error() == "not found" {
 			return nil, goa.ErrNotFound(err)
-		} else {
-			return nil, goa.ErrInternal(err)
 		}
+		return nil, goa.ErrInternal(err)
 	}
 
 	res := &app.Users{}
@@ -151,9 +151,8 @@ func (c *MongoCollection) FindByID(userID string, mediaType *app.Users) error {
 	if err := c.FindId(objectID).One(&mediaType); err != nil {
 		if err.Error() == "not found" {
 			return goa.ErrNotFound("user not found")
-		} else {
-			return goa.ErrInternal(err)
 		}
+		return goa.ErrInternal(err)
 	}
 
 	return nil
@@ -210,6 +209,7 @@ func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (
 	return user, nil
 }
 
+// FindByEmail looks up a user by its email.
 func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
 	query := bson.M{"email": bson.M{"$eq": email}}
 
@@ -218,9 +218,8 @@ func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
 	if err != nil {
 		if err.Error() == "not found" {
 			return nil, goa.ErrNotFound("user not found")
-		} else {
-			return nil, goa.ErrInternal(err)
 		}
+		return nil, goa.ErrInternal(err)
 	}
 
 	active, _ := userData["active"].(bool)
