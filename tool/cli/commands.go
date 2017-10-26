@@ -29,28 +29,6 @@ import (
 )
 
 type (
-	// AuthorizeOauth2ProviderCommand is the command line data structure for the authorize action of oauth2_provider
-	AuthorizeOauth2ProviderCommand struct {
-		// The client identifier
-		ClientID string
-		// Redirection endpoint
-		RedirectURI string
-		// Value MUST be set to "code"
-		ResponseType string
-		// The scope of the access request
-		Scope string
-		// An opaque value used by the client to maintain state between the request and callback
-		State       string
-		PrettyPrint bool
-	}
-
-	// GetTokenOauth2ProviderCommand is the command line data structure for the get_token action of oauth2_provider
-	GetTokenOauth2ProviderCommand struct {
-		Payload     string
-		ContentType string
-		PrettyPrint bool
-	}
-
 	// CreateUserCommand is the command line data structure for the create action of user
 	CreateUserCommand struct {
 		Payload     string
@@ -104,24 +82,10 @@ type (
 func RegisterCommands(app *cobra.Command, c *client.Client) {
 	var command, sub *cobra.Command
 	command = &cobra.Command{
-		Use:   "authorize",
-		Short: `Authorize OAuth2 client`,
-	}
-	tmp1 := new(AuthorizeOauth2ProviderCommand)
-	sub = &cobra.Command{
-		Use:   `oauth2-provider ["/oauth2/authorize"]`,
-		Short: `This resource implements the OAuth2 authorization code flow`,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
-	}
-	tmp1.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp1.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
 		Use:   "create",
 		Short: `Creates user`,
 	}
-	tmp2 := new(CreateUserCommand)
+	tmp1 := new(CreateUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users"]`,
 		Short: ``,
@@ -130,26 +94,26 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 Payload example:
 
 {
-   "active": false,
-   "email": "claude_mcglynn@kuhlman.net",
-   "externalId": "Officiis assumenda asperiores similique voluptas.",
-   "password": "d4xhlrtxfh",
+   "active": true,
+   "email": "lauretta.beer@schneiderterry.biz",
+   "externalId": "Cupiditate cumque quibusdam accusantium et.",
+   "password": "arnpercd",
    "roles": [
-      "Ipsum voluptatem est debitis quis et et."
+      "Placeat reprehenderit similique quo."
    ],
-   "username": "3fj228pe"
+   "username": "9ifp30qa"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
-	tmp2.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp1.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp1.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "find",
 		Short: `Find a user by username+password`,
 	}
-	tmp3 := new(FindUserCommand)
+	tmp2 := new(FindUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/find"]`,
 		Short: ``,
@@ -158,20 +122,20 @@ Payload example:
 Payload example:
 
 {
-   "password": "45mlyz",
+   "password": "23v789xuu4",
    "username": "YWZpQ"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
-	tmp3.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp2.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "find-by-email",
 		Short: `Find a user by email`,
 	}
-	tmp4 := new(FindByEmailUserCommand)
+	tmp3 := new(FindByEmailUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/find/email"]`,
 		Short: ``,
@@ -180,21 +144,35 @@ Payload example:
 Payload example:
 
 {
-   "email": "solon@reicherttreutel.org"
+   "email": "lesly.stracke@corwin.biz"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
-	tmp4.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp3.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "get",
 		Short: `Get user by id`,
 	}
-	tmp5 := new(GetUserCommand)
+	tmp4 := new(GetUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/USERID"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+	}
+	tmp4.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "get-me",
+		Short: `Retrieves the user information for the authenticated user`,
+	}
+	tmp5 := new(GetMeUserCommand)
+	sub = &cobra.Command{
+		Use:   `user ["/users/me"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -203,49 +181,10 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get-me",
-		Short: `Retrieves the user information for the authenticated user`,
-	}
-	tmp6 := new(GetMeUserCommand)
-	sub = &cobra.Command{
-		Use:   `user ["/users/me"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
-	}
-	tmp6.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "get-token",
-		Short: `Get access token from authorization code or refresh token`,
-	}
-	tmp7 := new(GetTokenOauth2ProviderCommand)
-	sub = &cobra.Command{
-		Use:   `oauth2-provider ["/oauth2/token"]`,
-		Short: `This resource implements the OAuth2 authorization code flow`,
-		Long: `This resource implements the OAuth2 authorization code flow
-
-Payload example:
-
-{
-   "code": "Voluptatibus at consequatur.",
-   "grant_type": "refresh_token",
-   "redirect_uri": "Optio repudiandae eaque quia cupiditate.",
-   "refresh_token": "Quibusdam accusantium.",
-   "scope": "Nostrum consequatur."
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
-	}
-	tmp7.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp7.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
 		Use:   "update",
 		Short: `Update user`,
 	}
-	tmp8 := new(UpdateUserCommand)
+	tmp6 := new(UpdateUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/USERID"]`,
 		Short: ``,
@@ -254,19 +193,19 @@ Payload example:
 Payload example:
 
 {
-   "active": false,
-   "email": "claude_mcglynn@kuhlman.net",
-   "externalId": "Officiis assumenda asperiores similique voluptas.",
-   "password": "d4xhlrtxfh",
+   "active": true,
+   "email": "lauretta.beer@schneiderterry.biz",
+   "externalId": "Cupiditate cumque quibusdam accusantium et.",
+   "password": "arnpercd",
    "roles": [
-      "Ipsum voluptatem est debitis quis et et."
+      "Placeat reprehenderit similique quo."
    ],
-   "username": "3fj228pe"
+   "username": "9ifp30qa"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
-	tmp8.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp8.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp6.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -480,73 +419,6 @@ found:
 	}
 
 	return nil
-}
-
-// Run makes the HTTP request corresponding to the AuthorizeOauth2ProviderCommand command.
-func (cmd *AuthorizeOauth2ProviderCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/oauth2/authorize"
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.AuthorizeOauth2Provider(ctx, path, cmd.ClientID, cmd.ResponseType, stringFlagVal("redirect_uri", cmd.RedirectURI), stringFlagVal("scope", cmd.Scope), stringFlagVal("state", cmd.State))
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *AuthorizeOauth2ProviderCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var clientID string
-	cc.Flags().StringVar(&cmd.ClientID, "client_id", clientID, `The client identifier`)
-	var redirectURI string
-	cc.Flags().StringVar(&cmd.RedirectURI, "redirect_uri", redirectURI, `Redirection endpoint`)
-	var responseType string
-	cc.Flags().StringVar(&cmd.ResponseType, "response_type", responseType, `Value MUST be set to "code"`)
-	var scope string
-	cc.Flags().StringVar(&cmd.Scope, "scope", scope, `The scope of the access request`)
-	var state string
-	cc.Flags().StringVar(&cmd.State, "state", state, `An opaque value used by the client to maintain state between the request and callback`)
-}
-
-// Run makes the HTTP request corresponding to the GetTokenOauth2ProviderCommand command.
-func (cmd *GetTokenOauth2ProviderCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/oauth2/token"
-	}
-	var payload client.TokenPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.GetTokenOauth2Provider(ctx, path, &payload, cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *GetTokenOauth2ProviderCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
 
 // Run makes the HTTP request corresponding to the CreateUserCommand command.
