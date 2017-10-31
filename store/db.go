@@ -89,7 +89,7 @@ func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) 
 	}
 
 	// Insert Data
-	id := bson.NewObjectIdWithTime(time.Now())
+	id := bson.NewObjectId()
 	err := c.Insert(bson.M{
 		"_id":        id,
 		"username":   payload.Username,
@@ -97,6 +97,7 @@ func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) 
 		"password":   payload.Password,
 		"externalId": payload.ExternalID,
 		"roles":      payload.Roles,
+		"active":     payload.Active,
 	})
 
 	// Handle errors
