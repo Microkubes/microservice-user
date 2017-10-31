@@ -236,7 +236,6 @@ paths:
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.user+json
-      - application/vnd.goa.error
       responses:
         "201":
           description: Created
@@ -266,8 +265,6 @@ paths:
         required: true
         type: string
       produces:
-      - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
@@ -309,8 +306,6 @@ paths:
           $ref: '#/definitions/UserPayload'
       produces:
       - application/vnd.goa.error
-      - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -347,7 +342,6 @@ paths:
           $ref: '#/definitions/Credentials'
       produces:
       - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -382,7 +376,6 @@ paths:
           $ref: '#/definitions/EmailPayload'
       produces:
       - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -407,8 +400,6 @@ paths:
       description: Retrieves the user information for the authenticated user
       operationId: user#getMe
       produces:
-      - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
