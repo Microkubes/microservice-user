@@ -25,6 +25,10 @@ func NewUserController(service *goa.Service, usersCollection store.Collection) *
 
 // Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
+	if len(ctx.Payload.Roles) == 0 {
+		ctx.Payload.Roles = append(ctx.Payload.Roles, "user")
+	}
+
 	id, err := c.usersCollection.CreateUser(ctx.Payload)
 	if err != nil {
 		e := err.(*goa.ErrorResponse)
@@ -47,7 +51,6 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	// Define user media type
 	py := &app.Users{
 		ID:         *id,
-		Username:   ctx.Payload.Username,
 		Email:      ctx.Payload.Email,
 		ExternalID: externalID,
 		Roles:      ctx.Payload.Roles,
@@ -134,9 +137,9 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 	return ctx.OK(res)
 }
 
-// Find looks up a user by its username and password. Intended for internal use.
+// Find looks up a user by its email and password. Intended for internal use.
 func (c *UserController) Find(ctx *app.FindUserContext) error {
-	user, err := c.usersCollection.FindByUsernameAndPassword(ctx.Payload.Username, ctx.Payload.Password)
+	user, err := c.usersCollection.FindByEmailAndPassword(ctx.Payload.Email, ctx.Payload.Password)
 
 	if err != nil {
 		fmt.Printf("Failed to find user. Error: %s", err)

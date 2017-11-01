@@ -24,7 +24,6 @@ func NewDB() *DB {
 		Email:      "frieda@oberbrunnerkirlin.name",
 		ExternalID: &extID,
 		Roles:      roles,
-		Username:   "User1",
 		Password:   &pass,
 	}
 	return &DB{users: map[string]*app.UserPayload{"5975c461f9f8eb02aae053f3": user}}
@@ -50,7 +49,6 @@ func (db *DB) FindByID(userID string, mediaType *app.Users) error {
 
 	if user, ok := db.users[userID]; ok {
 		mediaType.ID = userID
-		mediaType.Username = user.Username
 		mediaType.Email = user.Email
 		mediaType.ExternalID = *user.ExternalID
 		mediaType.Roles = user.Roles
@@ -67,7 +65,7 @@ func (db *DB) CreateUser(payload *app.UserPayload) (*string, error) {
 	if payload.Password == nil && payload.ExternalID == nil {
 		return nil, goa.ErrBadRequest("password or externalID must be specified!")
 	}
-	if payload.Username == "internal-error-user" {
+	if payload.Email == "internal-error@example.com" {
 		return nil, goa.ErrInternal("internal server error")
 	}
 
@@ -95,25 +93,24 @@ func (db *DB) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, e
 			ExternalID: *user.ExternalID,
 			ID:         userID,
 			Roles:      user.Roles,
-			Username:   user.Username,
 		}, nil
 	}
 	return nil, goa.ErrNotFound("user not found")
 }
 
-// FindByUsernameAndPassword mock implementation
-func (db *DB) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
-	if username == "validuser" && password == "valid-pass" {
+// FindByEmailAndPassword mock implementation
+func (db *DB) FindByEmailAndPassword(email, password string) (*app.Users, error) {
+	if email == "email@example.com" && password == "valid-pass" {
+		externalID := "1234"
 		return &app.Users{
 			Active:     true,
 			Email:      "email@example.com",
-			ExternalID: "1234",
+			ExternalID: externalID,
 			ID:         "000000000000001",
 			Roles:      []string{"user"},
-			Username:   "validuser",
 		}, nil
 	}
-	if username == "internal-error-user" {
+	if email == "internal-error@example.com" {
 		return nil, fmt.Errorf("Internal server error")
 	}
 	return nil, nil
@@ -122,13 +119,13 @@ func (db *DB) FindByUsernameAndPassword(username, password string) (*app.Users, 
 // FindByEmail mock implementation
 func (db *DB) FindByEmail(email string) (*app.Users, error) {
 	if email == "frieda@oberbrunnerkirlin.name" {
+		externalID := "qwerc461f9f8eb02aae053f3"
 		return &app.Users{
 			Active:     true,
 			Email:      "frieda@oberbrunnerkirlin.name",
-			ExternalID: "qwerc461f9f8eb02aae053f3",
+			ExternalID: externalID,
 			ID:         "5975c461f9f8eb02aae053f3",
 			Roles:      []string{"admin", "user"},
-			Username:   "User1",
 		}, nil
 	}
 	if email == "example@notexists.com" {

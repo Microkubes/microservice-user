@@ -94,7 +94,6 @@ func TestCreateUserOK(t *testing.T) {
 	pass := "password"
 	extID := "qwerc461f9f8eb02aae053f3"
 	userPayload := &app.UserPayload{
-		Username:   "username",
 		Password:   &pass,
 		Email:      "example@some.com",
 		ExternalID: &extID,
@@ -111,9 +110,8 @@ func TestCreateUserOK(t *testing.T) {
 
 func TestCreateUserBadRequest(t *testing.T) {
 	userPayload := &app.UserPayload{
-		Username: "username",
-		Email:    "example@some.com",
-		Roles:    []string{"admin", "user"},
+		Email: "example@some.com",
+		Roles: []string{"admin", "user"},
 	}
 
 	test.CreateUserBadRequest(t, context.Background(), service, ctrl, userPayload)
@@ -123,9 +121,8 @@ func TestCreateUserInternalServerError(t *testing.T) {
 	pass := "password"
 	extID := "qwerc461f9f8eb02aae053f3"
 	userPayload := &app.UserPayload{
-		Username:   "internal-error-user",
 		Password:   &pass,
-		Email:      "example@some.com",
+		Email:      "internal-error@example.com",
 		ExternalID: &extID,
 		Roles:      []string{"admin", "user"},
 	}
@@ -138,7 +135,6 @@ func TestUpdateUserOK(t *testing.T) {
 	pass := "password"
 	extID := "qwerc461f9f8eb02aae053f3"
 	userPayload := &app.UserPayload{
-		Username:   "username",
 		Password:   &pass,
 		Email:      "example@some.com",
 		ExternalID: &extID,
@@ -154,7 +150,6 @@ func TestUpdateUserNotFound(t *testing.T) {
 	pass := "password"
 	extID := "qwerc461f9f8eb02aae053f3"
 	userPayload := &app.UserPayload{
-		Username:   "username",
 		Password:   &pass,
 		Email:      "example@some.com",
 		ExternalID: &extID,
@@ -168,7 +163,6 @@ func TestUpdateUserBadRequest(t *testing.T) {
 	pass := "password"
 	extID := "qwerc461f9f8eb02aae053f3"
 	userPayload := &app.UserPayload{
-		Username:   "username",
 		Password:   &pass,
 		Email:      "example@some.com",
 		ExternalID: &extID,
@@ -182,7 +176,6 @@ func TestUpdateUserInternalServerError(t *testing.T) {
 	pass := "password"
 	extID := "qwerc461f9f8eb02aae053f3"
 	userPayload := &app.UserPayload{
-		Username:   "username",
 		Password:   &pass,
 		Email:      "example@some.com",
 		ExternalID: &extID,
@@ -194,7 +187,7 @@ func TestUpdateUserInternalServerError(t *testing.T) {
 
 func TestFindUserBadRequest(t *testing.T) {
 	payload := &app.Credentials{
-		Username: "",
+		Email:    "",
 		Password: "",
 	}
 	test.FindUserBadRequest(t, context.Background(), service, ctrl, payload)
@@ -202,7 +195,7 @@ func TestFindUserBadRequest(t *testing.T) {
 
 func TestFindUserInternalServerError(t *testing.T) {
 	payload := &app.Credentials{
-		Username: "internal-error-user",
+		Email:    "internal-error@example.com",
 		Password: "the-pass",
 	}
 	test.FindUserInternalServerError(t, context.Background(), service, ctrl, payload)
@@ -210,7 +203,7 @@ func TestFindUserInternalServerError(t *testing.T) {
 
 func TestFindUserNotFound(t *testing.T) {
 	payload := &app.Credentials{
-		Username: "nonexisting",
+		Email:    "example@notexists.com",
 		Password: "the-pass",
 	}
 	test.FindUserNotFound(t, context.Background(), service, ctrl, payload)
@@ -218,7 +211,7 @@ func TestFindUserNotFound(t *testing.T) {
 
 func TestFindUserOK(t *testing.T) {
 	payload := &app.Credentials{
-		Username: "validuser",
+		Email:    "email@example.com",
 		Password: "valid-pass",
 	}
 	_, user := test.FindUserOK(t, context.Background(), service, ctrl, payload)

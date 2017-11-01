@@ -18,7 +18,7 @@ type Collection interface {
 	CreateUser(payload *app.UserPayload) (*string, error)
 	UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error)
 	FindByID(userID string, mediaType *app.Users) error
-	FindByUsernameAndPassword(username, password string) (*app.Users, error)
+	FindByEmailAndPassword(email, password string) (*app.Users, error)
 	FindByEmail(email string) (*app.Users, error)
 }
 
@@ -92,7 +92,6 @@ func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) 
 	id := bson.NewObjectId()
 	err := c.Insert(bson.M{
 		"_id":        id,
-		"username":   payload.Username,
 		"email":      payload.Email,
 		"password":   payload.Password,
 		"externalId": payload.ExternalID,
@@ -103,7 +102,7 @@ func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) 
 	// Handle errors
 	if err != nil {
 		if mgo.IsDup(err) {
-			return nil, goa.ErrBadRequest("email or username already exists in the database")
+			return nil, goa.ErrBadRequest("email already exists in the database")
 		}
 		return nil, goa.ErrInternal(err)
 	}
@@ -159,10 +158,10 @@ func (c *MongoCollection) FindByID(userID string, mediaType *app.Users) error {
 	return nil
 }
 
-// FindByUsernameAndPassword looks up a user by its username and password.
+// FindByEmailAndPassword looks up a user by its email and password.
 // This is used primarily by other microservices to validate user credentials.
-func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (*app.Users, error) {
-	query := bson.M{"username": bson.M{"$eq": username}}
+func (c *MongoCollection) FindByEmailAndPassword(email, password string) (*app.Users, error) {
+	query := bson.M{"email": bson.M{"$eq": email}}
 
 	userData := map[string]interface{}{}
 	err := c.Collection.Find(query).Limit(1).One(userData)
@@ -173,7 +172,7 @@ func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (
 		print(reflect.TypeOf(err))
 		return nil, err
 	}
-	if _, ok := userData["username"]; !ok {
+	if _, ok := userData["email"]; !ok {
 		return nil, nil
 	}
 	if _, ok := userData["password"]; !ok {
@@ -195,8 +194,11 @@ func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (
 		}
 	}
 
+	var externalID string
 	if userData["externalId"] == nil {
-		userData["externalId"] = ""
+		externalID = ""
+	} else {
+		externalID = userData["externalId"].(string)
 	}
 
 	user := &app.Users{
@@ -204,8 +206,7 @@ func (c *MongoCollection) FindByUsernameAndPassword(username, password string) (
 		Email:      userData["email"].(string),
 		ID:         userData["_id"].(bson.ObjectId).Hex(),
 		Roles:      roles,
-		ExternalID: userData["externalId"].(string),
-		Username:   userData["username"].(string),
+		ExternalID: externalID,
 	}
 	return user, nil
 }
@@ -239,7 +240,6 @@ func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
 		ID:         userData["_id"].(bson.ObjectId).Hex(),
 		Roles:      roles,
 		ExternalID: userData["externalId"].(string),
-		Username:   userData["username"].(string),
 	}
 
 	return user, nil
