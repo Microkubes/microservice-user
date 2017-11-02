@@ -66,7 +66,7 @@ var _ = Resource("user", func() {
 	})
 
 	Action("find", func() {
-		Description("Find a user by username+password")
+		Description("Find a user by email+password")
 		Routing(POST("find"))
 		Payload(CredentialsPayload)
 		Response(OK, UserMedia)
@@ -92,17 +92,15 @@ var UserMedia = MediaType("application/vnd.goa.user+json", func() {
 
 	Attributes(func() {
 		Attribute("id", String, "Unique user ID")
-		Attribute("username")
 		Attribute("email")
 		Attribute("roles")
 		Attribute("externalId")
 		Attribute("active")
-		Required("id", "username", "email", "roles", "externalId", "active")
+		Required("id", "email", "roles", "externalId", "active")
 	})
 
 	View("default", func() {
 		Attribute("id")
-		Attribute("username")
 		Attribute("email")
 		Attribute("roles")
 		Attribute("externalId")
@@ -114,10 +112,6 @@ var UserMedia = MediaType("application/vnd.goa.user+json", func() {
 var UserPayload = Type("UserPayload", func() {
 	Description("UserPayload")
 
-	Attribute("username", String, "Name of user", func() {
-		MinLength(4)
-		MaxLength(50)
-	})
 	Attribute("email", String, "Email of user", func() {
 		Format("email")
 	})
@@ -131,20 +125,20 @@ var UserPayload = Type("UserPayload", func() {
 		Default(false)
 	})
 
-	Required("username", "email", "roles")
+	Required("email")
 })
 
 // CredentialsPayload defines the payload for the credentials.
 var CredentialsPayload = Type("Credentials", func() {
-	Description("Username and password credentials")
-	Attribute("username", String, "Name of user", func() {
-		Pattern("^([a-zA-Z0-9@]{4,30})$")
+	Description("Email and password credentials")
+	Attribute("email", String, "Email of user", func() {
+		Format("email")
 	})
 	Attribute("password", String, "Password of user", func() {
 		MinLength(6)
 		MaxLength(30)
 	})
-	Required("username", "password")
+	Required("email", "password")
 })
 
 // EmailPayload defines the payload for the email.

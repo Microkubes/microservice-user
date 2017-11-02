@@ -95,13 +95,14 @@ Payload example:
 
 {
    "active": true,
-   "email": "lauretta.beer@schneiderterry.biz",
-   "externalId": "Cupiditate cumque quibusdam accusantium et.",
-   "password": "arnpercd",
+   "email": "brigitte_koepp@ferry.net",
+   "externalId": "Veritatis veniam sed voluptatibus.",
+   "password": "x75md877qp",
    "roles": [
+      "Placeat reprehenderit similique quo.",
+      "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
-   ],
-   "username": "9ifp30qa"
+   ]
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -111,7 +112,7 @@ Payload example:
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "find",
-		Short: `Find a user by username+password`,
+		Short: `Find a user by email+password`,
 	}
 	tmp2 := new(FindUserCommand)
 	sub = &cobra.Command{
@@ -122,8 +123,8 @@ Payload example:
 Payload example:
 
 {
-   "password": "23v789xuu4",
-   "username": "YWZpQ"
+   "email": "alfonso.marks@hillsmcglynn.biz",
+   "password": "ky0fr8x"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -144,7 +145,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "lesly.stracke@corwin.biz"
+   "email": "thaddeus_o'connell@gislason.biz"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -194,13 +195,14 @@ Payload example:
 
 {
    "active": true,
-   "email": "lauretta.beer@schneiderterry.biz",
-   "externalId": "Cupiditate cumque quibusdam accusantium et.",
-   "password": "arnpercd",
+   "email": "brigitte_koepp@ferry.net",
+   "externalId": "Veritatis veniam sed voluptatibus.",
+   "password": "x75md877qp",
    "roles": [
+      "Placeat reprehenderit similique quo.",
+      "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
-   ],
-   "username": "9ifp30qa"
+   ]
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}

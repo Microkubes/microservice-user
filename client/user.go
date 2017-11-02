@@ -67,7 +67,7 @@ func FindUserPath() string {
 	return fmt.Sprintf("/users/find")
 }
 
-// Find a user by username+password
+// Find a user by email+password
 func (c *Client) FindUser(ctx context.Context, path string, payload *Credentials, contentType string) (*http.Response, error) {
 	req, err := c.NewFindUserRequest(ctx, path, payload, contentType)
 	if err != nil {
