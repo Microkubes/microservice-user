@@ -62,10 +62,10 @@
   version = "v5.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/goadesign/goa"
   packages = [".","client","design","design/apidsl","dslengine","goatest","middleware","middleware/security/jwt","uuid"]
-  revision = "948c35808c713f7557fe2be38f09a628c6398c2d"
+  revision = "5646a430cdeb66983d5ace3384e0a667c185abc7"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"

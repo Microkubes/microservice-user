@@ -30,8 +30,8 @@
   name = "github.com/JormungandrK/microservice-tools"
 
 [[constraint]]
+  branch = "master"
   name = "github.com/goadesign/goa"
-  version = "1.3.0"
 
 [[constraint]]
   name = "github.com/spf13/cobra"
