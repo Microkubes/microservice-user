@@ -62,10 +62,10 @@
   version = "v5.0.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/goadesign/goa"
   packages = [".","client","design","design/apidsl","dslengine","goatest","middleware","middleware/security/jwt","uuid"]
-  revision = "5646a430cdeb66983d5ace3384e0a667c185abc7"
-  version = "v1.3.0"
+  revision = "948c35808c713f7557fe2be38f09a628c6398c2d"
 
 [[projects]]
   branch = "master"
@@ -178,6 +178,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "89cf302df4223b43bdd6d9068eef08e9668ed8d8bf1345dcdecead7ae43d30d4"
+  inputs-digest = "1f4a91482508077130df32d9add27fc85ab0886db84dcf3ffc27c72161eae6d8"
   solver-name = "gps-cdcl"
   solver-version = 1
