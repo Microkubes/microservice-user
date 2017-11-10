@@ -1,5 +1,13 @@
+sudo: required
+
+services:
+  - docker
+
 env:
   global:
+    - VERSION=$(git describe --tags --exact-match 2>/dev/null || echo latest)
+    - DOCKERHUB_NAMESPACE=jormungandrk
+    - IMAGE=${DOCKERHUB_NAMESPACE}/user-microservice:${VERSION}
     - CC_TEST_REPORTER_ID=${CODE_CLIMATE_REPORTER_ID}
     - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
@@ -9,11 +17,11 @@ go:
   - 1.8.x
 
 before_install:
-  - git config --global url."git@github.com:".insteadOf "https://github.com/"
+  - docker build -t ${IMAGE} .
   - go get github.com/axw/gocov/gocov
   - go get github.com/AlekSi/gocov-xml
   - go get gopkg.in/h2non/gock.v1
-  - go get github.com/JormungandrK/microservice-tools
+  - go get github.com/JormungandrK/microservice-tools/...
   - go get -u github.com/JormungandrK/microservice-security/...
   - go get github.com/goadesign/goa/...
   - go get gopkg.in/mgo.v2
@@ -25,3 +33,9 @@ before_script:
 script:
   - gocov test github.com/JormungandrK/user-microservice/... | gocov-xml > coverage.xml && ./cc-test-reporter format-coverage -t cobertura -o coverage.json coverage.xml
   - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter upload-coverage -i coverage.json; fi
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+    docker push "$IMAGE";
+    fi
