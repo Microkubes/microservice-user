@@ -95,13 +95,17 @@ Payload example:
 
 {
    "active": true,
-   "email": "brigitte_koepp@ferry.net",
-   "externalId": "Veritatis veniam sed voluptatibus.",
-   "password": "x75md877qp",
-   "roles": [
+   "email": "lonny@beerklocko.net",
+   "externalId": "Optio repudiandae eaque quia cupiditate.",
+   "organizations": [
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
+   ],
+   "password": "hg0arnperc",
+   "roles": [
+      "Occaecati ut excepturi et deleniti quis.",
+      "Occaecati ut excepturi et deleniti quis."
    ]
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
@@ -123,8 +127,8 @@ Payload example:
 Payload example:
 
 {
-   "email": "alfonso.marks@hillsmcglynn.biz",
-   "password": "ky0fr8x"
+   "email": "irma@hammes.name",
+   "password": "4xhlrtxfhc"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -145,7 +149,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "thaddeus_o'connell@gislason.biz"
+   "email": "ari_kuhn@welch.org"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -195,13 +199,17 @@ Payload example:
 
 {
    "active": true,
-   "email": "brigitte_koepp@ferry.net",
-   "externalId": "Veritatis veniam sed voluptatibus.",
-   "password": "x75md877qp",
-   "roles": [
+   "email": "lonny@beerklocko.net",
+   "externalId": "Optio repudiandae eaque quia cupiditate.",
+   "organizations": [
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
+   ],
+   "password": "hg0arnperc",
+   "roles": [
+      "Occaecati ut excepturi et deleniti quis.",
+      "Occaecati ut excepturi et deleniti quis."
    ]
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
