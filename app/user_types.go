@@ -142,6 +142,8 @@ type userPayload struct {
 	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
 	// External id of user
 	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" xml:"externalId,omitempty"`
+	// List of organizations to which this user belongs to
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Password of user
 	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
@@ -191,6 +193,9 @@ func (ut *userPayload) Publicize() *UserPayload {
 	if ut.ExternalID != nil {
 		pub.ExternalID = ut.ExternalID
 	}
+	if ut.Organizations != nil {
+		pub.Organizations = ut.Organizations
+	}
 	if ut.Password != nil {
 		pub.Password = ut.Password
 	}
@@ -208,6 +213,8 @@ type UserPayload struct {
 	Email string `form:"email" json:"email" xml:"email"`
 	// External id of user
 	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" xml:"externalId,omitempty"`
+	// List of organizations to which this user belongs to
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Password of user
 	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
