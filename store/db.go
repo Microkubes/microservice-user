@@ -288,12 +288,24 @@ func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
 		}
 	}
 
+	organizations := []string{}
+	if _, ok := userData["organizations"]; ok {
+		if orgsArr, ok := userData["organizations"].([]interface{}); ok {
+			for _, org := range orgsArr {
+				organizations = append(organizations, org.(string))
+			}
+		}
+	}
+
 	user := &app.Users{
-		Active:     active,
-		Email:      userData["email"].(string),
-		ID:         userData["_id"].(bson.ObjectId).Hex(),
-		Roles:      roles,
-		ExternalID: userData["externalId"].(string),
+		Active:        active,
+		Email:         userData["email"].(string),
+		ID:            userData["_id"].(bson.ObjectId).Hex(),
+		Roles:         roles,
+		Organizations: organizations,
+	}
+	if externalID, ok := userData["externalId"]; ok && externalID != nil {
+		user.ExternalID = externalID.(string)
 	}
 
 	return user, nil
