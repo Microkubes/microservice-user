@@ -26,6 +26,8 @@ type Users struct {
 	ExternalID string `form:"externalId" json:"externalId" xml:"externalId"`
 	// Unique user ID
 	ID string `form:"id" json:"id" xml:"id"`
+	// List of organizations to which this user belongs to
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Roles of user
 	Roles []string `form:"roles" json:"roles" xml:"roles"`
 }

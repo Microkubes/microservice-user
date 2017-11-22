@@ -44,14 +44,17 @@ definitions:
     description: UserPayload
     example:
       active: true
-      email: brigitte_koepp@ferry.net
-      externalId: Veritatis veniam sed voluptatibus.
-      password: x75md877qp
-      roles:
+      email: lonny@beerklocko.net
+      externalId: Optio repudiandae eaque quia cupiditate.
+      organizations:
       - Placeat reprehenderit similique quo.
       - Placeat reprehenderit similique quo.
       - Placeat reprehenderit similique quo.
       token: Nostrum consequatur.
+      password: hg0arnperc
+      roles:
+      - Occaecati ut excepturi et deleniti quis.
+      - Occaecati ut excepturi et deleniti quis.
     properties:
       active:
         default: false
@@ -60,27 +63,36 @@ definitions:
         type: boolean
       email:
         description: Email of user
-        example: brigitte_koepp@ferry.net
+        example: lonny@beerklocko.net
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Veritatis veniam sed voluptatibus.
+        example: Optio repudiandae eaque quia cupiditate.
         type: string
-      password:
-        description: Password of user
-        example: x75md877qp
-        maxLength: 30
-        minLength: 6
-        type: string
-      roles:
-        description: Roles of user
+      organizations:
+        description: List of organizations to which this user belongs to
         example:
         - Placeat reprehenderit similique quo.
         - Placeat reprehenderit similique quo.
         - Placeat reprehenderit similique quo.
         items:
           example: Placeat reprehenderit similique quo.
+          type: string
+        type: array
+      password:
+        description: Password of user
+        example: hg0arnperc
+        maxLength: 30
+        minLength: 6
+        type: string
+      roles:
+        description: Roles of user
+        example:
+        - Occaecati ut excepturi et deleniti quis.
+        - Occaecati ut excepturi et deleniti quis.
+        items:
+          example: Occaecati ut excepturi et deleniti quis.
           type: string
         type: array
       token:
@@ -135,10 +147,14 @@ definitions:
       email: thad@herman.name
       externalId: Possimus ullam occaecati quae.
       id: Rerum aliquid in sit reprehenderit ea.
+      organizations:
+      - Placeat reprehenderit similique quo.
+      - Placeat reprehenderit similique quo.
+      - Placeat reprehenderit similique quo.
       roles:
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
+      - Occaecati ut excepturi et deleniti quis.
+      - Occaecati ut excepturi et deleniti quis.
+      - Occaecati ut excepturi et deleniti quis.
     properties:
       active:
         default: false
@@ -158,14 +174,24 @@ definitions:
         description: Unique user ID
         example: Rerum aliquid in sit reprehenderit ea.
         type: string
-      roles:
-        description: Roles of user
+      organizations:
+        description: List of organizations to which this user belongs to
         example:
         - Placeat reprehenderit similique quo.
         - Placeat reprehenderit similique quo.
         - Placeat reprehenderit similique quo.
         items:
           example: Placeat reprehenderit similique quo.
+          type: string
+        type: array
+      roles:
+        description: Roles of user
+        example:
+        - Occaecati ut excepturi et deleniti quis.
+        - Occaecati ut excepturi et deleniti quis.
+        - Occaecati ut excepturi et deleniti quis.
+        items:
+          example: Occaecati ut excepturi et deleniti quis.
           type: string
         type: array
     required:
@@ -228,6 +254,7 @@ paths:
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.user+json
+      - application/vnd.goa.error
       responses:
         "201":
           description: Created
@@ -257,6 +284,8 @@ paths:
         required: true
         type: string
       produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
       - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
@@ -298,6 +327,8 @@ paths:
           $ref: '#/definitions/UserPayload'
       produces:
       - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -334,6 +365,7 @@ paths:
           $ref: '#/definitions/Credentials'
       produces:
       - application/vnd.goa.error
+      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -368,6 +400,7 @@ paths:
           $ref: '#/definitions/EmailPayload'
       produces:
       - application/vnd.goa.error
+      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -392,6 +425,8 @@ paths:
       description: Retrieves the user information for the authenticated user
       operationId: user#getMe
       produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
       - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:

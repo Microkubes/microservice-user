@@ -55,10 +55,11 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 
 	// Define user media type
 	py := &app.Users{
-		ID:         *id,
-		Email:      ctx.Payload.Email,
-		ExternalID: externalID,
-		Roles:      ctx.Payload.Roles,
+		ID:            *id,
+		Email:         ctx.Payload.Email,
+		ExternalID:    externalID,
+		Roles:         ctx.Payload.Roles,
+		Organizations: ctx.Payload.Organizations,
 	}
 
 	return ctx.Created(py)

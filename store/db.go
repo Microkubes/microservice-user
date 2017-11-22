@@ -124,12 +124,13 @@ func (c *UserCollection) CreateUser(payload *app.UserPayload) (*string, error) {
 	// Insert Data
 	id := bson.NewObjectId()
 	err := c.Insert(bson.M{
-		"_id":        id,
-		"email":      payload.Email,
-		"password":   payload.Password,
-		"externalId": payload.ExternalID,
-		"roles":      payload.Roles,
-		"active":     payload.Active,
+		"_id":           id,
+		"email":         payload.Email,
+		"password":      payload.Password,
+		"externalId":    payload.ExternalID,
+		"roles":         payload.Roles,
+		"active":        payload.Active,
+		"organizations": payload.Organizations,
 	})
 
 	// Handle errors
@@ -152,9 +153,37 @@ func (c *UserCollection) UpdateUser(userID string, payload *app.UserPayload) (*a
 		return nil, err
 	}
 
+	updated := map[string]interface{}{
+		"id": userID,
+	}
+
+	updated["active"] = payload.Active
+	if payload.Email != "" {
+		updated["email"] = payload.Email
+	}
+	if payload.ExternalID != nil {
+		updated["externalId"] = payload.ExternalID
+	}
+
+	if payload.Password != nil && *payload.Password != "" {
+		hashedPassword, herr := bcrypt.GenerateFromPassword([]byte(*payload.Password), bcrypt.DefaultCost)
+		if herr != nil {
+			return nil, goa.ErrInternal(herr)
+		}
+		updated["password"] = string(hashedPassword)
+	}
+
+	if payload.Roles != nil {
+		updated["roles"] = payload.Roles
+	}
+
+	if payload.Organizations != nil {
+		updated["organizations"] = payload.Organizations
+	}
+
 	err = c.Update(
 		bson.M{"_id": objectID},
-		bson.M{"$set": payload},
+		bson.M{"$set": updated},
 	)
 
 	if err != nil {
@@ -179,13 +208,38 @@ func (c *UserCollection) FindByID(userID string, mediaType *app.Users) error {
 	if err != nil {
 		return err
 	}
-
+	result := map[string]interface{}{}
 	// Return one user by id.
-	if err := c.FindId(objectID).One(&mediaType); err != nil {
+	if err := c.FindId(objectID).One(&result); err != nil {
 		if err.Error() == "not found" {
 			return goa.ErrNotFound("user not found")
 		}
 		return goa.ErrInternal(err)
+	}
+	mediaType.ID = result["_id"].(bson.ObjectId).Hex()
+	mediaType.Active = result["active"].(bool)
+	mediaType.Email = result["email"].(string)
+	if externalID, ok := result["externalId"]; ok {
+		if externalID == nil {
+			externalID = ""
+		}
+		mediaType.ExternalID = externalID.(string)
+	}
+	if roles, ok := result["roles"]; ok {
+		mediaType.Roles = []string{}
+		if roles != nil {
+			for _, role := range roles.([]interface{}) {
+				mediaType.Roles = append(mediaType.Roles, role.(string))
+			}
+		}
+	}
+	if organizations, ok := result["organizations"]; ok {
+		mediaType.Organizations = []string{}
+		if organizations != nil {
+			for _, organization := range organizations.([]interface{}) {
+				mediaType.Organizations = append(mediaType.Organizations, organization.(string))
+			}
+		}
 	}
 
 	return nil
@@ -267,12 +321,24 @@ func (c *UserCollection) FindByEmail(email string) (*app.Users, error) {
 		}
 	}
 
+	organizations := []string{}
+	if _, ok := userData["organizations"]; ok {
+		if orgsArr, ok := userData["organizations"].([]interface{}); ok {
+			for _, org := range orgsArr {
+				organizations = append(organizations, org.(string))
+			}
+		}
+	}
+
 	user := &app.Users{
-		Active:     active,
-		Email:      userData["email"].(string),
-		ID:         userData["_id"].(bson.ObjectId).Hex(),
-		Roles:      roles,
-		ExternalID: userData["externalId"].(string),
+		Active:        active,
+		Email:         userData["email"].(string),
+		ID:            userData["_id"].(bson.ObjectId).Hex(),
+		Roles:         roles,
+		Organizations: organizations,
+	}
+	if externalID, ok := userData["externalId"]; ok && externalID != nil {
+		user.ExternalID = externalID.(string)
 	}
 
 	return user, nil

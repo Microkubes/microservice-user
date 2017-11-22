@@ -14,11 +14,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/JormungandrK/user-microservice/client"
-	"github.com/goadesign/goa"
-	goaclient "github.com/goadesign/goa/client"
-	uuid "github.com/goadesign/goa/uuid"
-	"github.com/spf13/cobra"
 	"log"
 	"net/url"
 	"os"
@@ -26,6 +21,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/JormungandrK/user-microservice/client"
+	"github.com/goadesign/goa"
+	goaclient "github.com/goadesign/goa/client"
+	uuid "github.com/goadesign/goa/uuid"
+	"github.com/spf13/cobra"
 )
 
 type (
@@ -109,15 +110,19 @@ Payload example:
 
 {
    "active": true,
-   "email": "brigitte_koepp@ferry.net",
-   "externalId": "Veritatis veniam sed voluptatibus.",
-   "password": "x75md877qp",
-   "roles": [
+   "email": "lonny@beerklocko.net",
+   "externalId": "Optio repudiandae eaque quia cupiditate.",
+   "organizations": [
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
    ],
-   "token": "Nostrum consequatur."
+   "token": "Nostrum consequatur.",
+   "password": "hg0arnperc",
+   "roles": [
+      "Occaecati ut excepturi et deleniti quis.",
+      "Occaecati ut excepturi et deleniti quis."
+   ]
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -161,6 +166,7 @@ Payload example:
 
 {
    "email": "sibyl_torp@howe.name"
+   "email": "ari_kuhn@welch.org"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -231,15 +237,19 @@ Payload example:
 
 {
    "active": true,
-   "email": "brigitte_koepp@ferry.net",
-   "externalId": "Veritatis veniam sed voluptatibus.",
-   "password": "x75md877qp",
-   "roles": [
+   "email": "lonny@beerklocko.net",
+   "externalId": "Optio repudiandae eaque quia cupiditate.",
+   "organizations": [
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
    ],
-   "token": "Nostrum consequatur."
+   "token": "Nostrum consequatur.",
+   "password": "hg0arnperc",
+   "roles": [
+      "Occaecati ut excepturi et deleniti quis.",
+      "Occaecati ut excepturi et deleniti quis."
+   ]
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
