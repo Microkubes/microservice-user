@@ -6,7 +6,7 @@
 // $ goagen
 // --design=github.com/JormungandrK/user-microservice/design
 // --out=$(GOPATH)/src/github.com/JormungandrK/user-microservice
-// --version=v1.3.0
+// --version=v1.2.0-dirty
 
 package cli
 
@@ -14,6 +14,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/JormungandrK/user-microservice/client"
+	"github.com/goadesign/goa"
+	goaclient "github.com/goadesign/goa/client"
+	uuid "github.com/goadesign/goa/uuid"
+	"github.com/spf13/cobra"
 	"log"
 	"net/url"
 	"os"
@@ -21,12 +26,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/JormungandrK/user-microservice/client"
-	"github.com/goadesign/goa"
-	goaclient "github.com/goadesign/goa/client"
-	uuid "github.com/goadesign/goa/uuid"
-	"github.com/spf13/cobra"
 )
 
 type (
@@ -117,12 +116,12 @@ Payload example:
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
    ],
-   "token": "Nostrum consequatur.",
    "password": "hg0arnperc",
    "roles": [
       "Occaecati ut excepturi et deleniti quis.",
       "Occaecati ut excepturi et deleniti quis."
-   ]
+   ],
+   "token": "Repellat doloremque aut sed ut impedit."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -143,8 +142,8 @@ Payload example:
 Payload example:
 
 {
-   "email": "brandyn@ziemannkuhlman.org",
-   "password": "fr8xzx"
+   "email": "andres@bernier.com",
+   "password": "fhc83fj22"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -165,8 +164,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "sibyl_torp@howe.name"
-   "email": "ari_kuhn@welch.org"
+   "email": "paris_hodkiewicz@davis.name"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -215,7 +213,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "sibyl_torp@howe.name"
+   "email": "paris_hodkiewicz@davis.name"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
@@ -244,12 +242,12 @@ Payload example:
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
    ],
-   "token": "Nostrum consequatur.",
    "password": "hg0arnperc",
    "roles": [
       "Occaecati ut excepturi et deleniti quis.",
       "Occaecati ut excepturi et deleniti quis."
-   ]
+   ],
+   "token": "Repellat doloremque aut sed ut impedit."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}

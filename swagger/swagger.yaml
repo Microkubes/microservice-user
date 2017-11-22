@@ -7,17 +7,17 @@ definitions:
   Credentials:
     description: Email and password credentials
     example:
-      email: brandyn@ziemannkuhlman.org
-      password: fr8xzx
+      email: andres@bernier.com
+      password: fhc83fj22
     properties:
       email:
         description: Email of user
-        example: brandyn@ziemannkuhlman.org
+        example: andres@bernier.com
         format: email
         type: string
       password:
         description: Password of user
-        example: fr8xzx
+        example: fhc83fj22
         maxLength: 30
         minLength: 6
         type: string
@@ -29,11 +29,11 @@ definitions:
   EmailPayload:
     description: Email payload
     example:
-      email: sibyl_torp@howe.name
+      email: paris_hodkiewicz@davis.name
     properties:
       email:
         description: Email of user
-        example: sibyl_torp@howe.name
+        example: paris_hodkiewicz@davis.name
         format: email
         type: string
     required:
@@ -50,11 +50,11 @@ definitions:
       - Placeat reprehenderit similique quo.
       - Placeat reprehenderit similique quo.
       - Placeat reprehenderit similique quo.
-      token: Nostrum consequatur.
       password: hg0arnperc
       roles:
       - Occaecati ut excepturi et deleniti quis.
       - Occaecati ut excepturi et deleniti quis.
+      token: Repellat doloremque aut sed ut impedit.
     properties:
       active:
         default: false
@@ -97,7 +97,7 @@ definitions:
         type: array
       token:
         description: Token for email verification
-        example: Nostrum consequatur.
+        example: Repellat doloremque aut sed ut impedit.
         type: string
     required:
     - email
@@ -464,6 +464,7 @@ paths:
           $ref: '#/definitions/EmailPayload'
       produces:
       - application/vnd.goa.error
+      - application/vnd.goa.error
       - plain/text
       responses:
         "200":
@@ -492,6 +493,7 @@ paths:
         required: false
         type: string
       produces:
+      - application/vnd.goa.error
       - application/vnd.goa.error
       - plain/text
       responses:
