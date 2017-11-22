@@ -13,18 +13,36 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// Collection is an interface to access to the collection struct.
-type Collection interface {
+// IUserCollection is an interface to access the userCollection struct.
+type IUserCollection interface {
 	CreateUser(payload *app.UserPayload) (*string, error)
 	UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error)
 	FindByID(userID string, mediaType *app.Users) error
 	FindByEmailAndPassword(email, password string) (*app.Users, error)
 	FindByEmail(email string) (*app.Users, error)
+	ActivateUser(email string) error
 }
 
-// MongoCollection wraps a mgo.Collection to embed methods in models.
-type MongoCollection struct {
+// ITokenCollection is an interface to access the tokenCollection struct.
+type ITokenCollection interface {
+	CreateToken(payload *app.UserPayload) error
+	VerifyToken(token string) (*string, error)
+	DeleteToken(token string) error
+}
+
+// UserCollection wraps a mgo.Collection to embed methods in models.
+type UserCollection struct {
 	*mgo.Collection
+}
+
+// TokenCollection wraps a mgo.Collection to embed methods in models.
+type TokenCollection struct {
+	*mgo.Collection
+}
+
+type Collections struct {
+	Users  IUserCollection
+	Tokens ITokenCollection
 }
 
 // NewSession returns a new Mongo Session.
@@ -47,7 +65,7 @@ func NewSession(Host string, Username string, Password string, Database string) 
 }
 
 // PrepareDB ensure presence of persistent and immutable data in the DB.
-func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []string) *mgo.Collection {
+func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []string, enableTTL bool) *mgo.Collection {
 	// Create collection
 	collection := session.DB(db).C(dbCollection)
 
@@ -68,11 +86,26 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 		}
 	}
 
+	if enableTTL == true {
+		index := mgo.Index{
+			Key:         []string{"created_at"},
+			Unique:      false,
+			DropDups:    false,
+			Background:  true,
+			Sparse:      true,
+			ExpireAfter: time.Duration(60*60*24) * time.Second,
+		}
+		if err := collection.EnsureIndex(index); err != nil {
+			panic(err)
+		}
+
+	}
+
 	return collection
 }
 
 // CreateUser creates a user if payload is valid, otherwise it returns error
-func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) {
+func (c *UserCollection) CreateUser(payload *app.UserPayload) (*string, error) {
 	if payload.Password == nil && payload.ExternalID == nil {
 		return nil, goa.ErrBadRequest("password or externalID must be specified!")
 	}
@@ -113,7 +146,7 @@ func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) 
 }
 
 // UpdateUser updates a user if payload is valid, otherwise it returns error
-func (c *MongoCollection) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error) {
+func (c *UserCollection) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error) {
 	objectID, err := hexToObjectID(userID)
 	if err != nil {
 		return nil, err
@@ -141,7 +174,7 @@ func (c *MongoCollection) UpdateUser(userID string, payload *app.UserPayload) (*
 }
 
 // FindByID collection by Id in hex representation - real database
-func (c *MongoCollection) FindByID(userID string, mediaType *app.Users) error {
+func (c *UserCollection) FindByID(userID string, mediaType *app.Users) error {
 	objectID, err := hexToObjectID(userID)
 	if err != nil {
 		return err
@@ -160,7 +193,7 @@ func (c *MongoCollection) FindByID(userID string, mediaType *app.Users) error {
 
 // FindByEmailAndPassword looks up a user by its email and password.
 // This is used primarily by other microservices to validate user credentials.
-func (c *MongoCollection) FindByEmailAndPassword(email, password string) (*app.Users, error) {
+func (c *UserCollection) FindByEmailAndPassword(email, password string) (*app.Users, error) {
 	query := bson.M{"email": bson.M{"$eq": email}}
 
 	userData := map[string]interface{}{}
@@ -212,7 +245,7 @@ func (c *MongoCollection) FindByEmailAndPassword(email, password string) (*app.U
 }
 
 // FindByEmail looks up a user by its email.
-func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
+func (c *UserCollection) FindByEmail(email string) (*app.Users, error) {
 	query := bson.M{"email": bson.M{"$eq": email}}
 
 	userData := map[string]interface{}{}
@@ -243,6 +276,66 @@ func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
 	}
 
 	return user, nil
+}
+
+func (c *UserCollection) ActivateUser(email string) error {
+	err := c.Update(
+		bson.M{"email": email},
+		bson.M{"$set": bson.M{"active": true}},
+	)
+	if err != nil {
+		if err.Error() == "not found" {
+			return goa.ErrNotFound(err)
+		}
+		return goa.ErrInternal(err)
+	}
+	return nil
+}
+
+func (c *TokenCollection) CreateToken(payload *app.UserPayload) error {
+	id := bson.NewObjectId()
+	err := c.Insert(bson.M{
+		"_id":        id,
+		"email":      payload.Email,
+		"token":      payload.Token,
+		"created_at": time.Now(),
+	})
+
+	if err != nil {
+		return goa.ErrInternal(err)
+	}
+	return nil
+}
+
+func (c *TokenCollection) VerifyToken(token string) (*string, error) {
+	query := bson.M{"token": bson.M{"$eq": token}}
+
+	tokenData := map[string]interface{}{}
+	err := c.Collection.Find(query).Limit(1).One(tokenData)
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, goa.ErrNotFound("token not found!")
+		}
+		print(reflect.TypeOf(err))
+		return nil, goa.ErrInternal(err)
+	}
+
+	email := tokenData["email"].(string)
+	return &email, nil
+}
+
+func (c *TokenCollection) DeleteToken(token string) error {
+	query := bson.M{"token": bson.M{"$eq": token}}
+
+	err := c.Collection.Remove(query)
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			return goa.ErrNotFound("token not found!")
+		}
+		print(reflect.TypeOf(err))
+		return goa.ErrInternal(err)
+	}
+	return nil
 }
 
 // Convert hex representation of object id to bson object id

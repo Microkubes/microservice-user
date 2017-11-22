@@ -7,17 +7,17 @@ definitions:
   Credentials:
     description: Email and password credentials
     example:
-      email: alfonso.marks@hillsmcglynn.biz
-      password: ky0fr8x
+      email: brandyn@ziemannkuhlman.org
+      password: fr8xzx
     properties:
       email:
         description: Email of user
-        example: alfonso.marks@hillsmcglynn.biz
+        example: brandyn@ziemannkuhlman.org
         format: email
         type: string
       password:
         description: Password of user
-        example: ky0fr8x
+        example: fr8xzx
         maxLength: 30
         minLength: 6
         type: string
@@ -29,11 +29,11 @@ definitions:
   EmailPayload:
     description: Email payload
     example:
-      email: thaddeus_o'connell@gislason.biz
+      email: sibyl_torp@howe.name
     properties:
       email:
         description: Email of user
-        example: thaddeus_o'connell@gislason.biz
+        example: sibyl_torp@howe.name
         format: email
         type: string
     required:
@@ -51,6 +51,7 @@ definitions:
       - Placeat reprehenderit similique quo.
       - Placeat reprehenderit similique quo.
       - Placeat reprehenderit similique quo.
+      token: Nostrum consequatur.
     properties:
       active:
         default: false
@@ -82,6 +83,10 @@ definitions:
           example: Placeat reprehenderit similique quo.
           type: string
         type: array
+      token:
+        description: Token for email verification
+        example: Nostrum consequatur.
+        type: string
     required:
     - email
     title: UserPayload
@@ -409,6 +414,65 @@ paths:
       schemes:
       - http
       summary: getMe user
+      tags:
+      - user
+  /users/resend:
+    post:
+      description: Resend verification email
+      operationId: user#resend
+      parameters:
+      - description: Email payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/EmailPayload'
+      produces:
+      - application/vnd.goa.error
+      - plain/text
+      responses:
+        "200":
+          description: Email verification sent
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: resend user
+      tags:
+      - user
+  /users/verify:
+    get:
+      description: Verify a user by token
+      operationId: user#verify
+      parameters:
+      - description: Token
+        in: query
+        name: token
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - plain/text
+      responses:
+        "200":
+          description: User is verified
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: verify user
       tags:
       - user
 produces:

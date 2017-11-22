@@ -6,7 +6,7 @@
 // $ goagen
 // --design=github.com/JormungandrK/user-microservice/design
 // --out=$(GOPATH)/src/github.com/JormungandrK/user-microservice
-// --version=v1.2.0-dirty
+// --version=v1.3.0
 
 package app
 
@@ -146,6 +146,8 @@ type userPayload struct {
 	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
 	Roles []string `form:"roles,omitempty" json:"roles,omitempty" xml:"roles,omitempty"`
+	// Token for email verification
+	Token *string `form:"token,omitempty" json:"token,omitempty" xml:"token,omitempty"`
 }
 
 // Finalize sets the default values for userPayload type instance.
@@ -197,6 +199,9 @@ func (ut *userPayload) Publicize() *UserPayload {
 	if ut.Roles != nil {
 		pub.Roles = ut.Roles
 	}
+	if ut.Token != nil {
+		pub.Token = ut.Token
+	}
 	return &pub
 }
 
@@ -212,6 +217,8 @@ type UserPayload struct {
 	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
 	Roles []string `form:"roles,omitempty" json:"roles,omitempty" xml:"roles,omitempty"`
+	// Token for email verification
+	Token *string `form:"token,omitempty" json:"token,omitempty" xml:"token,omitempty"`
 }
 
 // Validate validates the UserPayload type instance.

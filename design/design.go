@@ -83,6 +83,34 @@ var _ = Resource("user", func() {
 		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
+
+	Action("verify", func() {
+		Description("Verify a user by token")
+		Routing(GET("verify"))
+		Params(func() {
+			Param("token", String, "Token")
+		})
+		Response("OK", func() {
+			Description("User is verified")
+			Status(200)
+			Media("plain/text")
+		})
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+
+	Action("resend", func() {
+		Description("Resend verification email")
+		Routing(POST("resend"))
+		Payload(EmailPayload)
+		Response("OK", func() {
+			Description("Email verification sent")
+			Status(200)
+			Media("plain/text")
+		})
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
 })
 
 // UserMedia defines the media type used to render user.
@@ -124,6 +152,7 @@ var UserPayload = Type("UserPayload", func() {
 	Attribute("active", Boolean, "Status of user account", func() {
 		Default(false)
 	})
+	Attribute("token", String, "Token for email verification")
 
 	Required("email")
 })

@@ -6,7 +6,7 @@
 // $ goagen
 // --design=github.com/JormungandrK/user-microservice/design
 // --out=$(GOPATH)/src/github.com/JormungandrK/user-microservice
-// --version=v1.2.0-dirty
+// --version=v1.3.0
 
 package app
 
@@ -63,7 +63,9 @@ type UserController interface {
 	FindByEmail(*FindByEmailUserContext) error
 	Get(*GetUserContext) error
 	GetMe(*GetMeUserContext) error
+	Resend(*ResendUserContext) error
 	Update(*UpdateUserContext) error
+	Verify(*VerifyUserContext) error
 }
 
 // MountUserController "mounts" a User resource controller on the given service.
@@ -170,6 +172,27 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
+		rctx, err := NewResendUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*EmailPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Resend(rctx)
+	}
+	service.Mux.Handle("POST", "/users/resend", ctrl.MuxHandler("resend", h, unmarshalResendUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "Resend", "route", "POST /users/resend")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewUpdateUserContext(ctx, req, service)
 		if err != nil {
 			return err
@@ -184,6 +207,21 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	}
 	service.Mux.Handle("PUT", "/users/:userId", ctrl.MuxHandler("update", h, unmarshalUpdateUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "Update", "route", "PUT /users/:userId")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewVerifyUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Verify(rctx)
+	}
+	service.Mux.Handle("GET", "/users/verify", ctrl.MuxHandler("verify", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "Verify", "route", "GET /users/verify")
 }
 
 // unmarshalCreateUserPayload unmarshals the request body into the context request data Payload field.
@@ -219,6 +257,21 @@ func unmarshalFindUserPayload(ctx context.Context, service *goa.Service, req *ht
 
 // unmarshalFindByEmailUserPayload unmarshals the request body into the context request data Payload field.
 func unmarshalFindByEmailUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &emailPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalResendUserPayload unmarshals the request body into the context request data Payload field.
+func unmarshalResendUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &emailPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err

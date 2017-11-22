@@ -6,7 +6,7 @@
 // $ goagen
 // --design=github.com/JormungandrK/user-microservice/design
 // --out=$(GOPATH)/src/github.com/JormungandrK/user-microservice
-// --version=v1.2.0-dirty
+// --version=v1.3.0
 
 package cli
 
@@ -62,12 +62,26 @@ type (
 		PrettyPrint bool
 	}
 
+	// ResendUserCommand is the command line data structure for the resend action of user
+	ResendUserCommand struct {
+		Payload     string
+		ContentType string
+		PrettyPrint bool
+	}
+
 	// UpdateUserCommand is the command line data structure for the update action of user
 	UpdateUserCommand struct {
 		Payload     string
 		ContentType string
 		// User ID
 		UserID      string
+		PrettyPrint bool
+	}
+
+	// VerifyUserCommand is the command line data structure for the verify action of user
+	VerifyUserCommand struct {
+		// Token
+		Token       string
 		PrettyPrint bool
 	}
 
@@ -102,7 +116,8 @@ Payload example:
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
-   ]
+   ],
+   "token": "Nostrum consequatur."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -123,8 +138,8 @@ Payload example:
 Payload example:
 
 {
-   "email": "alfonso.marks@hillsmcglynn.biz",
-   "password": "ky0fr8x"
+   "email": "brandyn@ziemannkuhlman.org",
+   "password": "fr8xzx"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -145,7 +160,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "thaddeus_o'connell@gislason.biz"
+   "email": "sibyl_torp@howe.name"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -182,10 +197,31 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "resend",
+		Short: `Resend verification email`,
+	}
+	tmp6 := new(ResendUserCommand)
+	sub = &cobra.Command{
+		Use:   `user ["/users/resend"]`,
+		Short: ``,
+		Long: `
+
+Payload example:
+
+{
+   "email": "sibyl_torp@howe.name"
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
+	}
+	tmp6.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "update",
 		Short: `Update user`,
 	}
-	tmp6 := new(UpdateUserCommand)
+	tmp7 := new(UpdateUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/USERID"]`,
 		Short: ``,
@@ -202,12 +238,27 @@ Payload example:
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
-   ]
+   ],
+   "token": "Nostrum consequatur."
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
-	tmp6.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp7.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp7.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "verify",
+		Short: `Verify a user by token`,
+	}
+	tmp8 := new(VerifyUserCommand)
+	sub = &cobra.Command{
+		Use:   `user ["/users/verify"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
+	}
+	tmp8.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp8.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -572,6 +623,39 @@ func (cmd *GetMeUserCommand) Run(c *client.Client, args []string) error {
 func (cmd *GetMeUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 }
 
+// Run makes the HTTP request corresponding to the ResendUserCommand command.
+func (cmd *ResendUserCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/users/resend"
+	}
+	var payload client.EmailPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ResendUser(ctx, path, &payload, cmd.ContentType)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ResendUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
 // Run makes the HTTP request corresponding to the UpdateUserCommand command.
 func (cmd *UpdateUserCommand) Run(c *client.Client, args []string) error {
 	var path string
@@ -605,4 +689,30 @@ func (cmd *UpdateUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client)
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var userID string
 	cc.Flags().StringVar(&cmd.UserID, "userId", userID, `User ID`)
+}
+
+// Run makes the HTTP request corresponding to the VerifyUserCommand command.
+func (cmd *VerifyUserCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/users/verify"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.VerifyUser(ctx, path, stringFlagVal("token", cmd.Token))
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *VerifyUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var token string
+	cc.Flags().StringVar(&cmd.Token, "token", token, `Token`)
 }
