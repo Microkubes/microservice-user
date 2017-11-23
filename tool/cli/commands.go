@@ -62,8 +62,8 @@ type (
 		PrettyPrint bool
 	}
 
-	// ResendUserCommand is the command line data structure for the resend action of user
-	ResendUserCommand struct {
+	// ResetVerificationTokenUserCommand is the command line data structure for the resetVerificationToken action of user
+	ResetVerificationTokenUserCommand struct {
 		Payload     string
 		ContentType string
 		PrettyPrint bool
@@ -108,20 +108,18 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 Payload example:
 
 {
-   "active": true,
-   "email": "lonny@beerklocko.net",
-   "externalId": "Optio repudiandae eaque quia cupiditate.",
+   "active": false,
+   "email": "kade.o'connell@bode.org",
+   "externalId": "Cupiditate similique voluptas repellat.",
    "organizations": [
-      "Placeat reprehenderit similique quo.",
-      "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
    ],
-   "password": "hg0arnperc",
+   "password": "fp30qad23v",
    "roles": [
       "Occaecati ut excepturi et deleniti quis.",
       "Occaecati ut excepturi et deleniti quis."
    ],
-   "token": "Repellat doloremque aut sed ut impedit."
+   "token": "Earum aut maiores harum impedit enim."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -142,8 +140,8 @@ Payload example:
 Payload example:
 
 {
-   "email": "andres@bernier.com",
-   "password": "fhc83fj22"
+   "email": "lesly@stanton.biz",
+   "password": "lyz5bvhh"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -164,7 +162,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "paris_hodkiewicz@davis.name"
+   "email": "katlyn@gusikowskiwilderman.name"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -201,19 +199,19 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "resend",
-		Short: `Resend verification email`,
+		Use:   "reset-verification-token",
+		Short: `Reset verification token`,
 	}
-	tmp6 := new(ResendUserCommand)
+	tmp6 := new(ResetVerificationTokenUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/resend"]`,
+		Use:   `user ["/users/verification/reset"]`,
 		Short: ``,
 		Long: `
 
 Payload example:
 
 {
-   "email": "paris_hodkiewicz@davis.name"
+   "email": "katlyn@gusikowskiwilderman.name"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
@@ -234,20 +232,18 @@ Payload example:
 Payload example:
 
 {
-   "active": true,
-   "email": "lonny@beerklocko.net",
-   "externalId": "Optio repudiandae eaque quia cupiditate.",
+   "active": false,
+   "email": "kade.o'connell@bode.org",
+   "externalId": "Cupiditate similique voluptas repellat.",
    "organizations": [
-      "Placeat reprehenderit similique quo.",
-      "Placeat reprehenderit similique quo.",
       "Placeat reprehenderit similique quo."
    ],
-   "password": "hg0arnperc",
+   "password": "fp30qad23v",
    "roles": [
       "Occaecati ut excepturi et deleniti quis.",
       "Occaecati ut excepturi et deleniti quis."
    ],
-   "token": "Repellat doloremque aut sed ut impedit."
+   "token": "Earum aut maiores harum impedit enim."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
@@ -631,13 +627,13 @@ func (cmd *GetMeUserCommand) Run(c *client.Client, args []string) error {
 func (cmd *GetMeUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 }
 
-// Run makes the HTTP request corresponding to the ResendUserCommand command.
-func (cmd *ResendUserCommand) Run(c *client.Client, args []string) error {
+// Run makes the HTTP request corresponding to the ResetVerificationTokenUserCommand command.
+func (cmd *ResetVerificationTokenUserCommand) Run(c *client.Client, args []string) error {
 	var path string
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/resend"
+		path = "/users/verification/reset"
 	}
 	var payload client.EmailPayload
 	if cmd.Payload != "" {
@@ -648,7 +644,7 @@ func (cmd *ResendUserCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ResendUser(ctx, path, &payload, cmd.ContentType)
+	resp, err := c.ResetVerificationTokenUser(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -659,7 +655,7 @@ func (cmd *ResendUserCommand) Run(c *client.Client, args []string) error {
 }
 
 // RegisterFlags registers the command flags with the command line.
-func (cmd *ResendUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+func (cmd *ResetVerificationTokenUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }

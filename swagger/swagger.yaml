@@ -7,17 +7,17 @@ definitions:
   Credentials:
     description: Email and password credentials
     example:
-      email: andres@bernier.com
-      password: fhc83fj22
+      email: lesly@stanton.biz
+      password: lyz5bvhh
     properties:
       email:
         description: Email of user
-        example: andres@bernier.com
+        example: lesly@stanton.biz
         format: email
         type: string
       password:
         description: Password of user
-        example: fhc83fj22
+        example: lyz5bvhh
         maxLength: 30
         minLength: 6
         type: string
@@ -29,52 +29,73 @@ definitions:
   EmailPayload:
     description: Email payload
     example:
-      email: paris_hodkiewicz@davis.name
+      email: katlyn@gusikowskiwilderman.name
     properties:
       email:
         description: Email of user
-        example: paris_hodkiewicz@davis.name
+        example: katlyn@gusikowskiwilderman.name
         format: email
         type: string
     required:
     - email
     title: EmailPayload
     type: object
+  ResetToken:
+    description: ResetToken media type (default view)
+    example:
+      email: Consequuntur officiis velit.
+      id: Nam velit incidunt sunt sed provident.
+      token: Corrupti dignissimos nisi.
+    properties:
+      email:
+        description: User email
+        example: Consequuntur officiis velit.
+        type: string
+      id:
+        description: User ID
+        example: Nam velit incidunt sunt sed provident.
+        type: string
+      token:
+        description: New token
+        example: Corrupti dignissimos nisi.
+        type: string
+    required:
+    - id
+    - email
+    - token
+    title: 'Mediatype identifier: resettokenmedia; view=default'
+    type: object
   UserPayload:
     description: UserPayload
     example:
-      active: true
-      email: lonny@beerklocko.net
-      externalId: Optio repudiandae eaque quia cupiditate.
+      active: false
+      email: kade.o'connell@bode.org
+      externalId: Cupiditate similique voluptas repellat.
       organizations:
       - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      password: hg0arnperc
+      password: fp30qad23v
       roles:
       - Occaecati ut excepturi et deleniti quis.
       - Occaecati ut excepturi et deleniti quis.
-      token: Repellat doloremque aut sed ut impedit.
+      token: Earum aut maiores harum impedit enim.
     properties:
       active:
         default: false
         description: Status of user account
-        example: true
+        example: false
         type: boolean
       email:
         description: Email of user
-        example: lonny@beerklocko.net
+        example: kade.o'connell@bode.org
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Optio repudiandae eaque quia cupiditate.
+        example: Cupiditate similique voluptas repellat.
         type: string
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
         - Placeat reprehenderit similique quo.
         items:
           example: Placeat reprehenderit similique quo.
@@ -82,7 +103,7 @@ definitions:
         type: array
       password:
         description: Password of user
-        example: hg0arnperc
+        example: fp30qad23v
         maxLength: 30
         minLength: 6
         type: string
@@ -97,7 +118,7 @@ definitions:
         type: array
       token:
         description: Token for email verification
-        example: Repellat doloremque aut sed ut impedit.
+        example: Earum aut maiores harum impedit enim.
         type: string
     required:
     - email
@@ -451,10 +472,10 @@ paths:
       summary: getMe user
       tags:
       - user
-  /users/resend:
+  /users/verification/reset:
     post:
-      description: Resend verification email
-      operationId: user#resend
+      description: Reset verification token
+      operationId: user#resetVerificationToken
       parameters:
       - description: Email payload
         in: body
@@ -465,10 +486,17 @@ paths:
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.error
-      - plain/text
+      - application/vnd.goa.error
+      - resettokenmedia
       responses:
         "200":
-          description: Email verification sent
+          description: Verification token reset
+          schema:
+            $ref: '#/definitions/ResetToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
         "404":
           description: Not Found
           schema:
@@ -479,7 +507,7 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
-      summary: resend user
+      summary: resetVerificationToken user
       tags:
       - user
   /users/verify:

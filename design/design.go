@@ -98,16 +98,16 @@ var _ = Resource("user", func() {
 		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
-
-	Action("resend", func() {
-		Description("Resend verification email")
-		Routing(POST("resend"))
+	Action("resetVerificationToken", func() {
+		Description("Reset verification token")
+		Routing(POST("verification/reset"))
 		Payload(EmailPayload)
 		Response("OK", func() {
-			Description("Email verification sent")
+			Description("Verification token reset")
 			Status(200)
-			Media("plain/text")
+			Media(ResetTokenMedia)
 		})
+		Response(BadRequest, ErrorMedia)
 		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
@@ -135,6 +135,22 @@ var UserMedia = MediaType("application/vnd.goa.user+json", func() {
 		Attribute("externalId")
 		Attribute("active")
 		Attribute("organizations")
+	})
+})
+
+// ResetTokenMedia is returned after successful reset of the verification token
+var ResetTokenMedia = MediaType("ResetTokenMedia", func() {
+	TypeName("ResetToken")
+	Attributes(func() {
+		Attribute("id", String, "User ID")
+		Attribute("email", String, "User email")
+		Attribute("token", String, "New token")
+		Required("id", "email", "token")
+	})
+	View("default", func() {
+		Attribute("id")
+		Attribute("email")
+		Attribute("token")
 	})
 })
 

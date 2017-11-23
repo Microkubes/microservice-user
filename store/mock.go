@@ -15,7 +15,7 @@ type DB struct {
 }
 
 // NewDB initializes a new "DB" with dummy data.
-func NewDB() *DB {
+func NewDB() Collections {
 	roles := []string{"admin", "user"}
 	pass := "pass"
 	extID := "qwerc461f9f8eb02aae053f3"
@@ -26,7 +26,15 @@ func NewDB() *DB {
 		Roles:      roles,
 		Password:   &pass,
 	}
-	return &DB{users: map[string]*app.UserPayload{"5975c461f9f8eb02aae053f3": user}}
+	//return &DB{users: map[string]*app.UserPayload{"5975c461f9f8eb02aae053f3": user}}
+	return Collections{
+		Tokens: &TokensMock{},
+		Users: &DB{
+			users: map[string]*app.UserPayload{
+				"5975c461f9f8eb02aae053f3": user,
+			},
+		},
+	}
 }
 
 // Reset removes all entries from the database.
@@ -139,5 +147,21 @@ func (db *DB) FindByEmail(email string) (*app.Users, error) {
 }
 
 func (db *DB) ActivateUser(email string) error {
+	return nil
+}
+
+type TokensMock struct {
+}
+
+func (m *TokensMock) CreateToken(payload *app.UserPayload) error {
+	return nil
+}
+func (m *TokensMock) VerifyToken(token string) (*string, error) {
+	return nil, nil
+}
+func (m *TokensMock) DeleteToken(token string) error {
+	return nil
+}
+func (m *TokensMock) DeleteUserToken(userID string) error {
 	return nil
 }

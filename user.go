@@ -229,8 +229,41 @@ func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 	return ctx.OK(resp)
 }
 
-func (c *UserController) Resend(ctx *app.ResendUserContext) error {
-	return nil
+func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenUserContext) error {
+	user, err := c.collections.Users.FindByEmail(ctx.Payload.Email)
+	if err != nil {
+		if err.Error() == "user not found" {
+			return ctx.NotFound(err)
+		}
+		return ctx.InternalServerError(err)
+	}
+
+	if user.Active {
+		return ctx.BadRequest(goa.ErrBadRequest("already active"))
+	}
+
+	if err := c.collections.Tokens.DeleteUserToken(user.ID); err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	token := generateToken(42)
+
+	if err := c.collections.Tokens.CreateToken(&app.UserPayload{
+		Active:        false,
+		Email:         user.Email,
+		ExternalID:    &user.ExternalID,
+		Organizations: user.Organizations,
+		Roles:         user.Roles,
+		Token:         &token,
+	}); err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	return ctx.OK(&app.ResetToken{
+		Email: user.Email,
+		ID:    user.ID,
+		Token: token,
+	})
 }
 
 func generateToken(n int) string {

@@ -228,42 +228,46 @@ func (ctx *GetMeUserContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// ResendUserContext provides the user resend action context.
-type ResendUserContext struct {
+// ResetVerificationTokenUserContext provides the user resetVerificationToken action context.
+type ResetVerificationTokenUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	Payload *EmailPayload
 }
 
-// NewResendUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller resend action.
-func NewResendUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*ResendUserContext, error) {
+// NewResetVerificationTokenUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller resetVerificationToken action.
+func NewResetVerificationTokenUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*ResetVerificationTokenUserContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := ResendUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := ResetVerificationTokenUserContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ResendUserContext) OK(resp []byte) error {
-	ctx.ResponseData.Header().Set("Content-Type", "plain/text")
-	ctx.ResponseData.WriteHeader(200)
-	_, err := ctx.ResponseData.Write(resp)
-	return err
+func (ctx *ResetVerificationTokenUserContext) OK(r *ResetToken) error {
+	ctx.ResponseData.Header().Set("Content-Type", "resettokenmedia")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ResetVerificationTokenUserContext) BadRequest(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *ResendUserContext) NotFound(r error) error {
+func (ctx *ResetVerificationTokenUserContext) NotFound(r error) error {
 	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *ResendUserContext) InternalServerError(r error) error {
+func (ctx *ResetVerificationTokenUserContext) InternalServerError(r error) error {
 	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }

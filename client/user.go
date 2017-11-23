@@ -206,23 +206,23 @@ func (c *Client) NewGetMeUserRequest(ctx context.Context, path string) (*http.Re
 	return req, nil
 }
 
-// ResendUserPath computes a request path to the resend action of user.
-func ResendUserPath() string {
+// ResetVerificationTokenUserPath computes a request path to the resetVerificationToken action of user.
+func ResetVerificationTokenUserPath() string {
 
-	return fmt.Sprintf("/users/resend")
+	return fmt.Sprintf("/users/verification/reset")
 }
 
-// Resend verification email
-func (c *Client) ResendUser(ctx context.Context, path string, payload *EmailPayload, contentType string) (*http.Response, error) {
-	req, err := c.NewResendUserRequest(ctx, path, payload, contentType)
+// Reset verification token
+func (c *Client) ResetVerificationTokenUser(ctx context.Context, path string, payload *EmailPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewResetVerificationTokenUserRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewResendUserRequest create the request corresponding to the resend action endpoint of the user resource.
-func (c *Client) NewResendUserRequest(ctx context.Context, path string, payload *EmailPayload, contentType string) (*http.Request, error) {
+// NewResetVerificationTokenUserRequest create the request corresponding to the resetVerificationToken action endpoint of the user resource.
+func (c *Client) NewResetVerificationTokenUserRequest(ctx context.Context, path string, payload *EmailPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
 	if contentType == "" {
 		contentType = "*/*" // Use default encoder

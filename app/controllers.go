@@ -63,7 +63,7 @@ type UserController interface {
 	FindByEmail(*FindByEmailUserContext) error
 	Get(*GetUserContext) error
 	GetMe(*GetMeUserContext) error
-	Resend(*ResendUserContext) error
+	ResetVerificationToken(*ResetVerificationTokenUserContext) error
 	Update(*UpdateUserContext) error
 	Verify(*VerifyUserContext) error
 }
@@ -172,7 +172,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewResendUserContext(ctx, req, service)
+		rctx, err := NewResetVerificationTokenUserContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -182,10 +182,10 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		} else {
 			return goa.MissingPayloadError()
 		}
-		return ctrl.Resend(rctx)
+		return ctrl.ResetVerificationToken(rctx)
 	}
-	service.Mux.Handle("POST", "/users/resend", ctrl.MuxHandler("resend", h, unmarshalResendUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "Resend", "route", "POST /users/resend")
+	service.Mux.Handle("POST", "/users/verification/reset", ctrl.MuxHandler("resetVerificationToken", h, unmarshalResetVerificationTokenUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "ResetVerificationToken", "route", "POST /users/verification/reset")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -270,8 +270,8 @@ func unmarshalFindByEmailUserPayload(ctx context.Context, service *goa.Service, 
 	return nil
 }
 
-// unmarshalResendUserPayload unmarshals the request body into the context request data Payload field.
-func unmarshalResendUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+// unmarshalResetVerificationTokenUserPayload unmarshals the request body into the context request data Payload field.
+func unmarshalResetVerificationTokenUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &emailPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
