@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/JormungandrK/microservice-security/auth"
@@ -8,6 +10,13 @@ import (
 	"github.com/JormungandrK/user-microservice/store"
 	"github.com/goadesign/goa"
 )
+
+// Email holds info for the email template
+type Email struct {
+	ID    string `json:"id,omitempty"`
+	Email string `json:"email,omitempty"`
+	Token string `json:"token,omitempty"`
+}
 
 // UserController implements the user resource.
 type UserController struct {
@@ -222,4 +231,12 @@ func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 
 func (c *UserController) Resend(ctx *app.ResendUserContext) error {
 	return nil
+}
+
+func generateToken(n int) string {
+	rv := make([]byte, n)
+	if _, err := rand.Reader.Read(rv); err != nil {
+		panic(err)
+	}
+	return base64.URLEncoding.EncodeToString(rv)
 }

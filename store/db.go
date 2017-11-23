@@ -28,6 +28,7 @@ type ITokenCollection interface {
 	CreateToken(payload *app.UserPayload) error
 	VerifyToken(token string) (*string, error)
 	DeleteToken(token string) error
+	DeleteUserToken(userID string) error
 }
 
 // UserCollection wraps a mgo.Collection to embed methods in models.
@@ -399,6 +400,20 @@ func (c *TokenCollection) DeleteToken(token string) error {
 			return goa.ErrNotFound("token not found!")
 		}
 		print(reflect.TypeOf(err))
+		return goa.ErrInternal(err)
+	}
+	return nil
+}
+
+func (c TokenCollection) DeleteUserToken(userID string) error {
+	objID, err := hexToObjectID(userID)
+	if err != nil {
+		return goa.ErrInternal(err)
+	}
+	if err := c.Collection.RemoveId(objID); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil // it's ok because user has no tokens
+		}
 		return goa.ErrInternal(err)
 	}
 	return nil

@@ -137,3 +137,7 @@ func (db *DB) FindByEmail(email string) (*app.Users, error) {
 
 	return nil, nil
 }
+
+func (db *DB) ActivateUser(email string) error {
+	return nil
+}
