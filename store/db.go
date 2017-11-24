@@ -28,7 +28,7 @@ type ITokenCollection interface {
 	CreateToken(payload *app.UserPayload) error
 	VerifyToken(token string) (*string, error)
 	DeleteToken(token string) error
-	DeleteUserToken(userID string) error
+	DeleteUserToken(email string) error
 }
 
 // UserCollection wraps a mgo.Collection to embed methods in models.
@@ -41,6 +41,7 @@ type TokenCollection struct {
 	*mgo.Collection
 }
 
+// Collections an aggregate of IUserCollection and ITokenCollection
 type Collections struct {
 	Users  IUserCollection
 	Tokens ITokenCollection
@@ -188,7 +189,7 @@ func (c *UserCollection) UpdateUser(userID string, payload *app.UserPayload) (*a
 	)
 
 	if err != nil {
-		if err.Error() == "not found" {
+		if err == mgo.ErrNotFound {
 			return nil, goa.ErrNotFound(err)
 		}
 		return nil, goa.ErrInternal(err)
@@ -212,7 +213,7 @@ func (c *UserCollection) FindByID(userID string, mediaType *app.Users) error {
 	result := map[string]interface{}{}
 	// Return one user by id.
 	if err := c.FindId(objectID).One(&result); err != nil {
-		if err.Error() == "not found" {
+		if err == mgo.ErrNotFound {
 			return goa.ErrNotFound("user not found")
 		}
 		return goa.ErrInternal(err)
@@ -345,6 +346,7 @@ func (c *UserCollection) FindByEmail(email string) (*app.Users, error) {
 	return user, nil
 }
 
+// ActivateUser sets the flag "Active" of the user with the given email.
 func (c *UserCollection) ActivateUser(email string) error {
 	err := c.Update(
 		bson.M{"email": email},
@@ -359,6 +361,7 @@ func (c *UserCollection) ActivateUser(email string) error {
 	return nil
 }
 
+// CreateToken adds new activation token record.
 func (c *TokenCollection) CreateToken(payload *app.UserPayload) error {
 	id := bson.NewObjectId()
 	err := c.Insert(bson.M{
@@ -374,6 +377,8 @@ func (c *TokenCollection) CreateToken(payload *app.UserPayload) error {
 	return nil
 }
 
+// VerifyToken verifies the existence of the given token.
+// Returns the email for which the activation token was generated.
 func (c *TokenCollection) VerifyToken(token string) (*string, error) {
 	query := bson.M{"token": bson.M{"$eq": token}}
 
@@ -391,6 +396,7 @@ func (c *TokenCollection) VerifyToken(token string) (*string, error) {
 	return &email, nil
 }
 
+// DeleteToken deletes the activation token record with the given token value.
 func (c *TokenCollection) DeleteToken(token string) error {
 	query := bson.M{"token": bson.M{"$eq": token}}
 
@@ -405,12 +411,11 @@ func (c *TokenCollection) DeleteToken(token string) error {
 	return nil
 }
 
-func (c TokenCollection) DeleteUserToken(userID string) error {
-	objID, err := hexToObjectID(userID)
-	if err != nil {
-		return goa.ErrInternal(err)
-	}
-	if err := c.Collection.RemoveId(objID); err != nil {
+// DeleteUserToken removes all validation token records for the user with the given email.
+func (c TokenCollection) DeleteUserToken(email string) error {
+	if err := c.Collection.Remove(bson.M{
+		"email": email,
+	}); err != nil {
 		if err == mgo.ErrNotFound {
 			return nil // it's ok because user has no tokens
 		}

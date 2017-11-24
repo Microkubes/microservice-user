@@ -27,14 +27,29 @@ func NewDB() Collections {
 		Password:   &pass,
 	}
 	//return &DB{users: map[string]*app.UserPayload{"5975c461f9f8eb02aae053f3": user}}
-	return Collections{
-		Tokens: &TokensMock{},
-		Users: &DB{
-			users: map[string]*app.UserPayload{
-				"5975c461f9f8eb02aae053f3": user,
+	tokens := TokensMock{
+		tokens: map[string]*app.UserPayload{},
+	}
+	users := DB{
+		users: map[string]*app.UserPayload{
+			"5975c461f9f8eb02aae053f3": user,
+			"5975c461f9f8eb02aae053f4": &app.UserPayload{
+				Active: false,
+				Email:  "email@example.com",
+				Roles:  []string{"user"},
+			},
+			"5975c461f9f8eb02aae053f5": &app.UserPayload{
+				Active: true,
+				Email:  "already-active@example.com",
+				Roles:  []string{"user"},
 			},
 		},
 	}
+	colls := Collections{
+		Tokens: &tokens,
+		Users:  &users,
+	}
+	return colls
 }
 
 // Reset removes all entries from the database.
@@ -143,25 +158,83 @@ func (db *DB) FindByEmail(email string) (*app.Users, error) {
 		return nil, goa.ErrInternal("internal server error")
 	}
 
+	for userID, user := range db.users {
+		exID := ""
+		if user.ExternalID != nil {
+			exID = *user.ExternalID
+		}
+		if user.Email == email {
+			return &app.Users{
+				Active:        user.Active,
+				Email:         user.Email,
+				ExternalID:    exID,
+				ID:            userID,
+				Organizations: user.Organizations,
+				Roles:         user.Roles,
+			}, nil
+		}
+	}
+
 	return nil, nil
 }
 
+// ActivateUser mock activation of a user.
 func (db *DB) ActivateUser(email string) error {
+	var user *app.UserPayload
+	for _, u := range db.users {
+		if u.Email == email {
+			user = u
+			break
+		}
+	}
+	if user == nil {
+		return fmt.Errorf("not found")
+	}
+	user.Active = true
 	return nil
 }
 
+// TokensMock implements a mock of ITokenCollection.
 type TokensMock struct {
+	tokens map[string]*app.UserPayload
 }
 
+// CreateToken creates a token entry in the mock.
 func (m *TokensMock) CreateToken(payload *app.UserPayload) error {
+	m.tokens[*payload.Token] = payload
 	return nil
 }
+
+// VerifyToken performs a mock verification of a token.
 func (m *TokensMock) VerifyToken(token string) (*string, error) {
-	return nil, nil
+	payload, ok := m.tokens[token]
+	if !ok {
+		return nil, fmt.Errorf("not found")
+	}
+	return &payload.Email, nil
 }
+
+// DeleteToken removes a token record from the mock.
 func (m *TokensMock) DeleteToken(token string) error {
+	_, ok := m.tokens[token]
+	if !ok {
+		return fmt.Errorf("not found")
+	}
+	delete(m.tokens, token)
 	return nil
 }
-func (m *TokensMock) DeleteUserToken(userID string) error {
+
+// DeleteUserToken removes all tooken records from the mock for a user with the given email.
+func (m *TokensMock) DeleteUserToken(email string) error {
+	deleteTokens := []string{}
+	for token, payload := range m.tokens {
+		if payload.Email == email {
+			deleteTokens = append(deleteTokens, token)
+		}
+	}
+
+	for _, token := range deleteTokens {
+		delete(m.tokens, token)
+	}
 	return nil
 }

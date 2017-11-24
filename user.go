@@ -38,6 +38,11 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		ctx.Payload.Roles = append(ctx.Payload.Roles, "user")
 	}
 
+	if ctx.Payload.Token == nil {
+		token := generateToken(42)
+		ctx.Payload.Token = &token
+	}
+
 	id, err := c.collections.Users.CreateUser(ctx.Payload)
 	if err != nil {
 		e := err.(*goa.ErrorResponse)
@@ -155,9 +160,7 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 // Find looks up a user by its email and password. Intended for internal use.
 func (c *UserController) Find(ctx *app.FindUserContext) error {
 	user, err := c.collections.Users.FindByEmailAndPassword(ctx.Payload.Email, ctx.Payload.Password)
-
 	if err != nil {
-		fmt.Printf("Failed to find user. Error: %s", err)
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
@@ -185,6 +188,8 @@ func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
 	return ctx.OK(user)
 }
 
+// Verify performs verification of the given token and activates the user for which
+// this activation token was generated.
 func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 	// Check if user is already activated
 	token := *ctx.Token
@@ -229,6 +234,8 @@ func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 	return ctx.OK(resp)
 }
 
+// ResetVerificationToken resets a verification token for a given user (by email). Generates a new value for the token
+// and resets the expiration time for the token.
 func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenUserContext) error {
 	user, err := c.collections.Users.FindByEmail(ctx.Payload.Email)
 	if err != nil {
@@ -237,12 +244,19 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		}
 		return ctx.InternalServerError(err)
 	}
+	if user == nil {
+		return ctx.NotFound(fmt.Errorf("not-found"))
+	}
 
 	if user.Active {
 		return ctx.BadRequest(goa.ErrBadRequest("already active"))
 	}
 
-	if err := c.collections.Tokens.DeleteUserToken(user.ID); err != nil {
+	if user.ExternalID != "" {
+		return ctx.BadRequest(goa.ErrBadRequest("external-user"))
+	}
+
+	if err := c.collections.Tokens.DeleteUserToken(user.Email); err != nil {
 		return ctx.InternalServerError(err)
 	}
 

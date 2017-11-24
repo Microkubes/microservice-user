@@ -11,9 +11,9 @@ import (
 	"github.com/goadesign/goa"
 )
 
+var db = store.NewDB()
 var (
 	service          = goa.New("user-test")
-	db               = store.NewDB()
 	ctrl             = NewUserController(service, db)
 	hexObjectID      = "5975c461f9f8eb02aae053f3"
 	fakeHexObjectID  = "6975c461f9f8eb02aae053f3"
@@ -245,4 +245,29 @@ func TestFindByEmailUserInternalServerError(t *testing.T) {
 	}
 
 	test.FindByEmailUserInternalServerError(t, context.Background(), service, ctrl, payload)
+}
+
+func TestResetVerificationTokenUserOK(t *testing.T) {
+	test.ResetVerificationTokenUserOK(t, context.Background(), service, ctrl, &app.EmailPayload{
+		Email: "email@example.com",
+	})
+}
+
+func TestResetVerificationTokenUserNotFound(t *testing.T) {
+	test.ResetVerificationTokenUserNotFound(t, context.Background(), service, ctrl, &app.EmailPayload{
+		Email: "this-does-not-exist@example.com",
+	})
+}
+
+func TestResetVerificationTokenUserBadRequest(t *testing.T) {
+	test.ResetVerificationTokenUserBadRequest(t, context.Background(), service, ctrl, &app.EmailPayload{
+		Email: "already-active@example.com",
+	})
+	test.ResetVerificationTokenUserBadRequest(t, context.Background(), service, ctrl, &app.EmailPayload{})
+}
+
+func TestResetVerificationTokenUserInternalServerError(t *testing.T) {
+	test.ResetVerificationTokenUserInternalServerError(t, context.Background(), service, ctrl, &app.EmailPayload{
+		Email: "example@invalid.com",
+	})
 }
