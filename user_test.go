@@ -271,3 +271,31 @@ func TestResetVerificationTokenUserInternalServerError(t *testing.T) {
 		Email: "example@invalid.com",
 	})
 }
+
+func TestVerifyUserOK(t *testing.T) {
+	token := "TOKEN_1"
+	tokensMock := db.Tokens.(*store.TokensMock)
+	tokensMock.Tokens[token] = &app.UserPayload{
+		Active: false,
+		Email:  "email@example.com",
+		Token:  &token,
+	}
+	test.VerifyUserOK(t, context.Background(), service, ctrl, &token)
+}
+
+func TestVerifyUserNotFound(t *testing.T) {
+	token := "TOKEN_2"
+	test.VerifyUserNotFound(t, context.Background(), service, ctrl, &token)
+
+}
+
+func TestVerifyUserInternalServerError(t *testing.T) {
+	token := "TOKEN_3"
+	tokensMock := db.Tokens.(*store.TokensMock)
+	tokensMock.Tokens[token] = &app.UserPayload{
+		Active: false,
+		Email:  "trigger-server-error@example.com", // this would cause intentional internal server error in mock
+		Token:  &token,
+	}
+	test.VerifyUserInternalServerError(t, context.Background(), service, ctrl, &token)
+}

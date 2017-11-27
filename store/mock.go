@@ -28,7 +28,7 @@ func NewDB() Collections {
 	}
 	//return &DB{users: map[string]*app.UserPayload{"5975c461f9f8eb02aae053f3": user}}
 	tokens := TokensMock{
-		tokens: map[string]*app.UserPayload{},
+		Tokens: map[string]*app.UserPayload{},
 	}
 	users := DB{
 		users: map[string]*app.UserPayload{
@@ -180,6 +180,9 @@ func (db *DB) FindByEmail(email string) (*app.Users, error) {
 
 // ActivateUser mock activation of a user.
 func (db *DB) ActivateUser(email string) error {
+	if email == "trigger-server-error@example.com" {
+		return goa.ErrInternal("intentional server error")
+	}
 	var user *app.UserPayload
 	for _, u := range db.users {
 		if u.Email == email {
@@ -188,7 +191,7 @@ func (db *DB) ActivateUser(email string) error {
 		}
 	}
 	if user == nil {
-		return fmt.Errorf("not found")
+		return goa.ErrNotFound("not found")
 	}
 	user.Active = true
 	return nil
@@ -196,45 +199,45 @@ func (db *DB) ActivateUser(email string) error {
 
 // TokensMock implements a mock of ITokenCollection.
 type TokensMock struct {
-	tokens map[string]*app.UserPayload
+	Tokens map[string]*app.UserPayload
 }
 
 // CreateToken creates a token entry in the mock.
 func (m *TokensMock) CreateToken(payload *app.UserPayload) error {
-	m.tokens[*payload.Token] = payload
+	m.Tokens[*payload.Token] = payload
 	return nil
 }
 
 // VerifyToken performs a mock verification of a token.
 func (m *TokensMock) VerifyToken(token string) (*string, error) {
-	payload, ok := m.tokens[token]
+	payload, ok := m.Tokens[token]
 	if !ok {
-		return nil, fmt.Errorf("not found")
+		return nil, goa.ErrNotFound("not found")
 	}
 	return &payload.Email, nil
 }
 
 // DeleteToken removes a token record from the mock.
 func (m *TokensMock) DeleteToken(token string) error {
-	_, ok := m.tokens[token]
+	_, ok := m.Tokens[token]
 	if !ok {
-		return fmt.Errorf("not found")
+		return goa.ErrNotFound("not found")
 	}
-	delete(m.tokens, token)
+	delete(m.Tokens, token)
 	return nil
 }
 
 // DeleteUserToken removes all tooken records from the mock for a user with the given email.
 func (m *TokensMock) DeleteUserToken(email string) error {
 	deleteTokens := []string{}
-	for token, payload := range m.tokens {
+	for token, payload := range m.Tokens {
 		if payload.Email == email {
 			deleteTokens = append(deleteTokens, token)
 		}
 	}
 
 	for _, token := range deleteTokens {
-		delete(m.tokens, token)
+		delete(m.Tokens, token)
 	}
 	return nil
 }
