@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/JormungandrK/microservice-security/auth"
@@ -9,17 +11,24 @@ import (
 	"github.com/goadesign/goa"
 )
 
+// Email holds info for the email template
+type Email struct {
+	ID    string `json:"id,omitempty"`
+	Email string `json:"email,omitempty"`
+	Token string `json:"token,omitempty"`
+}
+
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-	usersCollection store.Collection
+	collections store.Collections
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service, usersCollection store.Collection) *UserController {
+func NewUserController(service *goa.Service, collections store.Collections) *UserController {
 	return &UserController{
-		Controller:      service.NewController("UserController"),
-		usersCollection: usersCollection,
+		Controller:  service.NewController("UserController"),
+		collections: collections,
 	}
 }
 
@@ -29,7 +38,12 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		ctx.Payload.Roles = append(ctx.Payload.Roles, "user")
 	}
 
-	id, err := c.usersCollection.CreateUser(ctx.Payload)
+	if ctx.Payload.Token == nil {
+		token := generateToken(42)
+		ctx.Payload.Token = &token
+	}
+
+	id, err := c.collections.Users.CreateUser(ctx.Payload)
 	if err != nil {
 		e := err.(*goa.ErrorResponse)
 
@@ -39,6 +53,11 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		default:
 			return ctx.InternalServerError(err)
 		}
+	}
+
+	err = c.collections.Tokens.CreateToken(ctx.Payload)
+	if err != nil {
+		return ctx.InternalServerError(err)
 	}
 
 	var externalID string
@@ -66,7 +85,7 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 	res := &app.Users{}
 
 	// Return one user by id.
-	if err := c.usersCollection.FindByID(ctx.UserID, res); err != nil {
+	if err := c.collections.Users.FindByID(ctx.UserID, res); err != nil {
 		e := err.(*goa.ErrorResponse)
 
 		switch e.Status {
@@ -100,7 +119,7 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 	userID := authObj.UserID
 	res := &app.Users{}
 
-	if err := c.usersCollection.FindByID(userID, res); err != nil {
+	if err := c.collections.Users.FindByID(userID, res); err != nil {
 		e := err.(*goa.ErrorResponse)
 
 		switch e.Status {
@@ -120,7 +139,7 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 
 // Update runs the update action.
 func (c *UserController) Update(ctx *app.UpdateUserContext) error {
-	res, err := c.usersCollection.UpdateUser(ctx.UserID, ctx.Payload)
+	res, err := c.collections.Users.UpdateUser(ctx.UserID, ctx.Payload)
 
 	if err != nil {
 		e := err.(*goa.ErrorResponse)
@@ -140,10 +159,8 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 
 // Find looks up a user by its email and password. Intended for internal use.
 func (c *UserController) Find(ctx *app.FindUserContext) error {
-	user, err := c.usersCollection.FindByEmailAndPassword(ctx.Payload.Email, ctx.Payload.Password)
-
+	user, err := c.collections.Users.FindByEmailAndPassword(ctx.Payload.Email, ctx.Payload.Password)
 	if err != nil {
-		fmt.Printf("Failed to find user. Error: %s", err)
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
@@ -156,7 +173,7 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 
 // FindByEmail looks up a user by its email.
 func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
-	user, err := c.usersCollection.FindByEmail(ctx.Payload.Email)
+	user, err := c.collections.Users.FindByEmail(ctx.Payload.Email)
 	if err != nil {
 		e := err.(*goa.ErrorResponse)
 
@@ -169,4 +186,104 @@ func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
 	}
 
 	return ctx.OK(user)
+}
+
+// Verify performs verification of the given token and activates the user for which
+// this activation token was generated.
+func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
+	// Check if user is already activated
+	token := *ctx.Token
+	email, err := c.collections.Tokens.VerifyToken(token)
+	if err != nil {
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
+	}
+
+	err = c.collections.Users.ActivateUser(*email)
+	if err != nil {
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
+	}
+
+	err = c.collections.Tokens.DeleteToken(token)
+	if err != nil {
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
+	}
+
+	// empty response
+	var resp []byte
+	return ctx.OK(resp)
+}
+
+// ResetVerificationToken resets a verification token for a given user (by email). Generates a new value for the token
+// and resets the expiration time for the token.
+func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenUserContext) error {
+	user, err := c.collections.Users.FindByEmail(ctx.Payload.Email)
+	if err != nil {
+		if err.Error() == "user not found" {
+			return ctx.NotFound(err)
+		}
+		return ctx.InternalServerError(err)
+	}
+	if user == nil {
+		return ctx.NotFound(fmt.Errorf("not-found"))
+	}
+
+	if user.Active {
+		return ctx.BadRequest(goa.ErrBadRequest("already active"))
+	}
+
+	if user.ExternalID != "" {
+		return ctx.BadRequest(goa.ErrBadRequest("external-user"))
+	}
+
+	if err := c.collections.Tokens.DeleteUserToken(user.Email); err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	token := generateToken(42)
+
+	if err := c.collections.Tokens.CreateToken(&app.UserPayload{
+		Active:        false,
+		Email:         user.Email,
+		ExternalID:    &user.ExternalID,
+		Organizations: user.Organizations,
+		Roles:         user.Roles,
+		Token:         &token,
+	}); err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	return ctx.OK(&app.ResetToken{
+		Email: user.Email,
+		ID:    user.ID,
+		Token: token,
+	})
+}
+
+func generateToken(n int) string {
+	rv := make([]byte, n)
+	if _, err := rand.Reader.Read(rv); err != nil {
+		panic(err)
+	}
+	return base64.URLEncoding.EncodeToString(rv)
 }

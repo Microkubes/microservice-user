@@ -13,18 +13,38 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// Collection is an interface to access to the collection struct.
-type Collection interface {
+// IUserCollection is an interface to access the userCollection struct.
+type IUserCollection interface {
 	CreateUser(payload *app.UserPayload) (*string, error)
 	UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error)
 	FindByID(userID string, mediaType *app.Users) error
 	FindByEmailAndPassword(email, password string) (*app.Users, error)
 	FindByEmail(email string) (*app.Users, error)
+	ActivateUser(email string) error
 }
 
-// MongoCollection wraps a mgo.Collection to embed methods in models.
-type MongoCollection struct {
+// ITokenCollection is an interface to access the tokenCollection struct.
+type ITokenCollection interface {
+	CreateToken(payload *app.UserPayload) error
+	VerifyToken(token string) (*string, error)
+	DeleteToken(token string) error
+	DeleteUserToken(email string) error
+}
+
+// UserCollection wraps a mgo.Collection to embed methods in models.
+type UserCollection struct {
 	*mgo.Collection
+}
+
+// TokenCollection wraps a mgo.Collection to embed methods in models.
+type TokenCollection struct {
+	*mgo.Collection
+}
+
+// Collections an aggregate of IUserCollection and ITokenCollection
+type Collections struct {
+	Users  IUserCollection
+	Tokens ITokenCollection
 }
 
 // NewSession returns a new Mongo Session.
@@ -47,7 +67,7 @@ func NewSession(Host string, Username string, Password string, Database string) 
 }
 
 // PrepareDB ensure presence of persistent and immutable data in the DB.
-func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []string) *mgo.Collection {
+func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []string, enableTTL bool) *mgo.Collection {
 	// Create collection
 	collection := session.DB(db).C(dbCollection)
 
@@ -68,11 +88,26 @@ func PrepareDB(session *mgo.Session, db string, dbCollection string, indexes []s
 		}
 	}
 
+	if enableTTL == true {
+		index := mgo.Index{
+			Key:         []string{"created_at"},
+			Unique:      false,
+			DropDups:    false,
+			Background:  true,
+			Sparse:      true,
+			ExpireAfter: time.Duration(60*60*24) * time.Second,
+		}
+		if err := collection.EnsureIndex(index); err != nil {
+			panic(err)
+		}
+
+	}
+
 	return collection
 }
 
 // CreateUser creates a user if payload is valid, otherwise it returns error
-func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) {
+func (c *UserCollection) CreateUser(payload *app.UserPayload) (*string, error) {
 	if payload.Password == nil && payload.ExternalID == nil {
 		return nil, goa.ErrBadRequest("password or externalID must be specified!")
 	}
@@ -114,7 +149,7 @@ func (c *MongoCollection) CreateUser(payload *app.UserPayload) (*string, error) 
 }
 
 // UpdateUser updates a user if payload is valid, otherwise it returns error
-func (c *MongoCollection) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error) {
+func (c *UserCollection) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error) {
 	objectID, err := hexToObjectID(userID)
 	if err != nil {
 		return nil, err
@@ -154,7 +189,7 @@ func (c *MongoCollection) UpdateUser(userID string, payload *app.UserPayload) (*
 	)
 
 	if err != nil {
-		if err.Error() == "not found" {
+		if err == mgo.ErrNotFound {
 			return nil, goa.ErrNotFound(err)
 		}
 		return nil, goa.ErrInternal(err)
@@ -170,7 +205,7 @@ func (c *MongoCollection) UpdateUser(userID string, payload *app.UserPayload) (*
 }
 
 // FindByID collection by Id in hex representation - real database
-func (c *MongoCollection) FindByID(userID string, mediaType *app.Users) error {
+func (c *UserCollection) FindByID(userID string, mediaType *app.Users) error {
 	objectID, err := hexToObjectID(userID)
 	if err != nil {
 		return err
@@ -178,7 +213,7 @@ func (c *MongoCollection) FindByID(userID string, mediaType *app.Users) error {
 	result := map[string]interface{}{}
 	// Return one user by id.
 	if err := c.FindId(objectID).One(&result); err != nil {
-		if err.Error() == "not found" {
+		if err == mgo.ErrNotFound {
 			return goa.ErrNotFound("user not found")
 		}
 		return goa.ErrInternal(err)
@@ -214,7 +249,7 @@ func (c *MongoCollection) FindByID(userID string, mediaType *app.Users) error {
 
 // FindByEmailAndPassword looks up a user by its email and password.
 // This is used primarily by other microservices to validate user credentials.
-func (c *MongoCollection) FindByEmailAndPassword(email, password string) (*app.Users, error) {
+func (c *UserCollection) FindByEmailAndPassword(email, password string) (*app.Users, error) {
 	query := bson.M{"email": bson.M{"$eq": email}}
 
 	userData := map[string]interface{}{}
@@ -266,7 +301,7 @@ func (c *MongoCollection) FindByEmailAndPassword(email, password string) (*app.U
 }
 
 // FindByEmail looks up a user by its email.
-func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
+func (c *UserCollection) FindByEmail(email string) (*app.Users, error) {
 	query := bson.M{"email": bson.M{"$eq": email}}
 
 	userData := map[string]interface{}{}
@@ -309,6 +344,84 @@ func (c *MongoCollection) FindByEmail(email string) (*app.Users, error) {
 	}
 
 	return user, nil
+}
+
+// ActivateUser sets the flag "Active" of the user with the given email.
+func (c *UserCollection) ActivateUser(email string) error {
+	err := c.Update(
+		bson.M{"email": email},
+		bson.M{"$set": bson.M{"active": true}},
+	)
+	if err != nil {
+		if err.Error() == "not found" {
+			return goa.ErrNotFound(err)
+		}
+		return goa.ErrInternal(err)
+	}
+	return nil
+}
+
+// CreateToken adds new activation token record.
+func (c *TokenCollection) CreateToken(payload *app.UserPayload) error {
+	id := bson.NewObjectId()
+	err := c.Insert(bson.M{
+		"_id":        id,
+		"email":      payload.Email,
+		"token":      payload.Token,
+		"created_at": time.Now(),
+	})
+
+	if err != nil {
+		return goa.ErrInternal(err)
+	}
+	return nil
+}
+
+// VerifyToken verifies the existence of the given token.
+// Returns the email for which the activation token was generated.
+func (c *TokenCollection) VerifyToken(token string) (*string, error) {
+	query := bson.M{"token": bson.M{"$eq": token}}
+
+	tokenData := map[string]interface{}{}
+	err := c.Collection.Find(query).Limit(1).One(tokenData)
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, goa.ErrNotFound("token not found!")
+		}
+		print(reflect.TypeOf(err))
+		return nil, goa.ErrInternal(err)
+	}
+
+	email := tokenData["email"].(string)
+	return &email, nil
+}
+
+// DeleteToken deletes the activation token record with the given token value.
+func (c *TokenCollection) DeleteToken(token string) error {
+	query := bson.M{"token": bson.M{"$eq": token}}
+
+	err := c.Collection.Remove(query)
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			return goa.ErrNotFound("token not found!")
+		}
+		print(reflect.TypeOf(err))
+		return goa.ErrInternal(err)
+	}
+	return nil
+}
+
+// DeleteUserToken removes all validation token records for the user with the given email.
+func (c TokenCollection) DeleteUserToken(email string) error {
+	if err := c.Collection.Remove(bson.M{
+		"email": email,
+	}); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil // it's ok because user has no tokens
+		}
+		return goa.ErrInternal(err)
+	}
+	return nil
 }
 
 // Convert hex representation of object id to bson object id

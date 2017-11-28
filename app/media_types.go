@@ -52,3 +52,29 @@ func (mt *Users) Validate() (err error) {
 	}
 	return
 }
+
+// ResetToken media type (default view)
+//
+// Identifier: resettokenmedia; view=default
+type ResetToken struct {
+	// User email
+	Email string `form:"email" json:"email" xml:"email"`
+	// User ID
+	ID string `form:"id" json:"id" xml:"id"`
+	// New token
+	Token string `form:"token" json:"token" xml:"token"`
+}
+
+// Validate validates the ResetToken media type instance.
+func (mt *ResetToken) Validate() (err error) {
+	if mt.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
+	if mt.Email == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "email"))
+	}
+	if mt.Token == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "token"))
+	}
+	return
+}

@@ -206,6 +206,49 @@ func (c *Client) NewGetMeUserRequest(ctx context.Context, path string) (*http.Re
 	return req, nil
 }
 
+// ResetVerificationTokenUserPath computes a request path to the resetVerificationToken action of user.
+func ResetVerificationTokenUserPath() string {
+
+	return fmt.Sprintf("/users/verification/reset")
+}
+
+// Reset verification token
+func (c *Client) ResetVerificationTokenUser(ctx context.Context, path string, payload *EmailPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewResetVerificationTokenUserRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewResetVerificationTokenUserRequest create the request corresponding to the resetVerificationToken action endpoint of the user resource.
+func (c *Client) NewResetVerificationTokenUserRequest(ctx context.Context, path string, payload *EmailPayload, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("POST", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
+	return req, nil
+}
+
 // UpdateUserPath computes a request path to the update action of user.
 func UpdateUserPath(userID string) string {
 	param0 := userID
@@ -246,6 +289,40 @@ func (c *Client) NewUpdateUserRequest(ctx context.Context, path string, payload 
 		header.Set("Content-Type", "application/json")
 	} else {
 		header.Set("Content-Type", contentType)
+	}
+	return req, nil
+}
+
+// VerifyUserPath computes a request path to the verify action of user.
+func VerifyUserPath() string {
+
+	return fmt.Sprintf("/users/verify")
+}
+
+// Verify a user by token
+func (c *Client) VerifyUser(ctx context.Context, path string, token *string) (*http.Response, error) {
+	req, err := c.NewVerifyUserRequest(ctx, path, token)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewVerifyUserRequest create the request corresponding to the verify action endpoint of the user resource.
+func (c *Client) NewVerifyUserRequest(ctx context.Context, path string, token *string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	if token != nil {
+		values.Set("token", *token)
+	}
+	u.RawQuery = values.Encode()
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 	return req, nil
 }

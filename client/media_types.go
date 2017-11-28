@@ -67,3 +67,36 @@ func (c *Client) DecodeUsers(resp *http.Response) (*Users, error) {
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }
+
+// ResetToken media type (default view)
+//
+// Identifier: resettokenmedia; view=default
+type ResetToken struct {
+	// User email
+	Email string `form:"email" json:"email" xml:"email"`
+	// User ID
+	ID string `form:"id" json:"id" xml:"id"`
+	// New token
+	Token string `form:"token" json:"token" xml:"token"`
+}
+
+// Validate validates the ResetToken media type instance.
+func (mt *ResetToken) Validate() (err error) {
+	if mt.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
+	if mt.Email == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "email"))
+	}
+	if mt.Token == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "token"))
+	}
+	return
+}
+
+// DecodeResetToken decodes the ResetToken instance encoded in resp body.
+func (c *Client) DecodeResetToken(resp *http.Response) (*ResetToken, error) {
+	var decoded ResetToken
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}

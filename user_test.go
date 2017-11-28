@@ -11,9 +11,9 @@ import (
 	"github.com/goadesign/goa"
 )
 
+var db = store.NewDB()
 var (
 	service          = goa.New("user-test")
-	db               = store.NewDB()
 	ctrl             = NewUserController(service, db)
 	hexObjectID      = "5975c461f9f8eb02aae053f3"
 	fakeHexObjectID  = "6975c461f9f8eb02aae053f3"
@@ -245,4 +245,57 @@ func TestFindByEmailUserInternalServerError(t *testing.T) {
 	}
 
 	test.FindByEmailUserInternalServerError(t, context.Background(), service, ctrl, payload)
+}
+
+func TestResetVerificationTokenUserOK(t *testing.T) {
+	test.ResetVerificationTokenUserOK(t, context.Background(), service, ctrl, &app.EmailPayload{
+		Email: "email@example.com",
+	})
+}
+
+func TestResetVerificationTokenUserNotFound(t *testing.T) {
+	test.ResetVerificationTokenUserNotFound(t, context.Background(), service, ctrl, &app.EmailPayload{
+		Email: "this-does-not-exist@example.com",
+	})
+}
+
+func TestResetVerificationTokenUserBadRequest(t *testing.T) {
+	test.ResetVerificationTokenUserBadRequest(t, context.Background(), service, ctrl, &app.EmailPayload{
+		Email: "already-active@example.com",
+	})
+	test.ResetVerificationTokenUserBadRequest(t, context.Background(), service, ctrl, &app.EmailPayload{})
+}
+
+func TestResetVerificationTokenUserInternalServerError(t *testing.T) {
+	test.ResetVerificationTokenUserInternalServerError(t, context.Background(), service, ctrl, &app.EmailPayload{
+		Email: "example@invalid.com",
+	})
+}
+
+func TestVerifyUserOK(t *testing.T) {
+	token := "TOKEN_1"
+	tokensMock := db.Tokens.(*store.TokensMock)
+	tokensMock.Tokens[token] = &app.UserPayload{
+		Active: false,
+		Email:  "email@example.com",
+		Token:  &token,
+	}
+	test.VerifyUserOK(t, context.Background(), service, ctrl, &token)
+}
+
+func TestVerifyUserNotFound(t *testing.T) {
+	token := "TOKEN_2"
+	test.VerifyUserNotFound(t, context.Background(), service, ctrl, &token)
+
+}
+
+func TestVerifyUserInternalServerError(t *testing.T) {
+	token := "TOKEN_3"
+	tokensMock := db.Tokens.(*store.TokensMock)
+	tokensMock.Tokens[token] = &app.UserPayload{
+		Active: false,
+		Email:  "trigger-server-error@example.com", // this would cause intentional internal server error in mock
+		Token:  &token,
+	}
+	test.VerifyUserInternalServerError(t, context.Background(), service, ctrl, &token)
 }

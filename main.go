@@ -63,13 +63,15 @@ func main() {
 
 	// Create users collection and indexes
 	indexes := []string{"email"}
-	usersCollection := store.PrepareDB(session, dbConf.DatabaseName, "users", indexes)
+	usersCollection := store.PrepareDB(session, dbConf.DatabaseName, "users", indexes, false)
+	indexes = []string{"token"}
+	tokensCollection := store.PrepareDB(session, dbConf.DatabaseName, "tokens", indexes, true)
 
 	// Mount "swagger" controller
 	c1 := NewSwaggerController(service)
 	app.MountSwaggerController(service, c1)
 	// Mount "user" controller
-	c2 := NewUserController(service, &store.MongoCollection{Collection: usersCollection})
+	c2 := NewUserController(service, store.Collections{Users: &store.UserCollection{Collection: usersCollection}, Tokens: &store.TokenCollection{Collection: tokensCollection}})
 	app.MountUserController(service, c2)
 
 	// Start service

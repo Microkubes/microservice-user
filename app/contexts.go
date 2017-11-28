@@ -228,6 +228,50 @@ func (ctx *GetMeUserContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// ResetVerificationTokenUserContext provides the user resetVerificationToken action context.
+type ResetVerificationTokenUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *EmailPayload
+}
+
+// NewResetVerificationTokenUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller resetVerificationToken action.
+func NewResetVerificationTokenUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*ResetVerificationTokenUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ResetVerificationTokenUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ResetVerificationTokenUserContext) OK(r *ResetToken) error {
+	ctx.ResponseData.Header().Set("Content-Type", "resettokenmedia")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ResetVerificationTokenUserContext) BadRequest(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ResetVerificationTokenUserContext) NotFound(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ResetVerificationTokenUserContext) InternalServerError(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // UpdateUserContext provides the user update action context.
 type UpdateUserContext struct {
 	context.Context
@@ -274,6 +318,51 @@ func (ctx *UpdateUserContext) NotFound(r error) error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *UpdateUserContext) InternalServerError(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// VerifyUserContext provides the user verify action context.
+type VerifyUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Token *string
+}
+
+// NewVerifyUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller verify action.
+func NewVerifyUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*VerifyUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := VerifyUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramToken := req.Params["token"]
+	if len(paramToken) > 0 {
+		rawToken := paramToken[0]
+		rctx.Token = &rawToken
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *VerifyUserContext) OK(resp []byte) error {
+	ctx.ResponseData.Header().Set("Content-Type", "plain/text")
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *VerifyUserContext) NotFound(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *VerifyUserContext) InternalServerError(r error) error {
 	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }

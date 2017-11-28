@@ -83,6 +83,34 @@ var _ = Resource("user", func() {
 		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
+
+	Action("verify", func() {
+		Description("Verify a user by token")
+		Routing(GET("verify"))
+		Params(func() {
+			Param("token", String, "Token")
+		})
+		Response("OK", func() {
+			Description("User is verified")
+			Status(200)
+			Media("plain/text")
+		})
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+	Action("resetVerificationToken", func() {
+		Description("Reset verification token")
+		Routing(POST("verification/reset"))
+		Payload(EmailPayload)
+		Response("OK", func() {
+			Description("Verification token reset")
+			Status(200)
+			Media(ResetTokenMedia)
+		})
+		Response(BadRequest, ErrorMedia)
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
 })
 
 // UserMedia defines the media type used to render user.
@@ -110,6 +138,22 @@ var UserMedia = MediaType("application/vnd.goa.user+json", func() {
 	})
 })
 
+// ResetTokenMedia is returned after successful reset of the verification token
+var ResetTokenMedia = MediaType("ResetTokenMedia", func() {
+	TypeName("ResetToken")
+	Attributes(func() {
+		Attribute("id", String, "User ID")
+		Attribute("email", String, "User email")
+		Attribute("token", String, "New token")
+		Required("id", "email", "token")
+	})
+	View("default", func() {
+		Attribute("id")
+		Attribute("email")
+		Attribute("token")
+	})
+})
+
 // UserPayload defines the payload for the user.
 var UserPayload = Type("UserPayload", func() {
 	Description("UserPayload")
@@ -127,6 +171,7 @@ var UserPayload = Type("UserPayload", func() {
 	Attribute("active", Boolean, "Status of user account", func() {
 		Default(false)
 	})
+	Attribute("token", String, "Token for email verification")
 
 	Required("email")
 })
