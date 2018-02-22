@@ -7,17 +7,17 @@ definitions:
   Credentials:
     description: Email and password credentials
     example:
-      email: lesly@stanton.biz
-      password: lyz5bvhh
+      email: magnus@mckenzie.info
+      password: htvx6y8d3
     properties:
       email:
         description: Email of user
-        example: lesly@stanton.biz
+        example: magnus@mckenzie.info
         format: email
         type: string
       password:
         description: Password of user
-        example: lyz5bvhh
+        example: htvx6y8d3
         maxLength: 30
         minLength: 6
         type: string
@@ -29,11 +29,11 @@ definitions:
   EmailPayload:
     description: Email payload
     example:
-      email: katlyn@gusikowskiwilderman.name
+      email: tiffany_reilly@rosenbaum.biz
     properties:
       email:
         description: Email of user
-        example: katlyn@gusikowskiwilderman.name
+        example: tiffany_reilly@rosenbaum.biz
         format: email
         type: string
     required:
@@ -43,21 +43,21 @@ definitions:
   ResetToken:
     description: ResetToken media type (default view)
     example:
-      email: Consequuntur officiis velit.
-      id: Nam velit incidunt sunt sed provident.
-      token: Corrupti dignissimos nisi.
+      email: Sed provident fugit.
+      id: Dignissimos nisi voluptatum.
+      token: Mollitia sint.
     properties:
       email:
         description: User email
-        example: Consequuntur officiis velit.
+        example: Sed provident fugit.
         type: string
       id:
         description: User ID
-        example: Nam velit incidunt sunt sed provident.
+        example: Dignissimos nisi voluptatum.
         type: string
       token:
         description: New token
-        example: Corrupti dignissimos nisi.
+        example: Mollitia sint.
         type: string
     required:
     - id
@@ -68,47 +68,47 @@ definitions:
   UserPayload:
     description: UserPayload
     example:
-      active: false
-      email: kade.o'connell@bode.org
-      externalId: Cupiditate similique voluptas repellat.
-      organizations:
+      active: true
+      email: ollie.hilll@smith.info
+      externalId: Doloremque aut sed ut impedit voluptatum debitis.
+      namespaces:
       - Placeat reprehenderit similique quo.
-      password: fp30qad23v
+      - Placeat reprehenderit similique quo.
+      organizations:
+      - Occaecati ut excepturi et deleniti quis.
+      - Occaecati ut excepturi et deleniti quis.
+      password: 3v789xuu49
       roles:
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
-      token: Earum aut maiores harum impedit enim.
+      - Officiis velit quaerat nam velit incidunt.
+      - Officiis velit quaerat nam velit incidunt.
+      - Officiis velit quaerat nam velit incidunt.
+      token: Voluptatem reprehenderit quisquam maxime nam non.
     properties:
       active:
         default: false
         description: Status of user account
-        example: false
+        example: true
         type: boolean
       email:
         description: Email of user
-        example: kade.o'connell@bode.org
+        example: ollie.hilll@smith.info
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Cupiditate similique voluptas repellat.
+        example: Doloremque aut sed ut impedit voluptatum debitis.
         type: string
-      organizations:
-        description: List of organizations to which this user belongs to
+      namespaces:
+        description: List of namespaces this user belongs to
         example:
+        - Placeat reprehenderit similique quo.
         - Placeat reprehenderit similique quo.
         items:
           example: Placeat reprehenderit similique quo.
           type: string
         type: array
-      password:
-        description: Password of user
-        example: fp30qad23v
-        maxLength: 30
-        minLength: 6
-        type: string
-      roles:
-        description: Roles of user
+      organizations:
+        description: List of organizations to which this user belongs to
         example:
         - Occaecati ut excepturi et deleniti quis.
         - Occaecati ut excepturi et deleniti quis.
@@ -116,9 +116,25 @@ definitions:
           example: Occaecati ut excepturi et deleniti quis.
           type: string
         type: array
+      password:
+        description: Password of user
+        example: 3v789xuu49
+        maxLength: 30
+        minLength: 6
+        type: string
+      roles:
+        description: Roles of user
+        example:
+        - Officiis velit quaerat nam velit incidunt.
+        - Officiis velit quaerat nam velit incidunt.
+        - Officiis velit quaerat nam velit incidunt.
+        items:
+          example: Officiis velit quaerat nam velit incidunt.
+          type: string
+        type: array
       token:
         description: Token for email verification
-        example: Earum aut maiores harum impedit enim.
+        example: Voluptatem reprehenderit quisquam maxime nam non.
         type: string
     required:
     - email
@@ -168,14 +184,17 @@ definitions:
       email: thad@herman.name
       externalId: Possimus ullam occaecati quae.
       id: Rerum aliquid in sit reprehenderit ea.
+      namespaces:
+      - Placeat reprehenderit similique quo.
+      - Placeat reprehenderit similique quo.
+      - Placeat reprehenderit similique quo.
       organizations:
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
+      - Occaecati ut excepturi et deleniti quis.
+      - Occaecati ut excepturi et deleniti quis.
+      - Occaecati ut excepturi et deleniti quis.
       roles:
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
+      - Officiis velit quaerat nam velit incidunt.
+      - Officiis velit quaerat nam velit incidunt.
     properties:
       active:
         default: false
@@ -195,8 +214,8 @@ definitions:
         description: Unique user ID
         example: Rerum aliquid in sit reprehenderit ea.
         type: string
-      organizations:
-        description: List of organizations to which this user belongs to
+      namespaces:
+        description: List of namespaces this user belongs to
         example:
         - Placeat reprehenderit similique quo.
         - Placeat reprehenderit similique quo.
@@ -205,14 +224,23 @@ definitions:
           example: Placeat reprehenderit similique quo.
           type: string
         type: array
-      roles:
-        description: Roles of user
+      organizations:
+        description: List of organizations to which this user belongs to
         example:
         - Occaecati ut excepturi et deleniti quis.
         - Occaecati ut excepturi et deleniti quis.
         - Occaecati ut excepturi et deleniti quis.
         items:
           example: Occaecati ut excepturi et deleniti quis.
+          type: string
+        type: array
+      roles:
+        description: Roles of user
+        example:
+        - Officiis velit quaerat nam velit incidunt.
+        - Officiis velit quaerat nam velit incidunt.
+        items:
+          example: Officiis velit quaerat nam velit incidunt.
           type: string
         type: array
     required:
@@ -275,7 +303,6 @@ paths:
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.user+json
-      - application/vnd.goa.error
       responses:
         "201":
           description: Created
@@ -305,8 +332,6 @@ paths:
         required: true
         type: string
       produces:
-      - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
@@ -348,8 +373,6 @@ paths:
           $ref: '#/definitions/UserPayload'
       produces:
       - application/vnd.goa.error
-      - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -386,7 +409,6 @@ paths:
           $ref: '#/definitions/Credentials'
       produces:
       - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -421,7 +443,6 @@ paths:
           $ref: '#/definitions/EmailPayload'
       produces:
       - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
         "200":
@@ -446,8 +467,6 @@ paths:
       description: Retrieves the user information for the authenticated user
       operationId: user#getMe
       produces:
-      - application/vnd.goa.error
-      - application/vnd.goa.error
       - application/vnd.goa.error
       - application/vnd.goa.user+json
       responses:
@@ -485,8 +504,6 @@ paths:
           $ref: '#/definitions/EmailPayload'
       produces:
       - application/vnd.goa.error
-      - application/vnd.goa.error
-      - application/vnd.goa.error
       - resettokenmedia
       responses:
         "200":
@@ -521,7 +538,6 @@ paths:
         required: false
         type: string
       produces:
-      - application/vnd.goa.error
       - application/vnd.goa.error
       - plain/text
       responses:

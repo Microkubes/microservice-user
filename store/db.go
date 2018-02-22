@@ -133,6 +133,7 @@ func (c *UserCollection) CreateUser(payload *app.UserPayload) (*string, error) {
 		"roles":         payload.Roles,
 		"active":        payload.Active,
 		"organizations": payload.Organizations,
+		"namespaces":    payload.Namespaces,
 	})
 
 	// Handle errors
@@ -181,6 +182,10 @@ func (c *UserCollection) UpdateUser(userID string, payload *app.UserPayload) (*a
 
 	if payload.Organizations != nil {
 		updated["organizations"] = payload.Organizations
+	}
+
+	if payload.Namespaces != nil {
+		updated["namespaces"] = payload.Namespaces
 	}
 
 	err = c.Update(
@@ -243,6 +248,14 @@ func (c *UserCollection) FindByID(userID string, mediaType *app.Users) error {
 			}
 		}
 	}
+	if namespaces, ok := result["namespaces"]; ok {
+		mediaType.Namespaces = []string{}
+		if namespaces != nil {
+			for _, namespace := range namespaces.([]interface{}) {
+				mediaType.Namespaces = append(mediaType.Namespaces, namespace.(string))
+			}
+		}
+	}
 
 	return nil
 }
@@ -283,6 +296,24 @@ func (c *UserCollection) FindByEmailAndPassword(email, password string) (*app.Us
 		}
 	}
 
+	namespaces := []string{}
+	if _, ok := userData["namespaces"]; ok {
+		if nsArr, ok := userData["namespaces"].([]interface{}); ok {
+			for _, namespace := range nsArr {
+				namespaces = append(namespaces, namespace.(string))
+			}
+		}
+	}
+
+	organizations := []string{}
+	if _, ok := userData["organizations"]; ok {
+		if orgArr, ok := userData["organizations"].([]interface{}); ok {
+			for _, org := range orgArr {
+				organizations = append(organizations, org.(string))
+			}
+		}
+	}
+
 	var externalID string
 	if userData["externalId"] == nil {
 		externalID = ""
@@ -291,11 +322,13 @@ func (c *UserCollection) FindByEmailAndPassword(email, password string) (*app.Us
 	}
 
 	user := &app.Users{
-		Active:     active,
-		Email:      userData["email"].(string),
-		ID:         userData["_id"].(bson.ObjectId).Hex(),
-		Roles:      roles,
-		ExternalID: externalID,
+		Active:        active,
+		Email:         userData["email"].(string),
+		ID:            userData["_id"].(bson.ObjectId).Hex(),
+		Roles:         roles,
+		ExternalID:    externalID,
+		Organizations: organizations,
+		Namespaces:    namespaces,
 	}
 	return user, nil
 }
@@ -332,12 +365,22 @@ func (c *UserCollection) FindByEmail(email string) (*app.Users, error) {
 		}
 	}
 
+	namespaces := []string{}
+	if _, ok := userData["namespaces"]; ok {
+		if nsArr, ok := userData["namespaces"].([]interface{}); ok {
+			for _, ns := range nsArr {
+				namespaces = append(namespaces, ns.(string))
+			}
+		}
+	}
+
 	user := &app.Users{
 		Active:        active,
 		Email:         userData["email"].(string),
 		ID:            userData["_id"].(bson.ObjectId).Hex(),
 		Roles:         roles,
 		Organizations: organizations,
+		Namespaces:    namespaces,
 	}
 	if externalID, ok := userData["externalId"]; ok && externalID != nil {
 		user.ExternalID = externalID.(string)
