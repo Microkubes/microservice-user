@@ -125,6 +125,7 @@ var UserMedia = MediaType("application/vnd.goa.user+json", func() {
 		Attribute("externalId")
 		Attribute("active")
 		Attribute("organizations")
+		Attribute("namespaces")
 		Required("id", "email", "roles", "externalId", "active")
 	})
 
@@ -135,6 +136,7 @@ var UserMedia = MediaType("application/vnd.goa.user+json", func() {
 		Attribute("externalId")
 		Attribute("active")
 		Attribute("organizations")
+		Attribute("namespaces")
 	})
 })
 
@@ -167,6 +169,7 @@ var UserPayload = Type("UserPayload", func() {
 	})
 	Attribute("roles", ArrayOf(String), "Roles of user")
 	Attribute("organizations", ArrayOf(String), "List of organizations to which this user belongs to")
+	Attribute("namespaces", ArrayOf(String), "List of namespaces this user belongs to")
 	Attribute("externalId", String, "External id of user")
 	Attribute("active", Boolean, "Status of user account", func() {
 		Default(false)
