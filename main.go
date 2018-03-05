@@ -57,7 +57,9 @@ func main() {
 
 	// backends
 
-	backendManager := backends.NewBackendManager(map[string]*config.DBInfo{})
+	backendManager := backends.NewBackendSupport(map[string]*config.DBInfo{
+		// TODO: load this from config file or set up manually
+	})
 
 	backend, err := backendManager.GetBackend("mongodb") // from config
 	if err != nil {
