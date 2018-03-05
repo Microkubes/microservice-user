@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/JormungandrK/backends"
 	"github.com/JormungandrK/microservice-security/chain"
 	"github.com/JormungandrK/microservice-security/flow"
 	"github.com/JormungandrK/microservice-tools/config"
@@ -53,6 +54,45 @@ func main() {
 	service.Use(middleware.Recover())
 
 	service.Use(chain.AsGoaMiddleware(securityChain))
+
+	// backends
+
+	backendManager := backends.NewBackendManager(map[string]*config.DBInfo{})
+
+	backend, err := backendManager.GetBackend("mongodb") // from config
+	if err != nil {
+		service.LogError("Failed to configure backend. ", err)
+	}
+
+	userRepo, err := backend.DefineRepository("user", backends.RepositoryDefinitionMap{
+		"indexes": []string{"id", "email"},
+	})
+	if err != nil {
+		service.LogError("Failed to get users repo.", err)
+	}
+
+	tokenRepo, err := backend.DefineRepository("token", backends.RepositoryDefinitionMap{
+		"indexes":   []string{"id", "token", "etc"},
+		"enableTtl": true,
+		"ttl":       86400,
+	})
+
+	if err != nil {
+		service.LogError("Failed to get tokens repo.", err)
+	}
+
+	service.LogInfo("Set up users and tokens repositories:", userRepo, tokenRepo)
+
+	// Later on, we can obtain the repositories like so:
+
+	repo, err := backend.GetRepository("user")
+	if err != nil {
+		// the repo is not defined
+		service.LogError("Repo is not defined", err)
+	}
+	service.LogInfo("Got user repo: ", repo)
+
+	// end backends conf
 
 	dbConf := serviceConfig.DBConfig
 	// Create new session to MongoDB
