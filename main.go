@@ -4,14 +4,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/JormungandrK/microservice-security/chain"
-	"github.com/JormungandrK/microservice-security/flow"
+	// "github.com/JormungandrK/microservice-security/chain"
+	// "github.com/JormungandrK/microservice-security/flow"
+	"github.com/JormungandrK/backends"
 	"github.com/JormungandrK/microservice-tools/config"
-	"github.com/JormungandrK/user-microservice/app"
-
 	"github.com/JormungandrK/microservice-tools/gateway"
-
-	"github.com/JormungandrK/user-microservice/store"
+	"github.com/JormungandrK/user-microservice/app"
+	// "github.com/JormungandrK/user-microservice/store"
 
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
@@ -39,12 +38,12 @@ func main() {
 
 	defer registration.Unregister()
 
-	securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
-	if err != nil {
-		panic(err)
-	}
+	// securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	defer cleanup()
+	// defer cleanup()
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
@@ -52,26 +51,25 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
-	service.Use(chain.AsGoaMiddleware(securityChain))
+	// service.Use(chain.AsGoaMiddleware(securityChain))
 
+	// Get the db collections/tables
 	dbConf := serviceConfig.DBConfig
-	// Create new session to MongoDB
-	session := store.NewSession(dbConf.Host, dbConf.Username, dbConf.Password, dbConf.DatabaseName)
-
-	// At the end close session
-	defer session.Close()
-
-	// Create users collection and indexes
-	indexes := []string{"email"}
-	usersCollection := store.PrepareDB(session, dbConf.DatabaseName, "users", indexes, false)
-	indexes = []string{"token"}
-	tokensCollection := store.PrepareDB(session, dbConf.DatabaseName, "tokens", indexes, true)
+	backend, err := backends.New(dbConf)
+	if err != nil {
+		service.LogError("set up database", "err", err)
+		return
+	}
+	store := UserStore{
+		backend["users"],
+		backend["tokens"],
+	}
 
 	// Mount "swagger" controller
 	c1 := NewSwaggerController(service)
 	app.MountSwaggerController(service, c1)
 	// Mount "user" controller
-	c2 := NewUserController(service, store.Collections{Users: &store.UserCollection{Collection: usersCollection}, Tokens: &store.TokenCollection{Collection: tokensCollection}})
+	c2 := NewUserController(service, store)
 	app.MountUserController(service, c2)
 
 	// Start service

@@ -70,7 +70,7 @@ var _ = Resource("user", func() {
 		Routing(POST("find"))
 		Payload(CredentialsPayload)
 		Response(OK, UserMedia)
-		Response(NotFound)
+		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
