@@ -1,16 +1,16 @@
 ### Multi-stage build
 FROM jormungandrk/goa-build as build
 
-COPY . /go/src/github.com/JormungandrK/user-microservice
-RUN go install github.com/JormungandrK/user-microservice
+COPY . /go/src/github.com/JormungandrK/microservice-user
+RUN go install github.com/JormungandrK/microservice-user
 
 
 ### Main
 FROM alpine:3.6
 
-COPY --from=build /go/bin/user-microservice /usr/local/bin/user-microservice
+COPY --from=build /go/bin/microservice-user /usr/local/bin/microservice-user
 EXPOSE 8080
 
 ENV API_GATEWAY_URL="http://localhost:8001"
 
-CMD ["/usr/local/bin/user-microservice"]
+CMD ["/usr/local/bin/microservice-user"]

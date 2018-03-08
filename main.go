@@ -7,11 +7,11 @@ import (
 	"github.com/JormungandrK/microservice-security/chain"
 	"github.com/JormungandrK/microservice-security/flow"
 	"github.com/JormungandrK/microservice-tools/config"
-	"github.com/JormungandrK/user-microservice/app"
+	"github.com/JormungandrK/microservice-user/app"
 
 	"github.com/JormungandrK/microservice-tools/gateway"
 
-	"github.com/JormungandrK/user-microservice/store"
+	"github.com/JormungandrK/microservice-user/store"
 
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"

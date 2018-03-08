@@ -1,6 +1,6 @@
 # User microservice
 
-[![Build](https://travis-ci.com/JormungandrK/user-microservice.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/JormungandrK/user-microservice)
+[![Build](https://travis-ci.com/JormungandrK/microservice-user.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/JormungandrK/microservice-user)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/2cf4d5d4a0ade7c5c358/test_coverage)](https://codeclimate.com/repos/5971a9ed730e750274000347/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/2cf4d5d4a0ade7c5c358/maintainability)](https://codeclimate.com/repos/5971a9ed730e750274000347/maintainability)
 
@@ -22,11 +22,11 @@ go get -u github.com/goadesign/goa/...
 Clone the repo:
 ```
 cd $GOPATH/src
-git clone https://github.com/JormungandrK/user-microservice.git
+git clone https://github.com/JormungandrK/microservice-user.git
 ```
 Then compile and run:
 ```
-cd user-microservice
+cd microservice-user
 go build -o user
 ./user
 ```
@@ -34,7 +34,7 @@ go build -o user
 ## Change the desing
 If you change the desing then you should regenerate the files. Run:
 ```
-cd $GOPATH/src/user-microservice
+cd $GOPATH/src/microservice-user
 go generate
 ```
 Also, recompile the service and start it again:
@@ -46,7 +46,7 @@ go build -o user
 ## Other changes, not related to the design
 For all other changes that are not related to the design just recompile the service and start it again:
 ```
-cd $GOPATH/src/user-microservice
+cd $GOPATH/src/microservice-user
 go build -o user
 ./user
 ```
@@ -89,12 +89,12 @@ cp ~/.ssh/id_rsa keys/
 
 To build the docker image of the microservice, run the following command:
 ```bash
-docker build -t user-microservice .
+docker build -t microservice-user .
 ```
 
 # Running the microservice
 
-To run the user-microservice you'll need to set up some ENV variables:
+To run the microservice-user you'll need to set up some ENV variables:
 
  * **SERVICE_CONFIG_FILE** - Location of the configuration JSON file
  * **API_GATEWAY_URL** - Kong API url (default: http://localhost:8001)
@@ -105,7 +105,7 @@ To run the user-microservice you'll need to set up some ENV variables:
 
 Run the docker image:
 ```bash
-docker run user-microservice
+docker run microservice-user
 ```
 
 ## Check if the service is self-registering on Kong Gateway
@@ -132,7 +132,7 @@ You should see a log on the terminal running the service that it received and ha
 ## Running with the docker image
 
 Assuming that you have Kong and it is availabel od your host (ports: 8001 - admin, and 8000 - proxy) and
-you have build the service docker image (user-microservice), then you need to pass
+you have build the service docker image (microservice-user), then you need to pass
 the Kong URL as an ENV variable to the docker run. This is needed because by default
 the service will try http://localhost:8001 inside the container and won't be able to connect to kong.
 
@@ -140,7 +140,7 @@ Find your host IP using ```ifconfig``` or ```ip addr```.
 Assuming your host IP is 192.168.1.10, then run:
 
 ```bash
-docker run -ti -e API_GATEWAY_URL=http://192.168.1.10:8001 -e MONGO_URL=192.168.1.10:27017 user-microservice
+docker run -ti -e API_GATEWAY_URL=http://192.168.1.10:8001 -e MONGO_URL=192.168.1.10:27017 microservice-user
 ```
 
 If there are no errors, on a different terminal try calling Kong on port :8000
@@ -161,7 +161,7 @@ Here's an example of a JSON configuration file:
 
 ```json
 {
-  "name": "user-microservice",
+  "name": "microservice-user",
   "port": 8080,
   "virtual_host": "user.services.jormugandr.org",
   "hosts": ["localhost", "user.services.jormugandr.org"],
@@ -171,7 +171,7 @@ Here's an example of a JSON configuration file:
 ```
 
 Configuration properties:
- * **name** - ```"user-microservice"``` - the name of the service, do not change this.
+ * **name** - ```"microservice-user"``` - the name of the service, do not change this.
  * **port** - ```8080``` - port on which the microservice is running.
  * **virtual_host** - ```"user.services.jormugandr.org"``` domain name of the service group/cluster. Don't change if not sure.
  * **hosts** - list of valid hosts. Used for proxying and load balancing of the incoming request. You need to have at least the **virtual_host** in the list.

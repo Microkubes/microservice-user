@@ -1,6 +1,6 @@
 {
   "service":{
-    "name": "user-microservice",
+    "name": "microservice-user",
     "port": 8080,
     "paths": ["/users"],
     "virtual_host": "user.services.jormungandr.org",

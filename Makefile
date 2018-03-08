@@ -1,6 +1,6 @@
 VERSION := $(shell git describe --tags --exact-match 2>/dev/null || echo latest)
 DOCKERHUB_NAMESPACE ?= jormungandrk
-IMAGE := ${DOCKERHUB_NAMESPACE}/user-microservice:${VERSION}
+IMAGE := ${DOCKERHUB_NAMESPACE}/microservice-user:${VERSION}
 
 build:
 	docker build -t ${IMAGE} .
