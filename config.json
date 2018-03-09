@@ -13,12 +13,13 @@
     "dbName": "dynamodb",
     "dbInfo": {
       "credentials": "/home/vladimir/.aws/credentials",
+      "endpoint": "http://localhost:9000",
       "awsRegion": "us-east-1",
       "host": "localhost:27017",
       "database": "users",
       "collections": {
-        "users": {"indexes": ["email"], "enableTTL": false, "hashKey": "email"},
-        "tokens": {"indexes": ["token"], "enableTTL": true, "TTL": 86400, "hashKey": "token"}
+        "users": {"indexes": ["email"], "enableTTL": false, "hashKey": "email", "readCapacity": 5, "writeCapacity": 5},
+        "tokens": {"indexes": ["token"], "enableTTL": true, "TTL": 86400, "hashKey": "token", "readCapacity": 5, "writeCapacity": 5}
       },
       "user": "restapi",
       "pass": "restapi"

@@ -96,6 +96,7 @@ var _ = Resource("user", func() {
 			Media("plain/text")
 		})
 		Response(NotFound, ErrorMedia)
+		Response(BadRequest, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
 	Action("resetVerificationToken", func() {

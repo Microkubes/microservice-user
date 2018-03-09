@@ -545,6 +545,10 @@ paths:
       responses:
         "200":
           description: User is verified
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
         "404":
           description: Not Found
           schema:

@@ -355,6 +355,12 @@ func (ctx *VerifyUserContext) OK(resp []byte) error {
 	return err
 }
 
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *VerifyUserContext) BadRequest(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
 // NotFound sends a HTTP response with status code 404.
 func (ctx *VerifyUserContext) NotFound(r error) error {
 	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")

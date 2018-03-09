@@ -4,12 +4,10 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"time"
-	// "encoding/json"
 
 	"github.com/JormungandrK/backends"
 	"github.com/JormungandrK/microservice-security/auth"
 	"github.com/JormungandrK/user-microservice/app"
-	// "github.com/JormungandrK/user-microservice/store"
 	"github.com/goadesign/goa"
 
 	"golang.org/x/crypto/bcrypt"
@@ -300,97 +298,117 @@ func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
 // Verify performs verification of the given token and activates the user for which
 // this activation token was generated.
 func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
-	// Check if user is already activated
-	// token := *ctx.Token
-	// email, err := c.collections.Tokens.VerifyToken(token)
-	// if err != nil {
-	// 	e := err.(*goa.ErrorResponse)
 
-	// 	switch e.Status {
-	// 	case 404:
-	// 		return ctx.NotFound(err)
-	// 	default:
-	// 		return ctx.InternalServerError(err)
-	// 	}
-	// }
+	if ctx.Token == nil {
+		return ctx.BadRequest(goa.ErrBadRequest("token is missing from the payload"))
+	}
 
-	// err = c.collections.Users.ActivateUser(*email)
-	// if err != nil {
-	// 	e := err.(*goa.ErrorResponse)
+	user := &app.Users{}
+	tokenFilter := map[string]interface{}{
+		"token": *ctx.Token,
+	}
 
-	// 	switch e.Status {
-	// 	case 404:
-	// 		return ctx.NotFound(err)
-	// 	default:
-	// 		return ctx.InternalServerError(err)
-	// 	}
-	// }
+	err := c.Store.Tokens.GetOne(tokenFilter, user)
+	if err != nil {
+		e := err.(*goa.ErrorResponse)
 
-	// err = c.collections.Tokens.DeleteToken(token)
-	// if err != nil {
-	// 	e := err.(*goa.ErrorResponse)
+		switch e.Status {
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
+	}
 
-	// 	switch e.Status {
-	// 	case 404:
-	// 		return ctx.NotFound(err)
-	// 	default:
-	// 		return ctx.InternalServerError(err)
-	// 	}
-	// }
+	emailFilter := map[string]interface{}{
+		"email": user.Email,
+	}
+	update := map[string]interface{}{
+		"active": true,
+	}
 
-	// // empty response
-	// var resp []byte
-	// return ctx.OK(resp)
+	_, err = c.Store.Users.Save(&update, emailFilter)
+	if err != nil {
+		e := err.(*goa.ErrorResponse)
 
-	return nil
+		switch e.Status {
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
+	}
+
+	err = c.Store.Tokens.DeleteOne(tokenFilter)
+	if err != nil {
+		e := err.(*goa.ErrorResponse)
+
+		switch e.Status {
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
+	}
+
+	// empty response
+	var resp []byte
+	return ctx.OK(resp)
 }
 
 // ResetVerificationToken resets a verification token for a given user (by email). Generates a new value for the token
 // and resets the expiration time for the token.
 func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenUserContext) error {
-	// user, err := c.collections.Users.FindByEmail(ctx.Payload.Email)
-	// if err != nil {
-	// 	if err.Error() == "user not found" {
-	// 		return ctx.NotFound(err)
-	// 	}
-	// 	return ctx.InternalServerError(err)
-	// }
-	// if user == nil {
-	// 	return ctx.NotFound(fmt.Errorf("not-found"))
-	// }
 
-	// if user.Active {
-	// 	return ctx.BadRequest(goa.ErrBadRequest("already active"))
-	// }
+	user := &app.Users{}
+	emailFilter := map[string]interface{}{
+		"email": ctx.Payload.Email,
+	}
 
-	// if user.ExternalID != "" {
-	// 	return ctx.BadRequest(goa.ErrBadRequest("external-user"))
-	// }
+	err := c.Store.Users.GetOne(emailFilter, user)
+	if err != nil {
+		e := err.(*goa.ErrorResponse)
 
-	// if err := c.collections.Tokens.DeleteUserToken(user.Email); err != nil {
-	// 	return ctx.InternalServerError(err)
-	// }
+		switch e.Status {
+		case 404:
+			return ctx.NotFound(err)
+		default:
+			return ctx.InternalServerError(err)
+		}
+	}
 
-	// token := generateToken(42)
+	if user.Active {
+		return ctx.BadRequest(goa.ErrBadRequest("already active"))
+	}
 
-	// if err := c.collections.Tokens.CreateToken(&app.UserPayload{
-	// 	Active:        false,
-	// 	Email:         user.Email,
-	// 	ExternalID:    &user.ExternalID,
-	// 	Organizations: user.Organizations,
-	// 	Roles:         user.Roles,
-	// 	Token:         &token,
-	// }); err != nil {
-	// 	return ctx.InternalServerError(err)
-	// }
+	if user.ExternalID != "" {
+		return ctx.BadRequest(goa.ErrBadRequest("external-user"))
+	}
 
-	// return ctx.OK(&app.ResetToken{
-	// 	Email: user.Email,
-	// 	ID:    user.ID,
-	// 	Token: token,
-	// })
+	if err := c.Store.Tokens.DeleteOne(emailFilter); err != nil {
+		return ctx.InternalServerError(err)
+	}
 
-	return nil
+	token := generateToken(42)
+
+	tokenPayload := map[string]interface{}{
+		"email":      ctx.Payload.Email,
+		"token":      token,
+		"created_at": time.Now(),
+	}
+
+	result, err := c.Store.Tokens.Save(&tokenPayload, nil)
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	resetToken := &app.ResetToken{}
+	err = backends.MapToInterface(result, resetToken)
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	return ctx.OK(resetToken)
 }
 
 func generateToken(n int) string {
