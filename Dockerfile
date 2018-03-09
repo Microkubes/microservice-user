@@ -1,6 +1,6 @@
 ### Multi-stage build
 
-FROM golang:1.8.3-alpine3.6 as build
+FROM golang:1.10-alpine3.7 as build
 
 RUN apk --no-cache add git
 RUN apk --update add ca-certificates
