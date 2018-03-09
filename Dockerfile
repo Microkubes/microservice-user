@@ -22,7 +22,7 @@ RUN cd /go/src/github.com/JormungandrK/ && rm -rf backends && git clone -b task-
 RUN go install user-microservice
 
 ### Main
-FROM alpine:3.6
+FROM alpine:3.7
 
 COPY --from=build /go/bin/user-microservice /usr/local/bin/user-microservice
 COPY --from=build /etc/ssl/certs /etc/ssl/certs
