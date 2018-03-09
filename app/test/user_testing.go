@@ -14,7 +14,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/JormungandrK/user-microservice/app"
+	"github.com/JormungandrK/microservice-user/app"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/goatest"
 	"io"

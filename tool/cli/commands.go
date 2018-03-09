@@ -14,7 +14,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/JormungandrK/user-microservice/client"
+	"github.com/JormungandrK/microservice-user/client"
 	"github.com/goadesign/goa"
 	goaclient "github.com/goadesign/goa/client"
 	uuid "github.com/goadesign/goa/uuid"

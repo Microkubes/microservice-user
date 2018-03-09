@@ -7,7 +7,7 @@ import (
 
 	"github.com/JormungandrK/backends"
 	"github.com/JormungandrK/microservice-security/auth"
-	"github.com/JormungandrK/user-microservice/app"
+	"github.com/JormungandrK/microservice-user/app"
 	"github.com/goadesign/goa"
 
 	"golang.org/x/crypto/bcrypt"
@@ -150,6 +150,7 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 	}
 
 	userID := authObj.UserID
+	res := &app.Users{}
 
 	user := &app.Users{}
 	filter := map[string]interface{}{
@@ -375,6 +376,10 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		default:
 			return ctx.InternalServerError(err)
 		}
+		return ctx.InternalServerError(err)
+	}
+	if user == nil {
+		return ctx.NotFound(fmt.Errorf("not-found"))
 	}
 
 	if user.Active {

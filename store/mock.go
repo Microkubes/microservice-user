@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/JormungandrK/user-microservice/app"
+	"github.com/JormungandrK/microservice-user/app"
 	"github.com/goadesign/goa"
 )
 

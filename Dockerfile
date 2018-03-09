@@ -1,4 +1,5 @@
 ### Multi-stage build
+FROM jormungandrk/goa-build as build
 
 FROM golang:1.10-alpine3.7 as build
 
@@ -27,5 +28,7 @@ COPY --from=build /go/bin/user-microservice /usr/local/bin/user-microservice
 COPY --from=build /etc/ssl/certs /etc/ssl/certs
 
 EXPOSE 8080
+
+ENV API_GATEWAY_URL="http://localhost:8001"
 
 CMD ["/usr/local/bin/user-microservice"]

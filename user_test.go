@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/JormungandrK/microservice-security/auth"
-	"github.com/JormungandrK/user-microservice/app"
-	"github.com/JormungandrK/user-microservice/app/test"
-	"github.com/JormungandrK/user-microservice/store"
+	"github.com/JormungandrK/microservice-user/app"
+	"github.com/JormungandrK/microservice-user/app/test"
+	"github.com/JormungandrK/microservice-user/store"
 	"github.com/goadesign/goa"
 )
 
