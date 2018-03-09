@@ -6,7 +6,7 @@ RUN go install github.com/JormungandrK/microservice-user
 
 
 ### Main
-FROM alpine:3.6
+FROM alpine:3.7
 
 COPY --from=build /go/bin/microservice-user /usr/local/bin/microservice-user
 EXPOSE 8080
