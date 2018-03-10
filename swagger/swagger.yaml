@@ -4,69 +4,8 @@ consumes:
 - application/gob
 - application/x-gob
 definitions:
-  Credentials:
-    description: Email and password credentials
-    example:
-      email: magnus@mckenzie.info
-      password: htvx6y8d3
-    properties:
-      email:
-        description: Email of user
-        example: magnus@mckenzie.info
-        format: email
-        type: string
-      password:
-        description: Password of user
-        example: htvx6y8d3
-        maxLength: 30
-        minLength: 6
-        type: string
-    required:
-    - email
-    - password
-    title: Credentials
-    type: object
-  EmailPayload:
-    description: Email payload
-    example:
-      email: tiffany_reilly@rosenbaum.biz
-    properties:
-      email:
-        description: Email of user
-        example: tiffany_reilly@rosenbaum.biz
-        format: email
-        type: string
-    required:
-    - email
-    title: EmailPayload
-    type: object
-  ResetToken:
-    description: ResetToken media type (default view)
-    example:
-      email: Sed provident fugit.
-      id: Dignissimos nisi voluptatum.
-      token: Mollitia sint.
-    properties:
-      email:
-        description: User email
-        example: Sed provident fugit.
-        type: string
-      id:
-        description: User ID
-        example: Dignissimos nisi voluptatum.
-        type: string
-      token:
-        description: New token
-        example: Mollitia sint.
-        type: string
-    required:
-    - id
-    - email
-    - token
-    title: 'Mediatype identifier: resettokenmedia; view=default'
-    type: object
-  UserPayload:
-    description: UserPayload
+  CreateUserPayload:
+    description: CreateUserPayload
     example:
       active: true
       email: ollie.hilll@smith.info
@@ -138,7 +77,139 @@ definitions:
         type: string
     required:
     - email
-    title: UserPayload
+    title: CreateUserPayload
+    type: object
+  Credentials:
+    description: Email and password credentials
+    example:
+      email: magnus@mckenzie.info
+      password: htvx6y8d3
+    properties:
+      email:
+        description: Email of user
+        example: magnus@mckenzie.info
+        format: email
+        type: string
+      password:
+        description: Password of user
+        example: htvx6y8d3
+        maxLength: 30
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    title: Credentials
+    type: object
+  EmailPayload:
+    description: Email payload
+    example:
+      email: tiffany_reilly@rosenbaum.biz
+    properties:
+      email:
+        description: Email of user
+        example: tiffany_reilly@rosenbaum.biz
+        format: email
+        type: string
+    required:
+    - email
+    title: EmailPayload
+    type: object
+  ResetToken:
+    description: ResetToken media type (default view)
+    example:
+      email: Sed provident fugit.
+      id: Dignissimos nisi voluptatum.
+      token: Mollitia sint.
+    properties:
+      email:
+        description: User email
+        example: Sed provident fugit.
+        type: string
+      id:
+        description: User ID
+        example: Dignissimos nisi voluptatum.
+        type: string
+      token:
+        description: New token
+        example: Mollitia sint.
+        type: string
+    required:
+    - id
+    - email
+    - token
+    title: 'Mediatype identifier: resettokenmedia; view=default'
+    type: object
+  UpdateUserPayload:
+    description: UpdateUserPayload
+    example:
+      active: true
+      email: melany.zieme@gutkowski.name
+      externalId: Aperiam nostrum at aut occaecati perferendis.
+      namespaces:
+      - Vel quidem.
+      organizations:
+      - Sit aut molestiae.
+      - Sit aut molestiae.
+      password: o6xgbsyo5h
+      roles:
+      - Pariatur consequatur accusantium occaecati sint.
+      - Pariatur consequatur accusantium occaecati sint.
+      - Pariatur consequatur accusantium occaecati sint.
+      token: Ipsam impedit vitae.
+    properties:
+      active:
+        default: false
+        description: Status of user account
+        example: true
+        type: boolean
+      email:
+        description: Email of user
+        example: melany.zieme@gutkowski.name
+        format: email
+        type: string
+      externalId:
+        description: External id of user
+        example: Aperiam nostrum at aut occaecati perferendis.
+        type: string
+      namespaces:
+        description: List of namespaces this user belongs to
+        example:
+        - Vel quidem.
+        items:
+          example: Vel quidem.
+          type: string
+        type: array
+      organizations:
+        description: List of organizations to which this user belongs to
+        example:
+        - Sit aut molestiae.
+        - Sit aut molestiae.
+        items:
+          example: Sit aut molestiae.
+          type: string
+        type: array
+      password:
+        description: Password of user
+        example: o6xgbsyo5h
+        maxLength: 30
+        minLength: 6
+        type: string
+      roles:
+        description: Roles of user
+        example:
+        - Pariatur consequatur accusantium occaecati sint.
+        - Pariatur consequatur accusantium occaecati sint.
+        - Pariatur consequatur accusantium occaecati sint.
+        items:
+          example: Pariatur consequatur accusantium occaecati sint.
+          type: string
+        type: array
+      token:
+        description: Token for email verification
+        example: Ipsam impedit vitae.
+        type: string
+    title: UpdateUserPayload
     type: object
   error:
     description: Error response media type (default view)
@@ -294,12 +365,12 @@ paths:
       description: Creates user
       operationId: user#create
       parameters:
-      - description: UserPayload
+      - description: CreateUserPayload
         in: body
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/UserPayload'
+          $ref: '#/definitions/CreateUserPayload'
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.user+json
@@ -365,12 +436,12 @@ paths:
         name: userId
         required: true
         type: string
-      - description: UserPayload
+      - description: UpdateUserPayload
         in: body
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/UserPayload'
+          $ref: '#/definitions/UpdateUserPayload'
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.user+json

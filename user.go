@@ -3,11 +3,13 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"time"
 
 	"github.com/JormungandrK/backends"
 	"github.com/JormungandrK/microservice-security/auth"
 	"github.com/JormungandrK/microservice-user/app"
+	"github.com/JormungandrK/microservice-user/store"
 	"github.com/goadesign/goa"
 
 	"golang.org/x/crypto/bcrypt"
@@ -20,20 +22,14 @@ type Email struct {
 	Token string `json:"token,omitempty"`
 }
 
-// UserStore wraps User's collections/tables. Implements backneds.Repository interface
-type UserStore struct {
-	Users  backends.Repository
-	Tokens backends.Repository
-}
-
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-	Store UserStore
+	Store store.User
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service, store UserStore) *UserController {
+func NewUserController(service *goa.Service, store store.User) *UserController {
 	return &UserController{
 		Controller: service.NewController("UserController"),
 		Store:      store,
@@ -51,20 +47,14 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		ctx.Payload.Roles = append(ctx.Payload.Roles, "user")
 	}
 
-	if ctx.Payload.Token == nil {
-		token := generateToken(42)
-		ctx.Payload.Token = &token
-	}
-
 	// Hashing password
 	if ctx.Payload.Password != nil {
-		userPassword := *ctx.Payload.Password
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
+		hashedPassword, err := stringToBcryptHash(*ctx.Payload.Password)
 		if err != nil {
 			return ctx.InternalServerError(goa.ErrInternal(err))
 		}
-		pass := string(hashedPassword)
-		ctx.Payload.Password = &pass
+
+		ctx.Payload.Password = &hashedPassword
 	}
 
 	result, err := c.Store.Users.Save(ctx.Payload, nil)
@@ -79,6 +69,11 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		}
 	}
 
+	if ctx.Payload.Token == nil {
+		token := generateToken(42)
+		ctx.Payload.Token = &token
+	}
+
 	tokenPayload := map[string]interface{}{
 		"email":      ctx.Payload.Email,
 		"token":      ctx.Payload.Token,
@@ -90,23 +85,12 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	var externalID string
-	if ctx.Payload.ExternalID == nil {
-		externalID = ""
-	} else {
-		externalID = *ctx.Payload.ExternalID
+	user := &app.Users{}
+	if err = backends.MapToInterface(result, user); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	r := result.(map[string]interface{})
-	py := &app.Users{
-		ID:            r["id"].(string),
-		Email:         ctx.Payload.Email,
-		ExternalID:    externalID,
-		Roles:         ctx.Payload.Roles,
-		Organizations: ctx.Payload.Organizations,
-	}
-
-	return ctx.Created(py)
+	return ctx.Created(user)
 }
 
 // Get runs the get action.
@@ -150,7 +134,6 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 	}
 
 	userID := authObj.UserID
-	res := &app.Users{}
 
 	user := &app.Users{}
 	filter := map[string]interface{}{
@@ -176,12 +159,11 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 // Update runs the update action.
 func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 
-	payload := map[string]interface{}{
-		"id": ctx.UserID,
-	}
+	payload := map[string]interface{}{}
 
 	payload["active"] = ctx.Payload.Active
-	if ctx.Payload.Email != "" {
+
+	if ctx.Payload.Email != nil {
 		payload["email"] = ctx.Payload.Email
 	}
 	if ctx.Payload.ExternalID != nil {
@@ -189,11 +171,11 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 	}
 
 	if ctx.Payload.Password != nil && *ctx.Payload.Password != "" {
-		hashedPassword, herr := bcrypt.GenerateFromPassword([]byte(*ctx.Payload.Password), bcrypt.DefaultCost)
-		if herr != nil {
-			return goa.ErrInternal(herr)
+		hashedPassword, err := stringToBcryptHash(*ctx.Payload.Password)
+		if err != nil {
+			return ctx.InternalServerError(goa.ErrInternal(err))
 		}
-		payload["password"] = string(hashedPassword)
+		payload["password"] = hashedPassword
 	}
 
 	if ctx.Payload.Roles != nil {
@@ -228,9 +210,8 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 	}
 
 	user := &app.Users{}
-	err = backends.MapToInterface(result, user)
-	if err != nil {
-		return ctx.InternalServerError(err)
+	if err = backends.MapToInterface(result, user); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.OK(user)
@@ -262,13 +243,13 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(userData["password"].(string)), []byte(ctx.Payload.Password)); err != nil {
+		fmt.Println(ctx.Payload.Password)
 		return ctx.NotFound(goa.ErrNotFound("not found"))
 	}
 
 	user := &app.Users{}
-	err := backends.MapToInterface(userData, user)
-	if err != nil {
-		return ctx.InternalServerError(err)
+	if err := backends.MapToInterface(userData, user); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.OK(user)
@@ -371,6 +352,8 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		e := err.(*goa.ErrorResponse)
 
 		switch e.Status {
+		case 400:
+			return ctx.BadRequest(err)
 		case 404:
 			return ctx.NotFound(err)
 		default:
@@ -378,16 +361,13 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		}
 		return ctx.InternalServerError(err)
 	}
+
 	if user == nil {
 		return ctx.NotFound(fmt.Errorf("not-found"))
 	}
 
 	if user.Active {
 		return ctx.BadRequest(goa.ErrBadRequest("already active"))
-	}
-
-	if user.ExternalID != "" {
-		return ctx.BadRequest(goa.ErrBadRequest("external-user"))
 	}
 
 	if err := c.Store.Tokens.DeleteOne(emailFilter); err != nil {
@@ -408,18 +388,28 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 	}
 
 	resetToken := &app.ResetToken{}
-	err = backends.MapToInterface(result, resetToken)
-	if err != nil {
+	if err = backends.MapToInterface(result, resetToken); err != nil {
 		return ctx.InternalServerError(err)
 	}
 
 	return ctx.OK(resetToken)
 }
 
+// generateToken generates random string with length of n
 func generateToken(n int) string {
 	rv := make([]byte, n)
 	if _, err := rand.Reader.Read(rv); err != nil {
 		panic(err)
 	}
 	return base64.URLEncoding.EncodeToString(rv)
+}
+
+// stringToBcryptHash returns the bcrypt hash of the password with the default cost
+func stringToBcryptHash(str string) (string, error) {
+	hashedString, err := bcrypt.GenerateFromPassword([]byte(str), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedString), nil
 }

@@ -15,43 +15,48 @@ var db = store.NewDB()
 var (
 	service          = goa.New("user-test")
 	ctrl             = NewUserController(service, db)
-	hexObjectID      = "5975c461f9f8eb02aae053f3"
-	fakeHexObjectID  = "6975c461f9f8eb02aae053f3"
-	badHexObjectID   = "fakeobjectidab02aae053f3aasadas"
-	internalErrObjID = "6975c461f9f8eb02aae053f4"
+	ID               = "b8cfa84f-bb6c-4c84-b39b-76dd32653921"
+	notFoundID       = "dxcfa84f-bb6c-4c84-b39b-76dd32653900"
+	notFonundEmail   = "not-found@gmail.com"
+	notFoundToken    = "not-found-token"
+	badID            = "bad-id"
+	badEmail         = "bad@gmail.com"
+	internalErrID    = "internal-err-id"
+	internalErrEmail = "internal-error@example.com"
+	internalErrToken = "internal-error-token"
 )
 
 func TestGetUserOK(t *testing.T) {
 	// Call generated test helper, this checks that the returned media type is of the
 	// correct type (i.e. uses view "default") and validates the media type.
 	// Also, it ckecks the returned status code
-	_, user := test.GetUserOK(t, context.Background(), service, ctrl, hexObjectID)
+	_, user := test.GetUserOK(t, context.Background(), service, ctrl, ID)
 
 	if user == nil {
 		t.Fatal("Nil user")
 	}
 
-	if user.ID != hexObjectID {
-		t.Errorf("Invalid user ID, expected %s, got %s", hexObjectID, user.ID)
+	if user.ID != ID {
+		t.Errorf("Invalid user ID, expected %s, got %s", ID, user.ID)
 	}
 }
 
 // The test helper takes care of validating the status code for us
 func TestGetUserNotFound(t *testing.T) {
-	test.GetUserNotFound(t, context.Background(), service, ctrl, fakeHexObjectID)
+	test.GetUserNotFound(t, context.Background(), service, ctrl, notFoundID)
 }
 
 func TestGetUserBadRequest(t *testing.T) {
-	test.GetUserBadRequest(t, context.Background(), service, ctrl, badHexObjectID)
+	test.GetUserBadRequest(t, context.Background(), service, ctrl, badID)
 }
 
 func TestGetUserInternalServerError(t *testing.T) {
-	test.GetUserInternalServerError(t, context.Background(), service, ctrl, internalErrObjID)
+	test.GetUserInternalServerError(t, context.Background(), service, ctrl, internalErrID)
 }
 
 func TestGetMeUserOK(t *testing.T) {
 	ctx := context.Background()
-	authObj := &auth.Auth{UserID: hexObjectID}
+	authObj := &auth.Auth{UserID: ID}
 	ctx = auth.SetAuth(ctx, authObj)
 
 	_, user := test.GetMeUserOK(t, ctx, service, ctrl)
@@ -60,14 +65,14 @@ func TestGetMeUserOK(t *testing.T) {
 		t.Fatal("Nil user")
 	}
 
-	if user.ID != hexObjectID {
-		t.Errorf("Invalid user ID: expected %s, got %s", hexObjectID, user.ID)
+	if user.ID != ID {
+		t.Errorf("Invalid user ID: expected %s, got %s", ID, user.ID)
 	}
 }
 
 func TestGetMeUserNotFound(t *testing.T) {
 	ctx := context.Background()
-	authObj := &auth.Auth{UserID: fakeHexObjectID}
+	authObj := &auth.Auth{UserID: notFoundID}
 	ctx = auth.SetAuth(ctx, authObj)
 
 	test.GetMeUserNotFound(t, ctx, service, ctrl)
@@ -75,7 +80,7 @@ func TestGetMeUserNotFound(t *testing.T) {
 
 func TestGetMeUserBadRequest(t *testing.T) {
 	ctx := context.Background()
-	authObj := &auth.Auth{UserID: badHexObjectID}
+	authObj := &auth.Auth{UserID: badID}
 	ctx = auth.SetAuth(ctx, authObj)
 
 	test.GetMeUserBadRequest(t, ctx, service, ctrl)
@@ -83,7 +88,7 @@ func TestGetMeUserBadRequest(t *testing.T) {
 
 func TestGetMeUserInternalServerError(t *testing.T) {
 	ctx := context.Background()
-	authObj := &auth.Auth{UserID: internalErrObjID}
+	authObj := &auth.Auth{UserID: internalErrID}
 	ctx = auth.SetAuth(ctx, authObj)
 
 	test.GetMeUserInternalServerError(t, ctx, service, ctrl)
@@ -91,17 +96,17 @@ func TestGetMeUserInternalServerError(t *testing.T) {
 
 func TestCreateUserOK(t *testing.T) {
 	roles := []string{"admin", "user"}
-	pass := "password"
+	password := "keitaro"
 	extID := "qwerc461f9f8eb02aae053f3"
-	userPayload := &app.UserPayload{
-		Password:   &pass,
-		Email:      "example@some.com",
+	CreateUserPayload := &app.CreateUserPayload{
+		Email:      "keitaro-user2@gmail.com",
+		Password:   &password,
 		ExternalID: &extID,
 		Roles:      roles,
 	}
 
 	//CreateUserCreated
-	_, user := test.CreateUserCreated(t, context.Background(), service, ctrl, userPayload)
+	_, user := test.CreateUserCreated(t, context.Background(), service, ctrl, CreateUserPayload)
 
 	if user == nil {
 		t.Fatal("User not created")
@@ -109,80 +114,60 @@ func TestCreateUserOK(t *testing.T) {
 }
 
 func TestCreateUserBadRequest(t *testing.T) {
-	userPayload := &app.UserPayload{
+	CreateUserPayload := &app.CreateUserPayload{
 		Email: "example@some.com",
 		Roles: []string{"admin", "user"},
 	}
 
-	test.CreateUserBadRequest(t, context.Background(), service, ctrl, userPayload)
+	test.CreateUserBadRequest(t, context.Background(), service, ctrl, CreateUserPayload)
 }
 
 func TestCreateUserInternalServerError(t *testing.T) {
-	pass := "password"
+	password := "keitaro"
 	extID := "qwerc461f9f8eb02aae053f3"
-	userPayload := &app.UserPayload{
-		Password:   &pass,
+	CreateUserPayload := &app.CreateUserPayload{
+		Password:   &password,
 		Email:      "internal-error@example.com",
 		ExternalID: &extID,
 		Roles:      []string{"admin", "user"},
 	}
 
-	test.CreateUserInternalServerError(t, context.Background(), service, ctrl, userPayload)
+	test.CreateUserInternalServerError(t, context.Background(), service, ctrl, CreateUserPayload)
 }
 
 func TestUpdateUserOK(t *testing.T) {
-	roles := []string{"admin", "user"}
-	pass := "password"
-	extID := "qwerc461f9f8eb02aae053f3"
-	userPayload := &app.UserPayload{
-		Password:   &pass,
-		Email:      "example@some.com",
-		ExternalID: &extID,
-		Roles:      roles,
+	roles := []string{"admin"}
+	UpdateUserPayload := &app.UpdateUserPayload{
+		Roles: roles,
 	}
-	_, users := test.UpdateUserOK(t, context.Background(), service, ctrl, hexObjectID, userPayload)
+	_, users := test.UpdateUserOK(t, context.Background(), service, ctrl, ID, UpdateUserPayload)
 	if users == nil {
 		t.Fatal("Expected the update user data.")
 	}
 }
 
 func TestUpdateUserNotFound(t *testing.T) {
-	pass := "password"
-	extID := "qwerc461f9f8eb02aae053f3"
-	userPayload := &app.UserPayload{
-		Password:   &pass,
-		Email:      "example@some.com",
-		ExternalID: &extID,
-		Roles:      []string{"admin", "user"},
+	UpdateUserPayload := &app.UpdateUserPayload{
+		Roles: []string{"admin", "user"},
 	}
 
-	test.UpdateUserNotFound(t, context.Background(), service, ctrl, fakeHexObjectID, userPayload)
+	test.UpdateUserNotFound(t, context.Background(), service, ctrl, notFoundID, UpdateUserPayload)
 }
 
 func TestUpdateUserBadRequest(t *testing.T) {
-	pass := "password"
-	extID := "qwerc461f9f8eb02aae053f3"
-	userPayload := &app.UserPayload{
-		Password:   &pass,
-		Email:      "example@some.com",
-		ExternalID: &extID,
-		Roles:      []string{"admin", "user"},
+	UpdateUserPayload := &app.UpdateUserPayload{
+		Roles: []string{"admin", "user"},
 	}
 
-	test.UpdateUserBadRequest(t, context.Background(), service, ctrl, badHexObjectID, userPayload)
+	test.UpdateUserBadRequest(t, context.Background(), service, ctrl, badID, UpdateUserPayload)
 }
 
 func TestUpdateUserInternalServerError(t *testing.T) {
-	pass := "password"
-	extID := "qwerc461f9f8eb02aae053f3"
-	userPayload := &app.UserPayload{
-		Password:   &pass,
-		Email:      "example@some.com",
-		ExternalID: &extID,
-		Roles:      []string{"admin", "user"},
+	UpdateUserPayload := &app.UpdateUserPayload{
+		Roles: []string{"admin", "user"},
 	}
 
-	test.UpdateUserInternalServerError(t, context.Background(), service, ctrl, internalErrObjID, userPayload)
+	test.UpdateUserInternalServerError(t, context.Background(), service, ctrl, internalErrID, UpdateUserPayload)
 }
 
 func TestFindUserBadRequest(t *testing.T) {
@@ -195,7 +180,7 @@ func TestFindUserBadRequest(t *testing.T) {
 
 func TestFindUserInternalServerError(t *testing.T) {
 	payload := &app.Credentials{
-		Email:    "internal-error@example.com",
+		Email:    internalErrEmail,
 		Password: "the-pass",
 	}
 	test.FindUserInternalServerError(t, context.Background(), service, ctrl, payload)
@@ -211,8 +196,8 @@ func TestFindUserNotFound(t *testing.T) {
 
 func TestFindUserOK(t *testing.T) {
 	payload := &app.Credentials{
-		Email:    "email@example.com",
-		Password: "valid-pass",
+		Email:    "keitaro-user2@gmail.com",
+		Password: "keitaro",
 	}
 	_, user := test.FindUserOK(t, context.Background(), service, ctrl, payload)
 	if user == nil {
@@ -222,7 +207,7 @@ func TestFindUserOK(t *testing.T) {
 
 func TestFindByEmailUserOK(t *testing.T) {
 	payload := &app.EmailPayload{
-		Email: "frieda@oberbrunnerkirlin.name",
+		Email: "keitaro-user1@gmail.com",
 	}
 	_, user := test.FindByEmailUserOK(t, context.Background(), service, ctrl, payload)
 
@@ -233,7 +218,7 @@ func TestFindByEmailUserOK(t *testing.T) {
 
 func TestFindByEmailUserNotFound(t *testing.T) {
 	payload := &app.EmailPayload{
-		Email: "example@notexists.com",
+		Email: notFonundEmail,
 	}
 
 	test.FindByEmailUserNotFound(t, context.Background(), service, ctrl, payload)
@@ -241,7 +226,7 @@ func TestFindByEmailUserNotFound(t *testing.T) {
 
 func TestFindByEmailUserInternalServerError(t *testing.T) {
 	payload := &app.EmailPayload{
-		Email: "example@invalid.com",
+		Email: internalErrEmail,
 	}
 
 	test.FindByEmailUserInternalServerError(t, context.Background(), service, ctrl, payload)
@@ -249,53 +234,43 @@ func TestFindByEmailUserInternalServerError(t *testing.T) {
 
 func TestResetVerificationTokenUserOK(t *testing.T) {
 	test.ResetVerificationTokenUserOK(t, context.Background(), service, ctrl, &app.EmailPayload{
-		Email: "email@example.com",
+		Email: "keitaro-user2@gmail.com",
 	})
 }
 
 func TestResetVerificationTokenUserNotFound(t *testing.T) {
 	test.ResetVerificationTokenUserNotFound(t, context.Background(), service, ctrl, &app.EmailPayload{
-		Email: "this-does-not-exist@example.com",
+		Email: notFonundEmail,
 	})
 }
 
 func TestResetVerificationTokenUserBadRequest(t *testing.T) {
 	test.ResetVerificationTokenUserBadRequest(t, context.Background(), service, ctrl, &app.EmailPayload{
-		Email: "already-active@example.com",
+		Email: badEmail,
 	})
 	test.ResetVerificationTokenUserBadRequest(t, context.Background(), service, ctrl, &app.EmailPayload{})
 }
 
 func TestResetVerificationTokenUserInternalServerError(t *testing.T) {
 	test.ResetVerificationTokenUserInternalServerError(t, context.Background(), service, ctrl, &app.EmailPayload{
-		Email: "example@invalid.com",
+		Email: internalErrEmail,
 	})
 }
 
 func TestVerifyUserOK(t *testing.T) {
-	token := "TOKEN_1"
-	tokensMock := db.Tokens.(*store.TokensMock)
-	tokensMock.Tokens[token] = &app.UserPayload{
-		Active: false,
-		Email:  "email@example.com",
-		Token:  &token,
-	}
+	token := "sdaewefdc234erfdd123erfdxc23edx"
+
 	test.VerifyUserOK(t, context.Background(), service, ctrl, &token)
 }
 
 func TestVerifyUserNotFound(t *testing.T) {
-	token := "TOKEN_2"
-	test.VerifyUserNotFound(t, context.Background(), service, ctrl, &token)
+	token := notFoundToken
 
+	test.VerifyUserNotFound(t, context.Background(), service, ctrl, &token)
 }
 
 func TestVerifyUserInternalServerError(t *testing.T) {
-	token := "TOKEN_3"
-	tokensMock := db.Tokens.(*store.TokensMock)
-	tokensMock.Tokens[token] = &app.UserPayload{
-		Active: false,
-		Email:  "trigger-server-error@example.com", // this would cause intentional internal server error in mock
-		Token:  &token,
-	}
+	token := internalErrToken
+
 	test.VerifyUserInternalServerError(t, context.Background(), service, ctrl, &token)
 }

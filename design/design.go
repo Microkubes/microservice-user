@@ -25,7 +25,7 @@ var _ = Resource("user", func() {
 	Action("create", func() {
 		Description("Creates user")
 		Routing(POST(""))
-		Payload(UserPayload)
+		Payload(CreateUserPayload)
 		Response(Created, UserMedia)
 		Response(BadRequest, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
@@ -58,7 +58,7 @@ var _ = Resource("user", func() {
 		Params(func() {
 			Param("userId", String, "User ID")
 		})
-		Payload(UserPayload)
+		Payload(UpdateUserPayload)
 		Response(OK, UserMedia)
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
@@ -117,7 +117,7 @@ var _ = Resource("user", func() {
 // UserMedia defines the media type used to render user.
 var UserMedia = MediaType("application/vnd.goa.user+json", func() {
 	TypeName("users")
-	Reference(UserPayload)
+	Reference(CreateUserPayload)
 
 	Attributes(func() {
 		Attribute("id", String, "Unique user ID")
@@ -157,9 +157,9 @@ var ResetTokenMedia = MediaType("ResetTokenMedia", func() {
 	})
 })
 
-// UserPayload defines the payload for the user.
-var UserPayload = Type("UserPayload", func() {
-	Description("UserPayload")
+// CreateUserPayload defines the payload for the user.
+var CreateUserPayload = Type("CreateUserPayload", func() {
+	Description("CreateUserPayload")
 
 	Attribute("email", String, "Email of user", func() {
 		Format("email")
@@ -178,6 +178,27 @@ var UserPayload = Type("UserPayload", func() {
 	Attribute("token", String, "Token for email verification")
 
 	Required("email")
+})
+
+// UpdateUserPayload defines the payload for the user.
+var UpdateUserPayload = Type("UpdateUserPayload", func() {
+	Description("UpdateUserPayload")
+
+	Attribute("email", String, "Email of user", func() {
+		Format("email")
+	})
+	Attribute("password", String, "Password of user", func() {
+		MinLength(6)
+		MaxLength(30)
+	})
+	Attribute("roles", ArrayOf(String), "Roles of user")
+	Attribute("organizations", ArrayOf(String), "List of organizations to which this user belongs to")
+	Attribute("namespaces", ArrayOf(String), "List of namespaces this user belongs to")
+	Attribute("externalId", String, "External id of user")
+	Attribute("active", Boolean, "Status of user account", func() {
+		Default(false)
+	})
+	Attribute("token", String, "Token for email verification")
 })
 
 // CredentialsPayload defines the payload for the credentials.
