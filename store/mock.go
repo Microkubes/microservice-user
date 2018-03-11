@@ -214,7 +214,6 @@ func (db *DB) Save(object interface{}, filter map[string]interface{}) (interface
 				}
 			}
 		}
-
 	}
 
 	err = backends.MapToInterface(payload, &result)
@@ -226,6 +225,24 @@ func (db *DB) Save(object interface{}, filter map[string]interface{}) (interface
 }
 
 func (db *DB) DeleteOne(filter map[string]interface{}) error {
+
+	db.Lock()
+	defer db.Unlock()
+
+	if token, ok := filter["token"]; ok {
+		tokenString := token.(string)
+
+		for key, r := range db.MapStore {
+			record := r.(map[string]interface{})
+
+			if record["token"] == tokenString {
+
+				delete(db.MapStore, key)
+				break
+			}
+		}
+	}
+
 	return nil
 }
 

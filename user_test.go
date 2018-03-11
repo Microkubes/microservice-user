@@ -274,3 +274,19 @@ func TestVerifyUserInternalServerError(t *testing.T) {
 
 	test.VerifyUserInternalServerError(t, context.Background(), service, ctrl, &token)
 }
+
+func TestGenerateToken(t *testing.T) {
+	token := generateToken(40)
+
+	if len(token) != 56 {
+		t.Errorf("Expected token length was 56, got %d", len(token))
+	}
+}
+
+func TestStringToBcryptHash(t *testing.T) {
+	_, err := stringToBcryptHash("keitaro")
+
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
+}
