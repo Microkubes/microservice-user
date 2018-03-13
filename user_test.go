@@ -238,12 +238,6 @@ func TestResetVerificationTokenUserOK(t *testing.T) {
 	})
 }
 
-func TestResetVerificationTokenUserNotFound(t *testing.T) {
-	test.ResetVerificationTokenUserNotFound(t, context.Background(), service, ctrl, &app.EmailPayload{
-		Email: notFonundEmail,
-	})
-}
-
 func TestResetVerificationTokenUserBadRequest(t *testing.T) {
 	test.ResetVerificationTokenUserBadRequest(t, context.Background(), service, ctrl, &app.EmailPayload{
 		Email: badEmail,

@@ -55,14 +55,59 @@ func main() {
 
 	// Get the db collections/tables
 	dbConf := serviceConfig.DBConfig
-	backend, err := backends.New(dbConf)
+
+	backendManager := backends.NewBackendSupport(map[string]*config.DBInfo{
+		"mongodb":  &dbConf.DBInfo,
+		"dynamodb": &dbConf.DBInfo,
+	})
+
+	backend, err := backendManager.GetBackend(dbConf.DBName)
 	if err != nil {
-		service.LogError("set up database", "err", err)
+		service.LogError("Failed to configure backend. ", err)
+	}
+
+	userRepo, err := backend.DefineRepository("users", backends.RepositoryDefinitionMap{
+		"name":          "users",
+		"indexes":       []string{"email"},
+		"hashKey":       "email",
+		"readCapacity":  int64(5),
+		"writeCapacity": int64(5),
+		"GSI": map[string]interface{}{
+			"email": map[string]interface{}{
+				"readCapacity":  1,
+				"writeCapacity": 1,
+			},
+		},
+	})
+	if err != nil {
+		service.LogError("Failed to get users repo.", err)
 		return
 	}
+
+	tokenRepo, err := backend.DefineRepository("tokens", backends.RepositoryDefinitionMap{
+		"name":          "tokens",
+		"indexes":       []string{"token"},
+		"hashKey":       "token",
+		"readCapacity":  int64(5),
+		"writeCapacity": int64(5),
+		"GSI": map[string]interface{}{
+			"token": map[string]interface{}{
+				"readCapacity":  1,
+				"writeCapacity": 1,
+			},
+		},
+		"enableTtl": true,
+		"ttlField":  "created_at",
+		"ttl":       86400,
+	})
+	if err != nil {
+		service.LogError("Failed to get tokens repo.", err)
+		return
+	}
+
 	store := store.User{
-		backend["users"],
-		backend["tokens"],
+		userRepo,
+		tokenRepo,
 	}
 
 	// Mount "swagger" controller

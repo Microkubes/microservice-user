@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"time"
 
 	"github.com/JormungandrK/backends"
 	"github.com/JormungandrK/microservice-security/auth"
@@ -75,9 +74,8 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 	}
 
 	tokenPayload := map[string]interface{}{
-		"email":      ctx.Payload.Email,
-		"token":      ctx.Payload.Token,
-		"created_at": time.Now(),
+		"email": ctx.Payload.Email,
+		"token": ctx.Payload.Token,
 	}
 
 	_, err = c.Store.Tokens.Save(&tokenPayload, nil)
@@ -354,32 +352,34 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		switch e.Status {
 		case 400:
 			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
+		case 500:
 			return ctx.InternalServerError(err)
 		}
-		return ctx.InternalServerError(err)
 	}
 
-	if user == nil {
-		return ctx.NotFound(fmt.Errorf("not-found"))
-	}
+	if user != nil {
+		if user.Active {
+			return ctx.BadRequest(goa.ErrBadRequest("already active"))
+		}
 
-	if user.Active {
-		return ctx.BadRequest(goa.ErrBadRequest("already active"))
-	}
+		err := c.Store.Tokens.DeleteOne(emailFilter)
+		if err != nil {
+			e := err.(*goa.ErrorResponse)
 
-	if err := c.Store.Tokens.DeleteOne(emailFilter); err != nil {
-		return ctx.InternalServerError(err)
+			switch e.Status {
+			case 400:
+				return ctx.BadRequest(err)
+			case 500:
+				return ctx.InternalServerError(err)
+			}
+		}
 	}
 
 	token := generateToken(42)
 
 	tokenPayload := map[string]interface{}{
-		"email":      ctx.Payload.Email,
-		"token":      token,
-		"created_at": time.Now(),
+		"email": ctx.Payload.Email,
+		"token": token,
 	}
 
 	result, err := c.Store.Tokens.Save(&tokenPayload, nil)
