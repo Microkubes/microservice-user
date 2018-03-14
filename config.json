@@ -10,7 +10,7 @@
   "gatewayUrl": "http://localhost:8000",
   "gatewayAdminUrl": "http://localhost:8001",
   "database":{
-    "dbName": "dynamodb",
+    "dbName": "mongodb",
     "dbInfo": {
       "credentials": "/home/vladimir/.aws/credentials",
       "endpoint": "http://localhost:9000",

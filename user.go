@@ -352,17 +352,23 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		switch e.Status {
 		case 400:
 			return ctx.BadRequest(err)
-		case 500:
+		case 404:
+			return ctx.NotFound(err)
+		default:
 			return ctx.InternalServerError(err)
 		}
+		return ctx.InternalServerError(err)
 	}
 
-	if user != nil {
-		if user.Active {
-			return ctx.BadRequest(goa.ErrBadRequest("already active"))
-		}
+	if user == nil {
+		return ctx.NotFound(fmt.Errorf("not-found"))
+	}
 
-		err := c.Store.Tokens.DeleteOne(emailFilter)
+	if user.Active {
+		return ctx.BadRequest(goa.ErrBadRequest("already active"))
+	}
+
+	if err := c.Store.Tokens.DeleteOne(emailFilter); err != nil {
 		if err != nil {
 			e := err.(*goa.ErrorResponse)
 
