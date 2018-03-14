@@ -96,9 +96,9 @@ func main() {
 				"writeCapacity": 1,
 			},
 		},
-		"enableTtl": true,
-		"ttlField":  "created_at",
-		"ttl":       86400,
+		"enableTtl":    true,
+		"ttlAttribute": "created_at",
+		"ttl":          86400,
 	})
 	if err != nil {
 		service.LogError("Failed to get tokens repo.", err)
