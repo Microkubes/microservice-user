@@ -101,7 +101,7 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 	}
 
 	// Return one user by id.
-	if err := c.Store.Users.GetOne(filter, user); err != nil {
+	if _, err := c.Store.Users.GetOne(filter, user); err != nil {
 		e := err.(*goa.ErrorResponse)
 
 		switch e.Status {
@@ -138,7 +138,7 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 		"id": userID,
 	}
 
-	if err := c.Store.Users.GetOne(filter, user); err != nil {
+	if _, err := c.Store.Users.GetOne(filter, user); err != nil {
 		e := err.(*goa.ErrorResponse)
 
 		switch e.Status {
@@ -223,7 +223,7 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 		"email": ctx.Payload.Email,
 	}
 
-	if err := c.Store.Users.GetOne(filter, &userData); err != nil {
+	if _, err := c.Store.Users.GetOne(filter, &userData); err != nil {
 		e := err.(*goa.ErrorResponse)
 
 		switch e.Status {
@@ -261,7 +261,7 @@ func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
 		"email": ctx.Payload.Email,
 	}
 
-	if err := c.Store.Users.GetOne(filter, user); err != nil {
+	if _, err := c.Store.Users.GetOne(filter, user); err != nil {
 		e := err.(*goa.ErrorResponse)
 
 		switch e.Status {
@@ -288,7 +288,7 @@ func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 		"token": *ctx.Token,
 	}
 
-	err := c.Store.Tokens.GetOne(tokenFilter, user)
+	_, err := c.Store.Tokens.GetOne(tokenFilter, user)
 	if err != nil {
 		e := err.(*goa.ErrorResponse)
 
@@ -345,7 +345,7 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		"email": ctx.Payload.Email,
 	}
 
-	err := c.Store.Users.GetOne(emailFilter, user)
+	_, err := c.Store.Users.GetOne(emailFilter, user)
 	if err != nil {
 		e := err.(*goa.ErrorResponse)
 

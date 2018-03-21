@@ -53,7 +53,7 @@ func NewDB() User {
 	}
 }
 
-func (db *DB) GetOne(filter map[string]interface{}, result interface{}) error {
+func (db *DB) GetOne(filter backends.Filter, result interface{}) (interface{}, error) {
 
 	db.Lock()
 	defer db.Unlock()
@@ -62,21 +62,21 @@ func (db *DB) GetOne(filter map[string]interface{}, result interface{}) error {
 		idString := id.(string)
 
 		if idString == "bad-id" {
-			return goa.ErrBadRequest(BAD_REQUEST)
+			return nil, goa.ErrBadRequest(BAD_REQUEST)
 		}
 
 		if idString == "internal-err-id" {
-			return goa.ErrInternal(INTERNAL_ERROR)
+			return nil, goa.ErrInternal(INTERNAL_ERROR)
 		}
 
 		record, ok := db.MapStore[idString]
 		if !ok {
-			return goa.ErrNotFound(NOT_FOUND)
+			return nil, goa.ErrNotFound(NOT_FOUND)
 		}
 
 		err := backends.MapToInterface(&record, &result)
 		if err != nil {
-			return goa.ErrInternal(err)
+			return nil, goa.ErrInternal(err)
 		}
 	}
 
@@ -84,15 +84,15 @@ func (db *DB) GetOne(filter map[string]interface{}, result interface{}) error {
 		emailString := email.(string)
 
 		if emailString == "internal-error@example.com" {
-			return goa.ErrInternal(INTERNAL_ERROR)
+			return nil, goa.ErrInternal(INTERNAL_ERROR)
 		}
 
 		if emailString == "not-found@gmail.com" {
-			return goa.ErrNotFound(NOT_FOUND)
+			return nil, goa.ErrNotFound(NOT_FOUND)
 		}
 
 		if emailString == "bad@gmail.com" {
-			return goa.ErrBadRequest(BAD_REQUEST)
+			return nil, goa.ErrBadRequest(BAD_REQUEST)
 		}
 
 		for _, r := range db.MapStore {
@@ -101,7 +101,7 @@ func (db *DB) GetOne(filter map[string]interface{}, result interface{}) error {
 			if record["email"] == emailString {
 				err := backends.MapToInterface(record, &result)
 				if err != nil {
-					return goa.ErrInternal(err)
+					return nil, goa.ErrInternal(err)
 				}
 
 				break
@@ -113,11 +113,11 @@ func (db *DB) GetOne(filter map[string]interface{}, result interface{}) error {
 		tokenString := token.(string)
 
 		if tokenString == "internal-error-token" {
-			return goa.ErrInternal(INTERNAL_ERROR)
+			return nil, goa.ErrInternal(INTERNAL_ERROR)
 		}
 
 		if tokenString == "not-found-token" {
-			return goa.ErrNotFound(NOT_FOUND)
+			return nil, goa.ErrNotFound(NOT_FOUND)
 		}
 
 		for _, r := range db.MapStore {
@@ -126,7 +126,7 @@ func (db *DB) GetOne(filter map[string]interface{}, result interface{}) error {
 			if record["token"] == tokenString {
 				err := backends.MapToInterface(record, &result)
 				if err != nil {
-					return goa.ErrInternal(err)
+					return nil, goa.ErrInternal(err)
 				}
 
 				break
@@ -134,14 +134,14 @@ func (db *DB) GetOne(filter map[string]interface{}, result interface{}) error {
 		}
 	}
 
-	return nil
+	return result, nil
 }
 
-func (db *DB) GetAll(filter map[string]interface{}, results interface{}, order string, sorting string, limit int, offset int) error {
-	return nil
+func (db *DB) GetAll(filter backends.Filter, results interface{}, order string, sorting string, limit int, offset int) (interface{}, error) {
+	return nil, nil
 }
 
-func (db *DB) Save(object interface{}, filter map[string]interface{}) (interface{}, error) {
+func (db *DB) Save(object interface{}, filter backends.Filter) (interface{}, error) {
 
 	db.Lock()
 	defer db.Unlock()
@@ -224,7 +224,7 @@ func (db *DB) Save(object interface{}, filter map[string]interface{}) (interface
 	return result, nil
 }
 
-func (db *DB) DeleteOne(filter map[string]interface{}) error {
+func (db *DB) DeleteOne(filter backends.Filter) error {
 
 	db.Lock()
 	defer db.Unlock()
@@ -246,6 +246,6 @@ func (db *DB) DeleteOne(filter map[string]interface{}) error {
 	return nil
 }
 
-func (db *DB) DeleteAll(filter map[string]interface{}) error {
+func (db *DB) DeleteAll(filter backends.Filter) error {
 	return nil
 }
