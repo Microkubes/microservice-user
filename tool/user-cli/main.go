@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/JormungandrK/microservice-user/client"
-	"github.com/JormungandrK/microservice-user/tool/cli"
+	"github.com/Microkubes/microservice-user/client"
+	"github.com/Microkubes/microservice-user/tool/cli"
 	goaclient "github.com/goadesign/goa/client"
 	"github.com/spf13/cobra"
 )

@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/JormungandrK/user-microservice/design
-// --out=$(GOPATH)/src/github.com/JormungandrK/user-microservice
+// --design=github.com/Microkubes/user-microservice/design
+// --out=$(GOPATH)/src/github.com/Microkubes/user-microservice
 // --version=v1.3.1
 
 package cli
@@ -14,7 +14,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/JormungandrK/microservice-user/client"
+	"github.com/Microkubes/microservice-user/client"
 	"github.com/goadesign/goa"
 	goaclient "github.com/goadesign/goa/client"
 	uuid "github.com/goadesign/goa/uuid"

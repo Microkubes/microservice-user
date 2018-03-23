@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/JormungandrK/microservice-user/app"
+	"github.com/Microkubes/microservice-user/app"
 	"github.com/goadesign/goa"
 
 	"golang.org/x/crypto/bcrypt"
