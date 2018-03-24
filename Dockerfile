@@ -9,7 +9,7 @@ RUN go get -u -v github.com/goadesign/goa/... && \
 
 COPY . /go/src/github.com/Microkubes/microservice-user
 
-RUN go install github.com/Microkubes/microservice-user
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install github.com/Microkubes/microservice-user
 
 ### Main
 FROM scratch
