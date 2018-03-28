@@ -5,7 +5,8 @@ RUN apk --no-cache add git
 
 RUN go get -u -v github.com/goadesign/goa/... && \
     go get -u -v gopkg.in/mgo.v2 && \
-    go get -u -v github.com/Microkubes/microservice-security/...
+    go get -u -v github.com/Microkubes/microservice-security/... && \
+    go get -u -v github.com/Microkubes/microservice-tools/...
 
 COPY . /go/src/github.com/Microkubes/microservice-user
 

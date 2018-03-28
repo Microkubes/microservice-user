@@ -3,7 +3,7 @@
     "name": "microservice-user",
     "port": 8080,
     "paths": ["/users"],
-    "virtual_host": "user.services.jormungandr.org",
+    "virtual_host": "microservice-user.service.consul",
     "weight": 10,
     "slots": 100
   },
@@ -72,9 +72,15 @@
     }
   },
   "database":{
-    "host": "mongo:27017",
-    "database": "users",
-    "user": "restapi",
-    "pass": "restapi"
+    "dbName": "mongodb",
+    "dbInfo": {
+      "credentials": "/full/path/to/aws/credentials",
+      "endpoint": "http://localhost:9000",
+      "awsRegion": "us-east-1",
+      "host": "mongo:27017",
+      "database": "users",
+      "user": "restapi",
+      "pass": "restapi"
+    }
   }
 }
