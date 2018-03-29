@@ -10,8 +10,8 @@
   "gatewayUrl": "http://kong:8000",
   "gatewayAdminUrl": "http://kong:8001",
   "security":{
-    "ignorePatterns": ["/users/verify"],
     "keysDir": "/run/secrets",
+    "ignorePatterns": ["/users/verify"],
     "jwt":{
       "name": "JWTSecurity",
       "description": "JWT security middleware",
