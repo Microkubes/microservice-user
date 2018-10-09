@@ -14,14 +14,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/JormungandrK/microservice-user/app"
-	"github.com/goadesign/goa"
-	"github.com/goadesign/goa/goatest"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+
+	"github.com/Microkubes/microservice-user/app"
+	"github.com/goadesign/goa"
+	"github.com/goadesign/goa/goatest"
 )
 
 // CreateUserBadRequest runs the method Create of the given controller with the given parameters and payload.

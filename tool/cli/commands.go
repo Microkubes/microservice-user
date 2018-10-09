@@ -14,11 +14,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/JormungandrK/microservice-user/client"
-	"github.com/goadesign/goa"
-	goaclient "github.com/goadesign/goa/client"
-	uuid "github.com/goadesign/goa/uuid"
-	"github.com/spf13/cobra"
 	"log"
 	"net/url"
 	"os"
@@ -26,6 +21,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Microkubes/microservice-user/client"
+	"github.com/goadesign/goa"
+	goaclient "github.com/goadesign/goa/client"
+	uuid "github.com/goadesign/goa/uuid"
+	"github.com/spf13/cobra"
 )
 
 type (
