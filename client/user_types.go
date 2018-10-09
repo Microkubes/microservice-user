@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/JormungandrK/microservice-user/design
-// --out=$(GOPATH)/src/github.com/JormungandrK/microservice-user
+// --design=github.com/Microkubes/microservice-user/design
+// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
 // --version=v1.3.0
 
 package client
@@ -18,21 +18,21 @@ import (
 // CreateUserPayload
 type createUserPayload struct {
 	// Status of user account
-	Active *bool `form:"active,omitempty" json:"active,omitempty" xml:"active,omitempty"`
+	Active *bool `form:"active,omitempty" json:"active,omitempty" yaml:"active,omitempty" xml:"active,omitempty"`
 	// Email of user
-	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// External id of user
-	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" xml:"externalId,omitempty"`
+	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" yaml:"externalId,omitempty" xml:"externalId,omitempty"`
 	// List of namespaces this user belongs to
-	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
 	// List of organizations to which this user belongs to
-	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Password of user
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
-	Roles []string `form:"roles,omitempty" json:"roles,omitempty" xml:"roles,omitempty"`
+	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
 	// Token for email verification
-	Token *string `form:"token,omitempty" json:"token,omitempty" xml:"token,omitempty"`
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 }
 
 // Finalize sets the default values for createUserPayload type instance.
@@ -99,21 +99,21 @@ func (ut *createUserPayload) Publicize() *CreateUserPayload {
 // CreateUserPayload
 type CreateUserPayload struct {
 	// Status of user account
-	Active bool `form:"active" json:"active" xml:"active"`
+	Active bool `form:"active" json:"active" yaml:"active" xml:"active"`
 	// Email of user
-	Email string `form:"email" json:"email" xml:"email"`
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 	// External id of user
-	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" xml:"externalId,omitempty"`
+	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" yaml:"externalId,omitempty" xml:"externalId,omitempty"`
 	// List of namespaces this user belongs to
-	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
 	// List of organizations to which this user belongs to
-	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Password of user
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
-	Roles []string `form:"roles,omitempty" json:"roles,omitempty" xml:"roles,omitempty"`
+	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
 	// Token for email verification
-	Token *string `form:"token,omitempty" json:"token,omitempty" xml:"token,omitempty"`
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 }
 
 // Validate validates the CreateUserPayload type instance.
@@ -140,9 +140,9 @@ func (ut *CreateUserPayload) Validate() (err error) {
 // Email and password credentials
 type credentials struct {
 	// Email of user
-	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// Password of user
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 }
 
 // Validate validates the credentials type instance.
@@ -186,9 +186,9 @@ func (ut *credentials) Publicize() *Credentials {
 // Email and password credentials
 type Credentials struct {
 	// Email of user
-	Email string `form:"email" json:"email" xml:"email"`
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 	// Password of user
-	Password string `form:"password" json:"password" xml:"password"`
+	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
 }
 
 // Validate validates the Credentials type instance.
@@ -214,7 +214,7 @@ func (ut *Credentials) Validate() (err error) {
 // Email payload
 type emailPayload struct {
 	// Email of user
-	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 }
 
 // Validate validates the emailPayload type instance.
@@ -242,7 +242,7 @@ func (ut *emailPayload) Publicize() *EmailPayload {
 // Email payload
 type EmailPayload struct {
 	// Email of user
-	Email string `form:"email" json:"email" xml:"email"`
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 }
 
 // Validate validates the EmailPayload type instance.
@@ -259,21 +259,21 @@ func (ut *EmailPayload) Validate() (err error) {
 // UpdateUserPayload
 type updateUserPayload struct {
 	// Status of user account
-	Active *bool `form:"active,omitempty" json:"active,omitempty" xml:"active,omitempty"`
+	Active *bool `form:"active,omitempty" json:"active,omitempty" yaml:"active,omitempty" xml:"active,omitempty"`
 	// Email of user
-	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// External id of user
-	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" xml:"externalId,omitempty"`
+	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" yaml:"externalId,omitempty" xml:"externalId,omitempty"`
 	// List of namespaces this user belongs to
-	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
 	// List of organizations to which this user belongs to
-	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Password of user
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
-	Roles []string `form:"roles,omitempty" json:"roles,omitempty" xml:"roles,omitempty"`
+	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
 	// Token for email verification
-	Token *string `form:"token,omitempty" json:"token,omitempty" xml:"token,omitempty"`
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 }
 
 // Finalize sets the default values for updateUserPayload type instance.
@@ -337,21 +337,21 @@ func (ut *updateUserPayload) Publicize() *UpdateUserPayload {
 // UpdateUserPayload
 type UpdateUserPayload struct {
 	// Status of user account
-	Active bool `form:"active" json:"active" xml:"active"`
+	Active bool `form:"active" json:"active" yaml:"active" xml:"active"`
 	// Email of user
-	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// External id of user
-	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" xml:"externalId,omitempty"`
+	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" yaml:"externalId,omitempty" xml:"externalId,omitempty"`
 	// List of namespaces this user belongs to
-	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
 	// List of organizations to which this user belongs to
-	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Password of user
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
-	Roles []string `form:"roles,omitempty" json:"roles,omitempty" xml:"roles,omitempty"`
+	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
 	// Token for email verification
-	Token *string `form:"token,omitempty" json:"token,omitempty" xml:"token,omitempty"`
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 }
 
 // Validate validates the UpdateUserPayload type instance.

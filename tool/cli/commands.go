@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/JormungandrK/microservice-user/design
-// --out=$(GOPATH)/src/github.com/JormungandrK/microservice-user
+// --design=github.com/Microkubes/microservice-user/design
+// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
 // --version=v1.3.0
 
 package cli
@@ -14,6 +14,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Microkubes/microservice-user/client"
+	"github.com/goadesign/goa"
+	goaclient "github.com/goadesign/goa/client"
+	uuid "github.com/goadesign/goa/uuid"
+	"github.com/spf13/cobra"
 	"log"
 	"net/url"
 	"os"
@@ -21,12 +26,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/Microkubes/microservice-user/client"
-	"github.com/goadesign/goa"
-	goaclient "github.com/goadesign/goa/client"
-	uuid "github.com/goadesign/goa/uuid"
-	"github.com/spf13/cobra"
 )
 
 type (
@@ -110,23 +109,21 @@ Payload example:
 
 {
    "active": true,
-   "email": "ollie.hilll@smith.info",
-   "externalId": "Doloremque aut sed ut impedit voluptatum debitis.",
+   "email": "vinnie.d'amore@kessler.net",
+   "externalId": "Voluptatum debitis iusto et.",
    "namespaces": [
-      "Placeat reprehenderit similique quo.",
-      "Placeat reprehenderit similique quo."
+      "Quo quo amet occaecati ut.",
+      "Quo quo amet occaecati ut.",
+      "Quo quo amet occaecati ut."
    ],
    "organizations": [
-      "Occaecati ut excepturi et deleniti quis.",
-      "Occaecati ut excepturi et deleniti quis."
+      "Deleniti quis et."
    ],
-   "password": "3v789xuu49",
+   "password": "789xuu49q",
    "roles": [
-      "Officiis velit quaerat nam velit incidunt.",
-      "Officiis velit quaerat nam velit incidunt.",
-      "Officiis velit quaerat nam velit incidunt."
+      "Velit quaerat nam velit incidunt sunt."
    ],
-   "token": "Voluptatem reprehenderit quisquam maxime nam non."
+   "token": "Reprehenderit quisquam maxime."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -147,8 +144,8 @@ Payload example:
 Payload example:
 
 {
-   "email": "magnus@mckenzie.info",
-   "password": "htvx6y8d3"
+   "email": "myles@mooreschneider.name",
+   "password": "vhhtvx6y8"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -169,7 +166,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "tiffany_reilly@rosenbaum.biz"
+   "email": "marianna_hartmann@oreillylebsack.org"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -218,7 +215,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "tiffany_reilly@rosenbaum.biz"
+   "email": "marianna_hartmann@oreillylebsack.org"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
@@ -239,15 +236,16 @@ Payload example:
 Payload example:
 
 {
-   "active": true,
-   "email": "melany.zieme@gutkowski.name",
-   "externalId": "Aperiam nostrum at aut occaecati perferendis.",
+   "active": false,
+   "email": "arnold@rueckerlabadie.org",
+   "externalId": "Earum voluptas aperiam nostrum at.",
    "namespaces": [
-      "Vel quidem."
+      "Perferendis quos."
    ],
    "organizations": [
-      "Sit aut molestiae.",
-      "Sit aut molestiae."
+      "Quidem corrupti reprehenderit sit aut molestiae.",
+      "Quidem corrupti reprehenderit sit aut molestiae.",
+      "Quidem corrupti reprehenderit sit aut molestiae."
    ],
    "password": "o6xgbsyo5h",
    "roles": [

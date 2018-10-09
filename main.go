@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	// "github.com/JormungandrK/microservice-security/chain"
-	// "github.com/JormungandrK/microservice-security/flow"
 	"github.com/JormungandrK/backends"
+	"github.com/Microkubes/microservice-security/chain"
+	"github.com/Microkubes/microservice-security/flow"
 	"github.com/Microkubes/microservice-tools/config"
 	"github.com/Microkubes/microservice-tools/gateway"
 	"github.com/Microkubes/microservice-user/app"
@@ -28,7 +28,6 @@ func main() {
 		return
 	}
 
-	//registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
 	registration := gateway.NewKongGateway(serviceConfig.GatewayAdminURL, &http.Client{}, serviceConfig.Service)
 
 	err = registration.SelfRegister()
@@ -38,12 +37,12 @@ func main() {
 
 	defer registration.Unregister()
 
-	// securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
+	if err != nil {
+		panic(err)
+	}
 
-	// defer cleanup()
+	defer cleanup()
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
@@ -51,7 +50,7 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
-	// service.Use(chain.AsGoaMiddleware(securityChain))
+	service.Use(chain.AsGoaMiddleware(securityChain))
 
 	// Get the db collections/tables
 	dbConf := serviceConfig.DBConfig

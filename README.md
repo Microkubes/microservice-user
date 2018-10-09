@@ -1,6 +1,6 @@
 # User microservice
 
-[![Build](https://travis-ci.com/JormungandrK/microservice-user.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/JormungandrK/microservice-user)
+[![Build](https://travis-ci.com/Microkubes/microservice-user.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/Microkubes/microservice-user)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/2cf4d5d4a0ade7c5c358/test_coverage)](https://codeclimate.com/repos/5971a9ed730e750274000347/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/2cf4d5d4a0ade7c5c358/maintainability)](https://codeclimate.com/repos/5971a9ed730e750274000347/maintainability)
 
@@ -22,7 +22,7 @@ go get -u github.com/goadesign/goa/...
 Clone the repo:
 ```
 cd $GOPATH/src
-git clone https://github.com/JormungandrK/microservice-user.git
+git clone https://github.com/Microkubes/microservice-user.git
 ```
 Then compile and run:
 ```

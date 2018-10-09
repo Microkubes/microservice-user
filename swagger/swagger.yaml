@@ -8,20 +8,18 @@ definitions:
     description: CreateUserPayload
     example:
       active: true
-      email: ollie.hilll@smith.info
-      externalId: Doloremque aut sed ut impedit voluptatum debitis.
+      email: vinnie.d'amore@kessler.net
+      externalId: Voluptatum debitis iusto et.
       namespaces:
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
+      - Quo quo amet occaecati ut.
+      - Quo quo amet occaecati ut.
+      - Quo quo amet occaecati ut.
       organizations:
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
-      password: 3v789xuu49
+      - Deleniti quis et.
+      password: 789xuu49q
       roles:
-      - Officiis velit quaerat nam velit incidunt.
-      - Officiis velit quaerat nam velit incidunt.
-      - Officiis velit quaerat nam velit incidunt.
-      token: Voluptatem reprehenderit quisquam maxime nam non.
+      - Velit quaerat nam velit incidunt sunt.
+      token: Reprehenderit quisquam maxime.
     properties:
       active:
         default: false
@@ -30,50 +28,48 @@ definitions:
         type: boolean
       email:
         description: Email of user
-        example: ollie.hilll@smith.info
+        example: vinnie.d'amore@kessler.net
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Doloremque aut sed ut impedit voluptatum debitis.
+        example: Voluptatum debitis iusto et.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
+        - Quo quo amet occaecati ut.
+        - Quo quo amet occaecati ut.
+        - Quo quo amet occaecati ut.
         items:
-          example: Placeat reprehenderit similique quo.
+          example: Quo quo amet occaecati ut.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Occaecati ut excepturi et deleniti quis.
-        - Occaecati ut excepturi et deleniti quis.
+        - Deleniti quis et.
         items:
-          example: Occaecati ut excepturi et deleniti quis.
+          example: Deleniti quis et.
           type: string
         type: array
       password:
         description: Password of user
-        example: 3v789xuu49
+        example: 789xuu49q
         maxLength: 30
         minLength: 6
         type: string
       roles:
         description: Roles of user
         example:
-        - Officiis velit quaerat nam velit incidunt.
-        - Officiis velit quaerat nam velit incidunt.
-        - Officiis velit quaerat nam velit incidunt.
+        - Velit quaerat nam velit incidunt sunt.
         items:
-          example: Officiis velit quaerat nam velit incidunt.
+          example: Velit quaerat nam velit incidunt sunt.
           type: string
         type: array
       token:
         description: Token for email verification
-        example: Voluptatem reprehenderit quisquam maxime nam non.
+        example: Reprehenderit quisquam maxime.
         type: string
     required:
     - email
@@ -82,17 +78,17 @@ definitions:
   Credentials:
     description: Email and password credentials
     example:
-      email: magnus@mckenzie.info
-      password: htvx6y8d3
+      email: myles@mooreschneider.name
+      password: vhhtvx6y8
     properties:
       email:
         description: Email of user
-        example: magnus@mckenzie.info
+        example: myles@mooreschneider.name
         format: email
         type: string
       password:
         description: Password of user
-        example: htvx6y8d3
+        example: vhhtvx6y8
         maxLength: 30
         minLength: 6
         type: string
@@ -104,11 +100,11 @@ definitions:
   EmailPayload:
     description: Email payload
     example:
-      email: tiffany_reilly@rosenbaum.biz
+      email: marianna_hartmann@oreillylebsack.org
     properties:
       email:
         description: Email of user
-        example: tiffany_reilly@rosenbaum.biz
+        example: marianna_hartmann@oreillylebsack.org
         format: email
         type: string
     required:
@@ -118,21 +114,21 @@ definitions:
   ResetToken:
     description: ResetToken media type (default view)
     example:
-      email: Sed provident fugit.
-      id: Dignissimos nisi voluptatum.
-      token: Mollitia sint.
+      email: Provident fugit corrupti dignissimos nisi voluptatum.
+      id: Mollitia sint.
+      token: Officia ipsum voluptatem.
     properties:
       email:
         description: User email
-        example: Sed provident fugit.
+        example: Provident fugit corrupti dignissimos nisi voluptatum.
         type: string
       id:
         description: User ID
-        example: Dignissimos nisi voluptatum.
+        example: Mollitia sint.
         type: string
       token:
         description: New token
-        example: Mollitia sint.
+        example: Officia ipsum voluptatem.
         type: string
     required:
     - id
@@ -143,14 +139,15 @@ definitions:
   UpdateUserPayload:
     description: UpdateUserPayload
     example:
-      active: true
-      email: melany.zieme@gutkowski.name
-      externalId: Aperiam nostrum at aut occaecati perferendis.
+      active: false
+      email: arnold@rueckerlabadie.org
+      externalId: Earum voluptas aperiam nostrum at.
       namespaces:
-      - Vel quidem.
+      - Perferendis quos.
       organizations:
-      - Sit aut molestiae.
-      - Sit aut molestiae.
+      - Quidem corrupti reprehenderit sit aut molestiae.
+      - Quidem corrupti reprehenderit sit aut molestiae.
+      - Quidem corrupti reprehenderit sit aut molestiae.
       password: o6xgbsyo5h
       roles:
       - Pariatur consequatur accusantium occaecati sint.
@@ -161,32 +158,33 @@ definitions:
       active:
         default: false
         description: Status of user account
-        example: true
+        example: false
         type: boolean
       email:
         description: Email of user
-        example: melany.zieme@gutkowski.name
+        example: arnold@rueckerlabadie.org
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Aperiam nostrum at aut occaecati perferendis.
+        example: Earum voluptas aperiam nostrum at.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Vel quidem.
+        - Perferendis quos.
         items:
-          example: Vel quidem.
+          example: Perferendis quos.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Sit aut molestiae.
-        - Sit aut molestiae.
+        - Quidem corrupti reprehenderit sit aut molestiae.
+        - Quidem corrupti reprehenderit sit aut molestiae.
+        - Quidem corrupti reprehenderit sit aut molestiae.
         items:
-          example: Sit aut molestiae.
+          example: Quidem corrupti reprehenderit sit aut molestiae.
           type: string
         type: array
       password:
@@ -218,7 +216,7 @@ definitions:
       detail: Value of ID must be an integer
       id: 3F1FKVRR
       meta:
-        timestamp: 1.458609e+09
+        timestamp: 1.458609066e+09
       status: "400"
     properties:
       code:
@@ -239,7 +237,7 @@ definitions:
         description: a meta object containing non-standard meta-information about
           the error.
         example:
-          timestamp: 1.458609e+09
+          timestamp: 1.458609066e+09
         type: object
       status:
         description: the HTTP status code applicable to this problem, expressed as
@@ -253,19 +251,19 @@ definitions:
     example:
       active: true
       email: thad@herman.name
-      externalId: Possimus ullam occaecati quae.
-      id: Rerum aliquid in sit reprehenderit ea.
+      externalId: Ullam occaecati quae odio rerum aliquid in.
+      id: Reprehenderit ea quam optio placeat.
       namespaces:
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
+      - Quo quo amet occaecati ut.
+      - Quo quo amet occaecati ut.
+      - Quo quo amet occaecati ut.
       organizations:
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
+      - Deleniti quis et.
+      - Deleniti quis et.
       roles:
-      - Officiis velit quaerat nam velit incidunt.
-      - Officiis velit quaerat nam velit incidunt.
+      - Velit quaerat nam velit incidunt sunt.
+      - Velit quaerat nam velit incidunt sunt.
+      - Velit quaerat nam velit incidunt sunt.
     properties:
       active:
         default: false
@@ -279,39 +277,39 @@ definitions:
         type: string
       externalId:
         description: External id of user
-        example: Possimus ullam occaecati quae.
+        example: Ullam occaecati quae odio rerum aliquid in.
         type: string
       id:
         description: Unique user ID
-        example: Rerum aliquid in sit reprehenderit ea.
+        example: Reprehenderit ea quam optio placeat.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
+        - Quo quo amet occaecati ut.
+        - Quo quo amet occaecati ut.
+        - Quo quo amet occaecati ut.
         items:
-          example: Placeat reprehenderit similique quo.
+          example: Quo quo amet occaecati ut.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Occaecati ut excepturi et deleniti quis.
-        - Occaecati ut excepturi et deleniti quis.
-        - Occaecati ut excepturi et deleniti quis.
+        - Deleniti quis et.
+        - Deleniti quis et.
         items:
-          example: Occaecati ut excepturi et deleniti quis.
+          example: Deleniti quis et.
           type: string
         type: array
       roles:
         description: Roles of user
         example:
-        - Officiis velit quaerat nam velit incidunt.
-        - Officiis velit quaerat nam velit incidunt.
+        - Velit quaerat nam velit incidunt sunt.
+        - Velit quaerat nam velit incidunt sunt.
+        - Velit quaerat nam velit incidunt sunt.
         items:
-          example: Officiis velit quaerat nam velit incidunt.
+          example: Velit quaerat nam velit incidunt sunt.
           type: string
         type: array
     required:
