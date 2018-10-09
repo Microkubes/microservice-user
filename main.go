@@ -105,8 +105,8 @@ func main() {
 	}
 
 	store := store.User{
-		userRepo,
-		tokenRepo,
+		Users:  userRepo,
+		Tokens: tokenRepo,
 	}
 
 	// Mount "swagger" controller
