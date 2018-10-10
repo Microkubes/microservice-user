@@ -62,6 +62,7 @@ type UserController interface {
 	Find(*FindUserContext) error
 	FindByEmail(*FindByEmailUserContext) error
 	Get(*GetUserContext) error
+	GetAll(*GetAllUserContext) error
 	GetMe(*GetMeUserContext) error
 	ResetVerificationToken(*ResetVerificationTokenUserContext) error
 	Update(*UpdateUserContext) error
@@ -150,6 +151,21 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	}
 	service.Mux.Handle("GET", "/users/:userId", ctrl.MuxHandler("get", h, nil))
 	service.LogInfo("mount", "ctrl", "User", "action", "Get", "route", "GET /users/:userId")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetAllUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetAll(rctx)
+	}
+	service.Mux.Handle("GET", "/users/all", ctrl.MuxHandler("getAll", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "GetAll", "route", "GET /users/all")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

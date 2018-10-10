@@ -465,6 +465,31 @@ paths:
       summary: update user
       tags:
       - user
+  /users/all:
+    get:
+      description: Retrieves all active users
+      operationId: user#getAll
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.user+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: getAll user
+      tags:
+      - user
   /users/find:
     post:
       description: Find a user by email+password

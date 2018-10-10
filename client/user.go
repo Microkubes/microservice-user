@@ -177,6 +177,35 @@ func (c *Client) NewGetUserRequest(ctx context.Context, path string) (*http.Requ
 	return req, nil
 }
 
+// GetAllUserPath computes a request path to the getAll action of user.
+func GetAllUserPath() string {
+
+	return fmt.Sprintf("/users/all")
+}
+
+// Retrieves all active users
+func (c *Client) GetAllUser(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewGetAllUserRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewGetAllUserRequest create the request corresponding to the getAll action endpoint of the user resource.
+func (c *Client) NewGetAllUserRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
 // GetMeUserPath computes a request path to the getMe action of user.
 func GetMeUserPath() string {
 
