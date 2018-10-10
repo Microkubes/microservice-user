@@ -52,6 +52,14 @@ var _ = Resource("user", func() {
 		Response(InternalServerError, ErrorMedia)
 	})
 
+	Action("getAll", func() {
+		Description("Retrieves all active users")
+		Routing(GET("/all"))
+		Response(OK)
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+
 	Action("update", func() {
 		Description("Update user")
 		Routing(PUT("/:userId"))
