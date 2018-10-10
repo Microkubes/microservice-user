@@ -7,7 +7,8 @@ RUN apk --update add ca-certificates
 RUN go get -u -v github.com/goadesign/goa/... && \
     go get -u -v gopkg.in/mgo.v2 && \
     go get -u -v github.com/Microkubes/microservice-security/... && \
-    go get -u -v github.com/Microkubes/microservice-tools/...
+    go get -u -v github.com/Microkubes/microservice-tools/... && \
+    go get -u -v github.com/JormungandrK/backends
 
 COPY . /go/src/github.com/Microkubes/microservice-user
 
