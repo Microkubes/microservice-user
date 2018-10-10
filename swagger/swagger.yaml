@@ -359,6 +359,51 @@ paths:
       - http
       summary: Download swagger/swagger.json
   /users:
+    get:
+      description: Retrieves all active users
+      operationId: user#getAll
+      parameters:
+      - description: Limit users per page
+        in: query
+        name: limit
+        required: false
+        type: integer
+      - description: Number of users to skip
+        in: query
+        name: offset
+        required: false
+        type: integer
+      - description: Order by
+        in: query
+        name: order
+        required: false
+        type: string
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: sorting
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: getAll user
+      tags:
+      - user
     post:
       description: Creates user
       operationId: user#create
@@ -463,31 +508,6 @@ paths:
       schemes:
       - http
       summary: update user
-      tags:
-      - user
-  /users/all:
-    get:
-      description: Retrieves all active users
-      operationId: user#getAll
-      produces:
-      - application/vnd.goa.error
-      - application/vnd.goa.user+json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/users'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      summary: getAll user
       tags:
       - user
   /users/find:
@@ -664,8 +684,6 @@ produces:
 responses:
   OK:
     description: OK
-    schema:
-      $ref: '#/definitions/users'
 schemes:
 - http
 swagger: "2.0"

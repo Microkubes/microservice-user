@@ -66,8 +66,10 @@ func main() {
 	}
 
 	userRepo, err := backend.DefineRepository("users", backends.RepositoryDefinitionMap{
-		"name":          "users",
-		"indexes":       []string{"email"},
+		"name": "users",
+		"indexes": []backends.Index{
+			backends.NewUniqueIndex("email"),
+		},
 		"hashKey":       "email",
 		"readCapacity":  int64(5),
 		"writeCapacity": int64(5),
@@ -84,8 +86,10 @@ func main() {
 	}
 
 	tokenRepo, err := backend.DefineRepository("tokens", backends.RepositoryDefinitionMap{
-		"name":          "tokens",
-		"indexes":       []string{"token"},
+		"name": "tokens",
+		"indexes": []backends.Index{
+			backends.NewUniqueIndex("token"),
+		},
 		"hashKey":       "token",
 		"readCapacity":  int64(5),
 		"writeCapacity": int64(5),

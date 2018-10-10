@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	"github.com/JormungandrK/backends"
@@ -128,6 +129,51 @@ func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 	}
 
 	return ctx.OK(user)
+}
+
+//GetAll retrives all active users
+func (c *UserController) GetAll(ctx *app.GetAllUserContext) error {
+	if !auth.HasAuth(ctx.Context) {
+		return ctx.InternalServerError(goa.ErrBadRequest("no-auth"))
+	}
+
+	order := ""
+	sorting := ""
+	limit := 0
+	offset := 0
+
+	if ctx.Order != nil {
+		order = *ctx.Order
+	}
+
+	if ctx.Offset != nil {
+		offset = *ctx.Offset
+	}
+
+	if ctx.Limit != nil {
+		limit = *ctx.Limit
+	}
+
+	if ctx.Sorting != nil {
+		sorting = *ctx.Sorting
+	}
+
+	var typeHint map[string]interface{}
+	users, err := c.Store.Users.GetAll(backends.NewFilter().Match("active", true), typeHint, order, sorting, limit, offset)
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err.Error()))
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err.Error()))
+	}
+
+	resp, err := json.Marshal(users)
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err.Error()))
+	}
+
+	return ctx.OK(resp)
 }
 
 // Update runs the update action.

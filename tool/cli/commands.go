@@ -59,6 +59,13 @@ type (
 
 	// GetAllUserCommand is the command line data structure for the getAll action of user
 	GetAllUserCommand struct {
+		// Limit users per page
+		Limit int
+		// Number of users to skip
+		Offset int
+		// Order by
+		Order       string
+		Sorting     string
 		PrettyPrint bool
 	}
 
@@ -199,7 +206,7 @@ Payload example:
 	}
 	tmp5 := new(GetAllUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/all"]`,
+		Use:   `user ["/users"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -638,11 +645,11 @@ func (cmd *GetAllUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/all"
+		path = "/users"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.GetAllUser(ctx, path)
+	resp, err := c.GetAllUser(ctx, path, intFlagVal("limit", cmd.Limit), intFlagVal("offset", cmd.Offset), stringFlagVal("order", cmd.Order), stringFlagVal("sorting", cmd.Sorting))
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -654,6 +661,14 @@ func (cmd *GetAllUserCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *GetAllUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var limit int
+	cc.Flags().IntVar(&cmd.Limit, "limit", limit, `Limit users per page`)
+	var offset int
+	cc.Flags().IntVar(&cmd.Offset, "offset", offset, `Number of users to skip`)
+	var order string
+	cc.Flags().StringVar(&cmd.Order, "order", order, `Order by`)
+	var sorting string
+	cc.Flags().StringVar(&cmd.Sorting, "sorting", sorting, ``)
 }
 
 // Run makes the HTTP request corresponding to the GetMeUserCommand command.

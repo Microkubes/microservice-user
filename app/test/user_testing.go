@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 )
 
 // CreateUserBadRequest runs the method Create of the given controller with the given parameters and payload.
@@ -1117,7 +1118,7 @@ func GetUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetAllUserInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, error) {
+func GetAllUserInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, limit *int, offset *int, order *string, sorting *string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1137,14 +1138,48 @@ func GetAllUserInternalServerError(t goatest.TInterface, ctx context.Context, se
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if limit != nil {
+		sliceVal := []string{strconv.Itoa(*limit)}
+		query["limit"] = sliceVal
+	}
+	if offset != nil {
+		sliceVal := []string{strconv.Itoa(*offset)}
+		query["offset"] = sliceVal
+	}
+	if order != nil {
+		sliceVal := []string{*order}
+		query["order"] = sliceVal
+	}
+	if sorting != nil {
+		sliceVal := []string{*sorting}
+		query["sorting"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/all"),
+		Path:     fmt.Sprintf("/users"),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	if limit != nil {
+		sliceVal := []string{strconv.Itoa(*limit)}
+		prms["limit"] = sliceVal
+	}
+	if offset != nil {
+		sliceVal := []string{strconv.Itoa(*offset)}
+		prms["offset"] = sliceVal
+	}
+	if order != nil {
+		sliceVal := []string{*order}
+		prms["order"] = sliceVal
+	}
+	if sorting != nil {
+		sliceVal := []string{*sorting}
+		prms["sorting"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1185,7 +1220,7 @@ func GetAllUserInternalServerError(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetAllUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, error) {
+func GetAllUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, limit *int, offset *int, order *string, sorting *string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1205,14 +1240,48 @@ func GetAllUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if limit != nil {
+		sliceVal := []string{strconv.Itoa(*limit)}
+		query["limit"] = sliceVal
+	}
+	if offset != nil {
+		sliceVal := []string{strconv.Itoa(*offset)}
+		query["offset"] = sliceVal
+	}
+	if order != nil {
+		sliceVal := []string{*order}
+		query["order"] = sliceVal
+	}
+	if sorting != nil {
+		sliceVal := []string{*sorting}
+		query["sorting"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/all"),
+		Path:     fmt.Sprintf("/users"),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	if limit != nil {
+		sliceVal := []string{strconv.Itoa(*limit)}
+		prms["limit"] = sliceVal
+	}
+	if offset != nil {
+		sliceVal := []string{strconv.Itoa(*offset)}
+		prms["offset"] = sliceVal
+	}
+	if order != nil {
+		sliceVal := []string{*order}
+		prms["order"] = sliceVal
+	}
+	if sorting != nil {
+		sliceVal := []string{*sorting}
+		prms["sorting"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1250,16 +1319,15 @@ func GetAllUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.
 }
 
 // GetAllUserOK runs the method GetAll of the given controller with the given parameters.
-// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetAllUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, *app.Users) {
+func GetAllUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, limit *int, offset *int, order *string, sorting *string) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
-		resp   interface{}
 
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
 	)
 	if service == nil {
 		service = goatest.Service(&logBuf, respSetter)
@@ -1273,14 +1341,48 @@ func GetAllUserOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if limit != nil {
+		sliceVal := []string{strconv.Itoa(*limit)}
+		query["limit"] = sliceVal
+	}
+	if offset != nil {
+		sliceVal := []string{strconv.Itoa(*offset)}
+		query["offset"] = sliceVal
+	}
+	if order != nil {
+		sliceVal := []string{*order}
+		query["order"] = sliceVal
+	}
+	if sorting != nil {
+		sliceVal := []string{*sorting}
+		query["sorting"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/all"),
+		Path:     fmt.Sprintf("/users"),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	if limit != nil {
+		sliceVal := []string{strconv.Itoa(*limit)}
+		prms["limit"] = sliceVal
+	}
+	if offset != nil {
+		sliceVal := []string{strconv.Itoa(*offset)}
+		prms["offset"] = sliceVal
+	}
+	if order != nil {
+		sliceVal := []string{*order}
+		prms["order"] = sliceVal
+	}
+	if sorting != nil {
+		sliceVal := []string{*sorting}
+		prms["sorting"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1292,7 +1394,7 @@ func GetAllUserOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 			panic("invalid test data " + _err.Error()) // bug
 		}
 		t.Errorf("unexpected parameter validation error: %+v", e)
-		return nil, nil
+		return nil
 	}
 
 	// Perform action
@@ -1305,21 +1407,9 @@ func GetAllUserOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.Users
-	if resp != nil {
-		var _ok bool
-		mt, _ok = resp.(*app.Users)
-		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Users", resp, resp)
-		}
-		_err = mt.Validate()
-		if _err != nil {
-			t.Errorf("invalid response media type: %s", _err)
-		}
-	}
 
 	// Return results
-	return rw, mt
+	return rw
 }
 
 // GetMeUserBadRequest runs the method GetMe of the given controller with the given parameters.

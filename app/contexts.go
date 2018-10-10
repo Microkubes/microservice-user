@@ -14,6 +14,7 @@ import (
 	"context"
 	"github.com/goadesign/goa"
 	"net/http"
+	"strconv"
 )
 
 // CreateUserContext provides the user create action context.
@@ -218,6 +219,10 @@ type GetAllUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
+	Limit   *int
+	Offset  *int
+	Order   *string
+	Sorting *string
 }
 
 // NewGetAllUserContext parses the incoming request URL and body, performs validations and creates the
@@ -229,15 +234,54 @@ func NewGetAllUserContext(ctx context.Context, r *http.Request, service *goa.Ser
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := GetAllUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramLimit := req.Params["limit"]
+	if len(paramLimit) > 0 {
+		rawLimit := paramLimit[0]
+		if limit, err2 := strconv.Atoi(rawLimit); err2 == nil {
+			tmp2 := limit
+			tmp1 := &tmp2
+			rctx.Limit = tmp1
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("limit", rawLimit, "integer"))
+		}
+	}
+	paramOffset := req.Params["offset"]
+	if len(paramOffset) > 0 {
+		rawOffset := paramOffset[0]
+		if offset, err2 := strconv.Atoi(rawOffset); err2 == nil {
+			tmp4 := offset
+			tmp3 := &tmp4
+			rctx.Offset = tmp3
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("offset", rawOffset, "integer"))
+		}
+	}
+	paramOrder := req.Params["order"]
+	if len(paramOrder) > 0 {
+		rawOrder := paramOrder[0]
+		rctx.Order = &rawOrder
+	}
+	paramSorting := req.Params["sorting"]
+	if len(paramSorting) > 0 {
+		rawSorting := paramSorting[0]
+		rctx.Sorting = &rawSorting
+		if rctx.Sorting != nil {
+			if !(*rctx.Sorting == "asc" || *rctx.Sorting == "desc") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError(`sorting`, *rctx.Sorting, []interface{}{"asc", "desc"}))
+			}
+		}
+	}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *GetAllUserContext) OK(r *Users) error {
+func (ctx *GetAllUserContext) OK(resp []byte) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.user+json")
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
 	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
 }
 
 // NotFound sends a HTTP response with status code 404.
