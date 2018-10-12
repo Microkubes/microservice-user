@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/JormungandrK/microservice-user/design
-// --out=$(GOPATH)/src/github.com/JormungandrK/microservice-user
+// --design=github.com/Microkubes/microservice-user/design
+// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
 // --version=v1.3.0
 
 package client
@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 // CreateUserPath computes a request path to the create action of user.
@@ -170,6 +171,51 @@ func (c *Client) NewGetUserRequest(ctx context.Context, path string) (*http.Requ
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+// GetAllUserPath computes a request path to the getAll action of user.
+func GetAllUserPath() string {
+
+	return fmt.Sprintf("/users")
+}
+
+// Retrieves all active users
+func (c *Client) GetAllUser(ctx context.Context, path string, limit *int, offset *int, order *string, sorting *string) (*http.Response, error) {
+	req, err := c.NewGetAllUserRequest(ctx, path, limit, offset, order, sorting)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewGetAllUserRequest create the request corresponding to the getAll action endpoint of the user resource.
+func (c *Client) NewGetAllUserRequest(ctx context.Context, path string, limit *int, offset *int, order *string, sorting *string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	if limit != nil {
+		tmp10 := strconv.Itoa(*limit)
+		values.Set("limit", tmp10)
+	}
+	if offset != nil {
+		tmp11 := strconv.Itoa(*offset)
+		values.Set("offset", tmp11)
+	}
+	if order != nil {
+		values.Set("order", *order)
+	}
+	if sorting != nil {
+		values.Set("sorting", *sorting)
+	}
+	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err

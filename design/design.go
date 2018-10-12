@@ -18,7 +18,6 @@ var _ = API("user", func() {
 // Resources group related API endpoints together.
 var _ = Resource("user", func() {
 	BasePath("/users")
-	DefaultMedia(UserMedia)
 	// Do not setup security here!
 
 	// Actions define a single API endpoint
@@ -37,7 +36,7 @@ var _ = Resource("user", func() {
 		Params(func() {
 			Param("userId", String, "User ID")
 		})
-		Response(OK)
+		Response(OK, UserMedia)
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
@@ -46,9 +45,25 @@ var _ = Resource("user", func() {
 	Action("getMe", func() {
 		Description("Retrieves the user information for the authenticated user")
 		Routing(GET("/me"))
-		Response(OK)
+		Response(OK, UserMedia)
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+
+	Action("getAll", func() {
+		Description("Retrieves all active users")
+		Routing(GET(""))
+		Params(func() {
+			Param("order", String, "Order by")
+			Param("sorting", String, func() {
+				Enum("asc", "desc")
+			})
+			Param("limit", Integer, "Limit users per page")
+			Param("offset", Integer, "Number of users to skip")
+		})
+		Response(OK)
+		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
 

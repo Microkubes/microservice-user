@@ -3,12 +3,13 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	"github.com/JormungandrK/backends"
-	"github.com/JormungandrK/microservice-security/auth"
-	"github.com/JormungandrK/microservice-user/app"
-	"github.com/JormungandrK/microservice-user/store"
+	"github.com/Microkubes/microservice-security/auth"
+	"github.com/Microkubes/microservice-user/app"
+	"github.com/Microkubes/microservice-user/store"
 	"github.com/goadesign/goa"
 
 	"golang.org/x/crypto/bcrypt"
@@ -58,14 +59,10 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 
 	result, err := c.Store.Users.Save(ctx.Payload, nil)
 	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		default:
-			return ctx.InternalServerError(err)
+		if backends.IsErrAlreadyExists(err) || backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
 		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	if ctx.Payload.Token == nil {
@@ -96,22 +93,15 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 
 	user := &app.Users{}
 
-	filter := map[string]interface{}{
-		"id": ctx.UserID,
-	}
-
 	// Return one user by id.
-	if err := c.Store.Users.GetOne(filter, user); err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("id", ctx.UserID), user); err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.OK(user)
@@ -121,37 +111,69 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 // Get the userID from the auth ibject and return the authenticated user
 func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
 
-	var authObj *auth.Auth
-
-	hasAuth := auth.HasAuth(ctx)
-
-	if hasAuth {
-		authObj = auth.GetAuth(ctx.Context)
-	} else {
-		return ctx.InternalServerError(goa.ErrInternal("Auth has not been set"))
+	if !auth.HasAuth(ctx.Context) {
+		return ctx.InternalServerError(goa.ErrBadRequest("no-auth"))
 	}
 
-	userID := authObj.UserID
+	userID := auth.GetAuth(ctx.Context).UserID
 
 	user := &app.Users{}
-	filter := map[string]interface{}{
-		"id": userID,
-	}
-
-	if err := c.Store.Users.GetOne(filter, user); err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("id", userID), user); err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.OK(user)
+}
+
+//GetAll retrives all active users
+func (c *UserController) GetAll(ctx *app.GetAllUserContext) error {
+	if !auth.HasAuth(ctx.Context) {
+		return ctx.InternalServerError(goa.ErrBadRequest("no-auth"))
+	}
+
+	order := ""
+	sorting := ""
+	limit := 0
+	offset := 0
+
+	if ctx.Order != nil {
+		order = *ctx.Order
+	}
+
+	if ctx.Offset != nil {
+		offset = *ctx.Offset
+	}
+
+	if ctx.Limit != nil {
+		limit = *ctx.Limit
+	}
+
+	if ctx.Sorting != nil {
+		sorting = *ctx.Sorting
+	}
+
+	var typeHint map[string]interface{}
+	users, err := c.Store.Users.GetAll(backends.NewFilter().Match("active", true), typeHint, order, sorting, limit, offset)
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err.Error()))
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err.Error()))
+	}
+
+	resp, err := json.Marshal(users)
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err.Error()))
+	}
+
+	return ctx.OK(resp)
 }
 
 // Update runs the update action.
@@ -188,23 +210,16 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 		payload["namespaces"] = ctx.Payload.Namespaces
 	}
 
-	filter := map[string]interface{}{
-		"id": ctx.UserID,
-	}
-
-	result, err := c.Store.Users.Save(&payload, filter)
+	result, err := c.Store.Users.Save(&payload, backends.NewFilter().Match("id", ctx.UserID))
 
 	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	user := &app.Users{}
@@ -219,21 +234,14 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 func (c *UserController) Find(ctx *app.FindUserContext) error {
 
 	var userData map[string]interface{}
-	filter := map[string]interface{}{
-		"email": ctx.Payload.Email,
-	}
-
-	if err := c.Store.Users.GetOne(filter, &userData); err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), &userData); err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	if _, ok := userData["password"]; !ok {
@@ -257,19 +265,11 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
 
 	user := &app.Users{}
-	filter := map[string]interface{}{
-		"email": ctx.Payload.Email,
-	}
-
-	if err := c.Store.Users.GetOne(filter, user); err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), user); err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.OK(user)
@@ -284,51 +284,31 @@ func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 	}
 
 	user := &app.Users{}
-	tokenFilter := map[string]interface{}{
-		"token": *ctx.Token,
-	}
-
-	err := c.Store.Tokens.GetOne(tokenFilter, user)
+	_, err := c.Store.Tokens.GetOne(backends.NewFilter().Match("token", *ctx.Token), user)
 	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	emailFilter := map[string]interface{}{
-		"email": user.Email,
-	}
 	update := map[string]interface{}{
 		"active": true,
 	}
-
-	_, err = c.Store.Users.Save(&update, emailFilter)
+	_, err = c.Store.Users.Save(&update, backends.NewFilter().Match("email", user.Email))
 	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	err = c.Store.Tokens.DeleteOne(tokenFilter)
+	err = c.Store.Tokens.DeleteOne(backends.NewFilter().Match("token", *ctx.Token))
 	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	// empty response
@@ -341,23 +321,15 @@ func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenUserContext) error {
 
 	user := &app.Users{}
-	emailFilter := map[string]interface{}{
-		"email": ctx.Payload.Email,
-	}
-
-	err := c.Store.Users.GetOne(emailFilter, user)
+	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), user)
 	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
-		return ctx.InternalServerError(err)
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	if user == nil {
@@ -368,17 +340,8 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		return ctx.BadRequest(goa.ErrBadRequest("already active"))
 	}
 
-	if err := c.Store.Tokens.DeleteOne(emailFilter); err != nil {
-		if err != nil {
-			e := err.(*goa.ErrorResponse)
-
-			switch e.Status {
-			case 400:
-				return ctx.BadRequest(err)
-			case 500:
-				return ctx.InternalServerError(err)
-			}
-		}
+	if err := c.Store.Tokens.DeleteOne(backends.NewFilter().Match("email", ctx.Payload.Email)); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	token := generateToken(42)

@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/JormungandrK/microservice-security/auth"
-	"github.com/JormungandrK/microservice-user/app"
-	"github.com/JormungandrK/microservice-user/app/test"
-	"github.com/JormungandrK/microservice-user/store"
+	"github.com/Microkubes/microservice-security/auth"
+	"github.com/Microkubes/microservice-user/app"
+	"github.com/Microkubes/microservice-user/app/test"
+	"github.com/Microkubes/microservice-user/store"
 	"github.com/goadesign/goa"
 )
 
@@ -289,4 +289,25 @@ func TestStringToBcryptHash(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	}
+}
+
+func TestGetAllUserOK(t *testing.T) {
+	ctx := context.Background()
+	authObj := &auth.Auth{UserID: ID}
+	ctx = auth.SetAuth(ctx, authObj)
+
+	test.GetAllUserOK(t, ctx, service, ctrl, nil, nil, nil, nil)
+}
+
+func TestGetAllUserNotFound(t *testing.T) {
+	ctx := context.Background()
+	authObj := &auth.Auth{UserID: ID}
+	ctx = auth.SetAuth(ctx, authObj)
+
+	offset := 5
+	test.GetAllUserNotFound(t, ctx, service, ctrl, nil, &offset, nil, nil)
+}
+
+func TestGetAllUserInternalServerError(t *testing.T) {
+	test.GetAllUserInternalServerError(t, context.Background(), service, ctrl, nil, nil, nil, nil)
 }

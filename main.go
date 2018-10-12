@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"os"
 
-	// "github.com/JormungandrK/microservice-security/chain"
-	// "github.com/JormungandrK/microservice-security/flow"
 	"github.com/JormungandrK/backends"
-	"github.com/JormungandrK/microservice-tools/config"
-	"github.com/JormungandrK/microservice-tools/gateway"
-	"github.com/JormungandrK/microservice-user/app"
-	"github.com/JormungandrK/microservice-user/store"
+	"github.com/Microkubes/microservice-security/chain"
+	"github.com/Microkubes/microservice-security/flow"
+	"github.com/Microkubes/microservice-tools/config"
+	"github.com/Microkubes/microservice-tools/gateway"
+	"github.com/Microkubes/microservice-user/app"
+	"github.com/Microkubes/microservice-user/store"
 
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
@@ -28,7 +28,6 @@ func main() {
 		return
 	}
 
-	//registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
 	registration := gateway.NewKongGateway(serviceConfig.GatewayAdminURL, &http.Client{}, serviceConfig.Service)
 
 	err = registration.SelfRegister()
@@ -38,12 +37,12 @@ func main() {
 
 	defer registration.Unregister()
 
-	// securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
+	if err != nil {
+		panic(err)
+	}
 
-	// defer cleanup()
+	defer cleanup()
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
@@ -51,7 +50,7 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
-	// service.Use(chain.AsGoaMiddleware(securityChain))
+	service.Use(chain.AsGoaMiddleware(securityChain))
 
 	// Get the db collections/tables
 	dbConf := serviceConfig.DBConfig
@@ -67,8 +66,10 @@ func main() {
 	}
 
 	userRepo, err := backend.DefineRepository("users", backends.RepositoryDefinitionMap{
-		"name":          "users",
-		"indexes":       []string{"email"},
+		"name": "users",
+		"indexes": []backends.Index{
+			backends.NewUniqueIndex("email"),
+		},
 		"hashKey":       "email",
 		"readCapacity":  int64(5),
 		"writeCapacity": int64(5),
@@ -85,8 +86,10 @@ func main() {
 	}
 
 	tokenRepo, err := backend.DefineRepository("tokens", backends.RepositoryDefinitionMap{
-		"name":          "tokens",
-		"indexes":       []string{"token"},
+		"name": "tokens",
+		"indexes": []backends.Index{
+			backends.NewUniqueIndex("token"),
+		},
 		"hashKey":       "token",
 		"readCapacity":  int64(5),
 		"writeCapacity": int64(5),
@@ -106,8 +109,8 @@ func main() {
 	}
 
 	store := store.User{
-		userRepo,
-		tokenRepo,
+		Users:  userRepo,
+		Tokens: tokenRepo,
 	}
 
 	// Mount "swagger" controller
