@@ -4,9 +4,9 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/Microkubes/user-microservice/design
-// --out=$(GOPATH)/src/github.com/Microkubes/user-microservice
-// --version=v1.3.1
+// --design=github.com/Microkubes/microservice-user/design
+// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
+// --version=v1.3.0
 
 package client
 
@@ -27,19 +27,19 @@ func (c *Client) DecodeErrorResponse(resp *http.Response) (*goa.ErrorResponse, e
 // Identifier: application/vnd.goa.user+json; view=default
 type Users struct {
 	// Status of user account
-	Active bool `form:"active" json:"active" xml:"active"`
+	Active bool `form:"active" json:"active" yaml:"active" xml:"active"`
 	// Email of user
-	Email string `form:"email" json:"email" xml:"email"`
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 	// External id of user
-	ExternalID string `form:"externalId" json:"externalId" xml:"externalId"`
+	ExternalID string `form:"externalId" json:"externalId" yaml:"externalId" xml:"externalId"`
 	// Unique user ID
-	ID string `form:"id" json:"id" xml:"id"`
+	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// List of namespaces this user belongs to
-	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
 	// List of organizations to which this user belongs to
-	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Roles of user
-	Roles []string `form:"roles" json:"roles" xml:"roles"`
+	Roles []string `form:"roles" json:"roles" yaml:"roles" xml:"roles"`
 }
 
 // Validate validates the Users media type instance.
@@ -75,11 +75,11 @@ func (c *Client) DecodeUsers(resp *http.Response) (*Users, error) {
 // Identifier: resettokenmedia; view=default
 type ResetToken struct {
 	// User email
-	Email string `form:"email" json:"email" xml:"email"`
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 	// User ID
-	ID string `form:"id" json:"id" xml:"id"`
+	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// New token
-	Token string `form:"token" json:"token" xml:"token"`
+	Token string `form:"token" json:"token" yaml:"token" xml:"token"`
 }
 
 // Validate validates the ResetToken media type instance.

@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/Microkubes/user-microservice/design
-// --out=$(GOPATH)/src/github.com/Microkubes/user-microservice
-// --version=v1.3.1
+// --design=github.com/Microkubes/microservice-user/design
+// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
+// --version=v1.3.0
 
 package app

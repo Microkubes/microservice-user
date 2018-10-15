@@ -4,9 +4,9 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/Microkubes/user-microservice/design
-// --out=$(GOPATH)/src/github.com/Microkubes/user-microservice
-// --version=v1.3.1
+// --design=github.com/Microkubes/microservice-user/design
+// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
+// --version=v1.3.0
 
 package app
 
@@ -15,12 +15,134 @@ import (
 	"unicode/utf8"
 )
 
+// CreateUserPayload
+type createUserPayload struct {
+	// Status of user account
+	Active *bool `form:"active,omitempty" json:"active,omitempty" yaml:"active,omitempty" xml:"active,omitempty"`
+	// Email of user
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
+	// External id of user
+	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" yaml:"externalId,omitempty" xml:"externalId,omitempty"`
+	// List of namespaces this user belongs to
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	// List of organizations to which this user belongs to
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
+	// Password of user
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
+	// Roles of user
+	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
+	// Token for email verification
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
+}
+
+// Finalize sets the default values for createUserPayload type instance.
+func (ut *createUserPayload) Finalize() {
+	var defaultActive = false
+	if ut.Active == nil {
+		ut.Active = &defaultActive
+	}
+}
+
+// Validate validates the createUserPayload type instance.
+func (ut *createUserPayload) Validate() (err error) {
+	if ut.Email == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "email"))
+	}
+	if ut.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
+			err = goa.MergeErrors(err, goa.InvalidFormatError(`request.email`, *ut.Email, goa.FormatEmail, err2))
+		}
+	}
+	if ut.Password != nil {
+		if utf8.RuneCountInString(*ut.Password) < 6 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 6, true))
+		}
+	}
+	if ut.Password != nil {
+		if utf8.RuneCountInString(*ut.Password) > 30 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 30, false))
+		}
+	}
+	return
+}
+
+// Publicize creates CreateUserPayload from createUserPayload
+func (ut *createUserPayload) Publicize() *CreateUserPayload {
+	var pub CreateUserPayload
+	if ut.Active != nil {
+		pub.Active = *ut.Active
+	}
+	if ut.Email != nil {
+		pub.Email = *ut.Email
+	}
+	if ut.ExternalID != nil {
+		pub.ExternalID = ut.ExternalID
+	}
+	if ut.Namespaces != nil {
+		pub.Namespaces = ut.Namespaces
+	}
+	if ut.Organizations != nil {
+		pub.Organizations = ut.Organizations
+	}
+	if ut.Password != nil {
+		pub.Password = ut.Password
+	}
+	if ut.Roles != nil {
+		pub.Roles = ut.Roles
+	}
+	if ut.Token != nil {
+		pub.Token = ut.Token
+	}
+	return &pub
+}
+
+// CreateUserPayload
+type CreateUserPayload struct {
+	// Status of user account
+	Active bool `form:"active" json:"active" yaml:"active" xml:"active"`
+	// Email of user
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
+	// External id of user
+	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" yaml:"externalId,omitempty" xml:"externalId,omitempty"`
+	// List of namespaces this user belongs to
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	// List of organizations to which this user belongs to
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
+	// Password of user
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
+	// Roles of user
+	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
+	// Token for email verification
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
+}
+
+// Validate validates the CreateUserPayload type instance.
+func (ut *CreateUserPayload) Validate() (err error) {
+	if ut.Email == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "email"))
+	}
+	if err2 := goa.ValidateFormat(goa.FormatEmail, ut.Email); err2 != nil {
+		err = goa.MergeErrors(err, goa.InvalidFormatError(`type.email`, ut.Email, goa.FormatEmail, err2))
+	}
+	if ut.Password != nil {
+		if utf8.RuneCountInString(*ut.Password) < 6 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`type.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 6, true))
+		}
+	}
+	if ut.Password != nil {
+		if utf8.RuneCountInString(*ut.Password) > 30 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`type.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 30, false))
+		}
+	}
+	return
+}
+
 // Email and password credentials
 type credentials struct {
 	// Email of user
-	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// Password of user
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 }
 
 // Validate validates the credentials type instance.
@@ -64,9 +186,9 @@ func (ut *credentials) Publicize() *Credentials {
 // Email and password credentials
 type Credentials struct {
 	// Email of user
-	Email string `form:"email" json:"email" xml:"email"`
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 	// Password of user
-	Password string `form:"password" json:"password" xml:"password"`
+	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
 }
 
 // Validate validates the Credentials type instance.
@@ -92,7 +214,7 @@ func (ut *Credentials) Validate() (err error) {
 // Email payload
 type emailPayload struct {
 	// Email of user
-	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 }
 
 // Validate validates the emailPayload type instance.
@@ -120,7 +242,7 @@ func (ut *emailPayload) Publicize() *EmailPayload {
 // Email payload
 type EmailPayload struct {
 	// Email of user
-	Email string `form:"email" json:"email" xml:"email"`
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 }
 
 // Validate validates the EmailPayload type instance.
@@ -134,39 +256,36 @@ func (ut *EmailPayload) Validate() (err error) {
 	return
 }
 
-// UserPayload
-type userPayload struct {
+// UpdateUserPayload
+type updateUserPayload struct {
 	// Status of user account
-	Active *bool `form:"active,omitempty" json:"active,omitempty" xml:"active,omitempty"`
+	Active *bool `form:"active,omitempty" json:"active,omitempty" yaml:"active,omitempty" xml:"active,omitempty"`
 	// Email of user
-	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// External id of user
-	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" xml:"externalId,omitempty"`
+	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" yaml:"externalId,omitempty" xml:"externalId,omitempty"`
 	// List of namespaces this user belongs to
-	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
 	// List of organizations to which this user belongs to
-	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Password of user
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
-	Roles []string `form:"roles,omitempty" json:"roles,omitempty" xml:"roles,omitempty"`
+	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
 	// Token for email verification
-	Token *string `form:"token,omitempty" json:"token,omitempty" xml:"token,omitempty"`
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 }
 
-// Finalize sets the default values for userPayload type instance.
-func (ut *userPayload) Finalize() {
+// Finalize sets the default values for updateUserPayload type instance.
+func (ut *updateUserPayload) Finalize() {
 	var defaultActive = false
 	if ut.Active == nil {
 		ut.Active = &defaultActive
 	}
 }
 
-// Validate validates the userPayload type instance.
-func (ut *userPayload) Validate() (err error) {
-	if ut.Email == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "email"))
-	}
+// Validate validates the updateUserPayload type instance.
+func (ut *updateUserPayload) Validate() (err error) {
 	if ut.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
 			err = goa.MergeErrors(err, goa.InvalidFormatError(`request.email`, *ut.Email, goa.FormatEmail, err2))
@@ -185,14 +304,14 @@ func (ut *userPayload) Validate() (err error) {
 	return
 }
 
-// Publicize creates UserPayload from userPayload
-func (ut *userPayload) Publicize() *UserPayload {
-	var pub UserPayload
+// Publicize creates UpdateUserPayload from updateUserPayload
+func (ut *updateUserPayload) Publicize() *UpdateUserPayload {
+	var pub UpdateUserPayload
 	if ut.Active != nil {
 		pub.Active = *ut.Active
 	}
 	if ut.Email != nil {
-		pub.Email = *ut.Email
+		pub.Email = ut.Email
 	}
 	if ut.ExternalID != nil {
 		pub.ExternalID = ut.ExternalID
@@ -215,33 +334,32 @@ func (ut *userPayload) Publicize() *UserPayload {
 	return &pub
 }
 
-// UserPayload
-type UserPayload struct {
+// UpdateUserPayload
+type UpdateUserPayload struct {
 	// Status of user account
-	Active bool `form:"active" json:"active" xml:"active"`
+	Active bool `form:"active" json:"active" yaml:"active" xml:"active"`
 	// Email of user
-	Email string `form:"email" json:"email" xml:"email"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// External id of user
-	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" xml:"externalId,omitempty"`
+	ExternalID *string `form:"externalId,omitempty" json:"externalId,omitempty" yaml:"externalId,omitempty" xml:"externalId,omitempty"`
 	// List of namespaces this user belongs to
-	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" xml:"namespaces,omitempty"`
+	Namespaces []string `form:"namespaces,omitempty" json:"namespaces,omitempty" yaml:"namespaces,omitempty" xml:"namespaces,omitempty"`
 	// List of organizations to which this user belongs to
-	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" xml:"organizations,omitempty"`
+	Organizations []string `form:"organizations,omitempty" json:"organizations,omitempty" yaml:"organizations,omitempty" xml:"organizations,omitempty"`
 	// Password of user
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 	// Roles of user
-	Roles []string `form:"roles,omitempty" json:"roles,omitempty" xml:"roles,omitempty"`
+	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
 	// Token for email verification
-	Token *string `form:"token,omitempty" json:"token,omitempty" xml:"token,omitempty"`
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 }
 
-// Validate validates the UserPayload type instance.
-func (ut *UserPayload) Validate() (err error) {
-	if ut.Email == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "email"))
-	}
-	if err2 := goa.ValidateFormat(goa.FormatEmail, ut.Email); err2 != nil {
-		err = goa.MergeErrors(err, goa.InvalidFormatError(`type.email`, ut.Email, goa.FormatEmail, err2))
+// Validate validates the UpdateUserPayload type instance.
+func (ut *UpdateUserPayload) Validate() (err error) {
+	if ut.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
+			err = goa.MergeErrors(err, goa.InvalidFormatError(`type.email`, *ut.Email, goa.FormatEmail, err2))
+		}
 	}
 	if ut.Password != nil {
 		if utf8.RuneCountInString(*ut.Password) < 6 {

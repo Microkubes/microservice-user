@@ -4,9 +4,9 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/Microkubes/user-microservice/design
-// --out=$(GOPATH)/src/github.com/Microkubes/user-microservice
-// --version=v1.3.1
+// --design=github.com/Microkubes/microservice-user/design
+// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
+// --version=v1.3.0
 
 package cli
 
@@ -54,6 +54,18 @@ type (
 	GetUserCommand struct {
 		// User ID
 		UserID      string
+		PrettyPrint bool
+	}
+
+	// GetAllUserCommand is the command line data structure for the getAll action of user
+	GetAllUserCommand struct {
+		// Limit users per page
+		Limit int
+		// Number of users to skip
+		Offset int
+		// Order by
+		Order       string
+		Sorting     string
 		PrettyPrint bool
 	}
 
@@ -109,23 +121,21 @@ Payload example:
 
 {
    "active": true,
-   "email": "ollie.hilll@smith.info",
-   "externalId": "Doloremque aut sed ut impedit voluptatum debitis.",
+   "email": "vinnie.d'amore@kessler.net",
+   "externalId": "Voluptatum debitis iusto et.",
    "namespaces": [
-      "Placeat reprehenderit similique quo.",
-      "Placeat reprehenderit similique quo."
+      "Quo quo amet occaecati ut.",
+      "Quo quo amet occaecati ut.",
+      "Quo quo amet occaecati ut."
    ],
    "organizations": [
-      "Occaecati ut excepturi et deleniti quis.",
-      "Occaecati ut excepturi et deleniti quis."
+      "Deleniti quis et."
    ],
-   "password": "3v789xuu49",
+   "password": "789xuu49q",
    "roles": [
-      "Officiis velit quaerat nam velit incidunt.",
-      "Officiis velit quaerat nam velit incidunt.",
-      "Officiis velit quaerat nam velit incidunt."
+      "Velit quaerat nam velit incidunt sunt."
    ],
-   "token": "Voluptatem reprehenderit quisquam maxime nam non."
+   "token": "Reprehenderit quisquam maxime."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -146,8 +156,8 @@ Payload example:
 Payload example:
 
 {
-   "email": "magnus@mckenzie.info",
-   "password": "htvx6y8d3"
+   "email": "myles@mooreschneider.name",
+   "password": "vhhtvx6y8"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -168,7 +178,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "tiffany_reilly@rosenbaum.biz"
+   "email": "marianna_hartmann@oreillylebsack.org"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -191,12 +201,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get-me",
-		Short: `Retrieves the user information for the authenticated user`,
+		Use:   "get-all",
+		Short: `Retrieves all active users`,
 	}
-	tmp5 := new(GetMeUserCommand)
+	tmp5 := new(GetAllUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/me"]`,
+		Use:   `user ["/users"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -205,10 +215,24 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "get-me",
+		Short: `Retrieves the user information for the authenticated user`,
+	}
+	tmp6 := new(GetMeUserCommand)
+	sub = &cobra.Command{
+		Use:   `user ["/users/me"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
+	}
+	tmp6.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "reset-verification-token",
 		Short: `Reset verification token`,
 	}
-	tmp6 := new(ResetVerificationTokenUserCommand)
+	tmp7 := new(ResetVerificationTokenUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/verification/reset"]`,
 		Short: ``,
@@ -217,45 +241,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "tiffany_reilly@rosenbaum.biz"
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
-	}
-	tmp6.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "update",
-		Short: `Update user`,
-	}
-	tmp7 := new(UpdateUserCommand)
-	sub = &cobra.Command{
-		Use:   `user ["/users/USERID"]`,
-		Short: ``,
-		Long: `
-
-Payload example:
-
-{
-   "active": true,
-   "email": "ollie.hilll@smith.info",
-   "externalId": "Doloremque aut sed ut impedit voluptatum debitis.",
-   "namespaces": [
-      "Placeat reprehenderit similique quo.",
-      "Placeat reprehenderit similique quo."
-   ],
-   "organizations": [
-      "Occaecati ut excepturi et deleniti quis.",
-      "Occaecati ut excepturi et deleniti quis."
-   ],
-   "password": "3v789xuu49",
-   "roles": [
-      "Officiis velit quaerat nam velit incidunt.",
-      "Officiis velit quaerat nam velit incidunt.",
-      "Officiis velit quaerat nam velit incidunt."
-   ],
-   "token": "Voluptatem reprehenderit quisquam maxime nam non."
+   "email": "marianna_hartmann@oreillylebsack.org"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
@@ -264,17 +250,55 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "verify",
-		Short: `Verify a user by token`,
+		Use:   "update",
+		Short: `Update user`,
 	}
-	tmp8 := new(VerifyUserCommand)
+	tmp8 := new(UpdateUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/verify"]`,
+		Use:   `user ["/users/USERID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "active": false,
+   "email": "arnold@rueckerlabadie.org",
+   "externalId": "Earum voluptas aperiam nostrum at.",
+   "namespaces": [
+      "Perferendis quos."
+   ],
+   "organizations": [
+      "Quidem corrupti reprehenderit sit aut molestiae.",
+      "Quidem corrupti reprehenderit sit aut molestiae.",
+      "Quidem corrupti reprehenderit sit aut molestiae."
+   ],
+   "password": "o6xgbsyo5h",
+   "roles": [
+      "Pariatur consequatur accusantium occaecati sint.",
+      "Pariatur consequatur accusantium occaecati sint.",
+      "Pariatur consequatur accusantium occaecati sint."
+   ],
+   "token": "Ipsam impedit vitae."
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}
 	tmp8.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp8.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "verify",
+		Short: `Verify a user by token`,
+	}
+	tmp9 := new(VerifyUserCommand)
+	sub = &cobra.Command{
+		Use:   `user ["/users/verify"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
+	}
+	tmp9.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp9.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -498,7 +522,7 @@ func (cmd *CreateUserCommand) Run(c *client.Client, args []string) error {
 	} else {
 		path = "/users"
 	}
-	var payload client.UserPayload
+	var payload client.CreateUserPayload
 	if cmd.Payload != "" {
 		err := json.Unmarshal([]byte(cmd.Payload), &payload)
 		if err != nil {
@@ -615,6 +639,38 @@ func (cmd *GetUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.UserID, "userId", userID, `User ID`)
 }
 
+// Run makes the HTTP request corresponding to the GetAllUserCommand command.
+func (cmd *GetAllUserCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/users"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.GetAllUser(ctx, path, intFlagVal("limit", cmd.Limit), intFlagVal("offset", cmd.Offset), stringFlagVal("order", cmd.Order), stringFlagVal("sorting", cmd.Sorting))
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *GetAllUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var limit int
+	cc.Flags().IntVar(&cmd.Limit, "limit", limit, `Limit users per page`)
+	var offset int
+	cc.Flags().IntVar(&cmd.Offset, "offset", offset, `Number of users to skip`)
+	var order string
+	cc.Flags().StringVar(&cmd.Order, "order", order, `Order by`)
+	var sorting string
+	cc.Flags().StringVar(&cmd.Sorting, "sorting", sorting, ``)
+}
+
 // Run makes the HTTP request corresponding to the GetMeUserCommand command.
 func (cmd *GetMeUserCommand) Run(c *client.Client, args []string) error {
 	var path string
@@ -680,7 +736,7 @@ func (cmd *UpdateUserCommand) Run(c *client.Client, args []string) error {
 	} else {
 		path = fmt.Sprintf("/users/%v", url.QueryEscape(cmd.UserID))
 	}
-	var payload client.UserPayload
+	var payload client.UpdateUserPayload
 	if cmd.Payload != "" {
 		err := json.Unmarshal([]byte(cmd.Payload), &payload)
 		if err != nil {

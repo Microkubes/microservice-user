@@ -4,9 +4,9 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/Microkubes/user-microservice/design
-// --out=$(GOPATH)/src/github.com/Microkubes/user-microservice
-// --version=v1.3.1
+// --design=github.com/Microkubes/microservice-user/design
+// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
+// --version=v1.3.0
 
 package app
 
@@ -62,6 +62,7 @@ type UserController interface {
 	Find(*FindUserContext) error
 	FindByEmail(*FindByEmailUserContext) error
 	Get(*GetUserContext) error
+	GetAll(*GetAllUserContext) error
 	GetMe(*GetMeUserContext) error
 	ResetVerificationToken(*ResetVerificationTokenUserContext) error
 	Update(*UpdateUserContext) error
@@ -85,7 +86,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*UserPayload)
+			rctx.Payload = rawPayload.(*CreateUserPayload)
 		} else {
 			return goa.MissingPayloadError()
 		}
@@ -157,6 +158,21 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
+		rctx, err := NewGetAllUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetAll(rctx)
+	}
+	service.Mux.Handle("GET", "/users", ctrl.MuxHandler("getAll", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "GetAll", "route", "GET /users")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewGetMeUserContext(ctx, req, service)
 		if err != nil {
 			return err
@@ -199,7 +215,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*UserPayload)
+			rctx.Payload = rawPayload.(*UpdateUserPayload)
 		} else {
 			return goa.MissingPayloadError()
 		}
@@ -226,7 +242,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 
 // unmarshalCreateUserPayload unmarshals the request body into the context request data Payload field.
 func unmarshalCreateUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &userPayload{}
+	payload := &createUserPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}
@@ -287,7 +303,7 @@ func unmarshalResetVerificationTokenUserPayload(ctx context.Context, service *go
 
 // unmarshalUpdateUserPayload unmarshals the request body into the context request data Payload field.
 func unmarshalUpdateUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &userPayload{}
+	payload := &updateUserPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

@@ -3,12 +3,16 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
+	"github.com/JormungandrK/backends"
 	"github.com/Microkubes/microservice-security/auth"
 	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/store"
 	"github.com/goadesign/goa"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Email holds info for the email template
@@ -21,21 +25,44 @@ type Email struct {
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-	collections store.Collections
+	Store store.User
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service, collections store.Collections) *UserController {
+func NewUserController(service *goa.Service, store store.User) *UserController {
 	return &UserController{
-		Controller:  service.NewController("UserController"),
-		collections: collections,
+		Controller: service.NewController("UserController"),
+		Store:      store,
 	}
 }
 
 // Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
+
+	if ctx.Payload.Password == nil && ctx.Payload.ExternalID == nil {
+		return ctx.BadRequest(goa.ErrBadRequest("password or externalID must be specified!"))
+	}
+
 	if len(ctx.Payload.Roles) == 0 {
 		ctx.Payload.Roles = append(ctx.Payload.Roles, "user")
+	}
+
+	// Hashing password
+	if ctx.Payload.Password != nil {
+		hashedPassword, err := stringToBcryptHash(*ctx.Payload.Password)
+		if err != nil {
+			return ctx.InternalServerError(goa.ErrInternal(err))
+		}
+
+		ctx.Payload.Password = &hashedPassword
+	}
+
+	result, err := c.Store.Users.Save(ctx.Payload, nil)
+	if err != nil {
+		if backends.IsErrAlreadyExists(err) || backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	if ctx.Payload.Token == nil {
@@ -43,129 +70,192 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		ctx.Payload.Token = &token
 	}
 
-	id, err := c.collections.Users.CreateUser(ctx.Payload)
-	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		default:
-			return ctx.InternalServerError(err)
-		}
+	tokenPayload := map[string]interface{}{
+		"email": ctx.Payload.Email,
+		"token": ctx.Payload.Token,
 	}
 
-	err = c.collections.Tokens.CreateToken(ctx.Payload)
+	_, err = c.Store.Tokens.Save(&tokenPayload, nil)
 	if err != nil {
 		return ctx.InternalServerError(err)
 	}
 
-	var externalID string
-	if ctx.Payload.ExternalID == nil {
-		externalID = ""
-	} else {
-		externalID = *ctx.Payload.ExternalID
+	user := &app.Users{}
+	if err = backends.MapToInterface(result, user); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	// Define user media type
-	py := &app.Users{
-		ID:            *id,
-		Email:         ctx.Payload.Email,
-		ExternalID:    externalID,
-		Roles:         ctx.Payload.Roles,
-		Organizations: ctx.Payload.Organizations,
-	}
-
-	return ctx.Created(py)
+	return ctx.Created(user)
 }
 
 // Get runs the get action.
 func (c *UserController) Get(ctx *app.GetUserContext) error {
-	// Build the resource using the generated data structure.
-	res := &app.Users{}
+
+	user := &app.Users{}
 
 	// Return one user by id.
-	if err := c.collections.Users.FindByID(ctx.UserID, res); err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("id", ctx.UserID), user); err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	res.ID = ctx.UserID
-
-	return ctx.OK(res)
+	return ctx.OK(user)
 }
 
 // GetMe runs the getMe action.
 // Get the userID from the auth ibject and return the authenticated user
 func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
-	var authObj *auth.Auth
 
-	hasAuth := auth.HasAuth(ctx)
-
-	if hasAuth {
-		authObj = auth.GetAuth(ctx.Context)
-	} else {
-		return ctx.InternalServerError(goa.ErrInternal("Auth has not been set"))
+	if !auth.HasAuth(ctx.Context) {
+		return ctx.InternalServerError(goa.ErrBadRequest("no-auth"))
 	}
 
-	userID := authObj.UserID
-	res := &app.Users{}
+	userID := auth.GetAuth(ctx.Context).UserID
 
-	if err := c.collections.Users.FindByID(userID, res); err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+	user := &app.Users{}
+	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("id", userID), user); err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	res.ID = userID
+	return ctx.OK(user)
+}
 
-	return ctx.OK(res)
+//GetAll retrives all active users
+func (c *UserController) GetAll(ctx *app.GetAllUserContext) error {
+	if !auth.HasAuth(ctx.Context) {
+		return ctx.InternalServerError(goa.ErrBadRequest("no-auth"))
+	}
+
+	order := ""
+	sorting := ""
+	limit := 0
+	offset := 0
+
+	if ctx.Order != nil {
+		order = *ctx.Order
+	}
+
+	if ctx.Offset != nil {
+		offset = *ctx.Offset
+	}
+
+	if ctx.Limit != nil {
+		limit = *ctx.Limit
+	}
+
+	if ctx.Sorting != nil {
+		sorting = *ctx.Sorting
+	}
+
+	var typeHint map[string]interface{}
+	users, err := c.Store.Users.GetAll(backends.NewFilter().Match("active", true), typeHint, order, sorting, limit, offset)
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err.Error()))
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err.Error()))
+	}
+
+	resp, err := json.Marshal(users)
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err.Error()))
+	}
+
+	return ctx.OK(resp)
 }
 
 // Update runs the update action.
 func (c *UserController) Update(ctx *app.UpdateUserContext) error {
-	res, err := c.collections.Users.UpdateUser(ctx.UserID, ctx.Payload)
 
-	if err != nil {
-		e := err.(*goa.ErrorResponse)
+	payload := map[string]interface{}{}
 
-		switch e.Status {
-		case 400:
-			return ctx.BadRequest(err)
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
-		}
+	payload["active"] = ctx.Payload.Active
+
+	if ctx.Payload.Email != nil {
+		payload["email"] = ctx.Payload.Email
+	}
+	if ctx.Payload.ExternalID != nil {
+		payload["externalId"] = ctx.Payload.ExternalID
 	}
 
-	return ctx.OK(res)
+	if ctx.Payload.Password != nil && *ctx.Payload.Password != "" {
+		hashedPassword, err := stringToBcryptHash(*ctx.Payload.Password)
+		if err != nil {
+			return ctx.InternalServerError(goa.ErrInternal(err))
+		}
+		payload["password"] = hashedPassword
+	}
+
+	if ctx.Payload.Roles != nil {
+		payload["roles"] = ctx.Payload.Roles
+	}
+
+	if ctx.Payload.Organizations != nil {
+		payload["organizations"] = ctx.Payload.Organizations
+	}
+
+	if ctx.Payload.Namespaces != nil {
+		payload["namespaces"] = ctx.Payload.Namespaces
+	}
+
+	result, err := c.Store.Users.Save(&payload, backends.NewFilter().Match("id", ctx.UserID))
+
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
+		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	user := &app.Users{}
+	if err = backends.MapToInterface(result, user); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.OK(user)
 }
 
 // Find looks up a user by its email and password. Intended for internal use.
 func (c *UserController) Find(ctx *app.FindUserContext) error {
-	user, err := c.collections.Users.FindByEmailAndPassword(ctx.Payload.Email, ctx.Payload.Password)
-	if err != nil {
+
+	var userData map[string]interface{}
+	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), &userData); err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
+		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	if user == nil {
-		return ctx.NotFound()
+	if _, ok := userData["password"]; !ok {
+		return ctx.NotFound(goa.ErrNotFound("not found"))
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(userData["password"].(string)), []byte(ctx.Payload.Password)); err != nil {
+		fmt.Println(ctx.Payload.Password)
+		return ctx.NotFound(goa.ErrNotFound("not found"))
+	}
+
+	user := &app.Users{}
+	if err := backends.MapToInterface(userData, user); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.OK(user)
@@ -173,16 +263,13 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 
 // FindByEmail looks up a user by its email.
 func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
-	user, err := c.collections.Users.FindByEmail(ctx.Payload.Email)
-	if err != nil {
-		e := err.(*goa.ErrorResponse)
 
-		switch e.Status {
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+	user := &app.Users{}
+	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), user); err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.OK(user)
@@ -191,42 +278,37 @@ func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
 // Verify performs verification of the given token and activates the user for which
 // this activation token was generated.
 func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
-	// Check if user is already activated
-	token := *ctx.Token
-	email, err := c.collections.Tokens.VerifyToken(token)
-	if err != nil {
-		e := err.(*goa.ErrorResponse)
 
-		switch e.Status {
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
-		}
+	if ctx.Token == nil {
+		return ctx.BadRequest(goa.ErrBadRequest("token is missing from the payload"))
 	}
 
-	err = c.collections.Users.ActivateUser(*email)
+	user := &app.Users{}
+	_, err := c.Store.Tokens.GetOne(backends.NewFilter().Match("token", *ctx.Token), user)
 	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	err = c.collections.Tokens.DeleteToken(token)
+	update := map[string]interface{}{
+		"active": true,
+	}
+	_, err = c.Store.Users.Save(&update, backends.NewFilter().Match("email", user.Email))
 	if err != nil {
-		e := err.(*goa.ErrorResponse)
-
-		switch e.Status {
-		case 404:
-			return ctx.NotFound(err)
-		default:
-			return ctx.InternalServerError(err)
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	err = c.Store.Tokens.DeleteOne(backends.NewFilter().Match("token", *ctx.Token))
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	// empty response
@@ -237,13 +319,19 @@ func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 // ResetVerificationToken resets a verification token for a given user (by email). Generates a new value for the token
 // and resets the expiration time for the token.
 func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenUserContext) error {
-	user, err := c.collections.Users.FindByEmail(ctx.Payload.Email)
+
+	user := &app.Users{}
+	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), user)
 	if err != nil {
-		if err.Error() == "user not found" {
-			return ctx.NotFound(err)
+		if backends.IsErrNotFound(err) {
+			return ctx.NotFound(goa.ErrNotFound(err))
 		}
-		return ctx.InternalServerError(err)
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
+
 	if user == nil {
 		return ctx.NotFound(fmt.Errorf("not-found"))
 	}
@@ -252,38 +340,45 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 		return ctx.BadRequest(goa.ErrBadRequest("already active"))
 	}
 
-	if user.ExternalID != "" {
-		return ctx.BadRequest(goa.ErrBadRequest("external-user"))
-	}
-
-	if err := c.collections.Tokens.DeleteUserToken(user.Email); err != nil {
-		return ctx.InternalServerError(err)
+	if err := c.Store.Tokens.DeleteOne(backends.NewFilter().Match("email", ctx.Payload.Email)); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	token := generateToken(42)
 
-	if err := c.collections.Tokens.CreateToken(&app.UserPayload{
-		Active:        false,
-		Email:         user.Email,
-		ExternalID:    &user.ExternalID,
-		Organizations: user.Organizations,
-		Roles:         user.Roles,
-		Token:         &token,
-	}); err != nil {
+	tokenPayload := map[string]interface{}{
+		"email": ctx.Payload.Email,
+		"token": token,
+	}
+
+	result, err := c.Store.Tokens.Save(&tokenPayload, nil)
+	if err != nil {
 		return ctx.InternalServerError(err)
 	}
 
-	return ctx.OK(&app.ResetToken{
-		Email: user.Email,
-		ID:    user.ID,
-		Token: token,
-	})
+	resetToken := &app.ResetToken{}
+	if err = backends.MapToInterface(result, resetToken); err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	return ctx.OK(resetToken)
 }
 
+// generateToken generates random string with length of n
 func generateToken(n int) string {
 	rv := make([]byte, n)
 	if _, err := rand.Reader.Read(rv); err != nil {
 		panic(err)
 	}
 	return base64.URLEncoding.EncodeToString(rv)
+}
+
+// stringToBcryptHash returns the bcrypt hash of the password with the default cost
+func stringToBcryptHash(str string) (string, error) {
+	hashedString, err := bcrypt.GenerateFromPassword([]byte(str), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedString), nil
 }

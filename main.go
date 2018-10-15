@@ -4,13 +4,12 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/JormungandrK/backends"
 	"github.com/Microkubes/microservice-security/chain"
 	"github.com/Microkubes/microservice-security/flow"
 	"github.com/Microkubes/microservice-tools/config"
-	"github.com/Microkubes/microservice-user/app"
-
 	"github.com/Microkubes/microservice-tools/gateway"
-
+	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/store"
 
 	"github.com/goadesign/goa"
@@ -29,7 +28,6 @@ func main() {
 		return
 	}
 
-	//registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
 	registration := gateway.NewKongGateway(serviceConfig.GatewayAdminURL, &http.Client{}, serviceConfig.Service)
 
 	err = registration.SelfRegister()
@@ -54,24 +52,72 @@ func main() {
 
 	service.Use(chain.AsGoaMiddleware(securityChain))
 
+	// Get the db collections/tables
 	dbConf := serviceConfig.DBConfig
-	// Create new session to MongoDB
-	session := store.NewSession(dbConf.Host, dbConf.Username, dbConf.Password, dbConf.DatabaseName)
 
-	// At the end close session
-	defer session.Close()
+	backendManager := backends.NewBackendSupport(map[string]*config.DBInfo{
+		"mongodb":  &dbConf.DBInfo,
+		"dynamodb": &dbConf.DBInfo,
+	})
 
-	// Create users collection and indexes
-	indexes := []string{"email"}
-	usersCollection := store.PrepareDB(session, dbConf.DatabaseName, "users", indexes, false)
-	indexes = []string{"token"}
-	tokensCollection := store.PrepareDB(session, dbConf.DatabaseName, "tokens", indexes, true)
+	backend, err := backendManager.GetBackend(dbConf.DBName)
+	if err != nil {
+		service.LogError("Failed to configure backend. ", err)
+	}
+
+	userRepo, err := backend.DefineRepository("users", backends.RepositoryDefinitionMap{
+		"name": "users",
+		"indexes": []backends.Index{
+			backends.NewUniqueIndex("email"),
+		},
+		"hashKey":       "email",
+		"readCapacity":  int64(5),
+		"writeCapacity": int64(5),
+		"GSI": map[string]interface{}{
+			"email": map[string]interface{}{
+				"readCapacity":  1,
+				"writeCapacity": 1,
+			},
+		},
+	})
+	if err != nil {
+		service.LogError("Failed to get users repo.", err)
+		return
+	}
+
+	tokenRepo, err := backend.DefineRepository("tokens", backends.RepositoryDefinitionMap{
+		"name": "tokens",
+		"indexes": []backends.Index{
+			backends.NewUniqueIndex("token"),
+		},
+		"hashKey":       "token",
+		"readCapacity":  int64(5),
+		"writeCapacity": int64(5),
+		"GSI": map[string]interface{}{
+			"token": map[string]interface{}{
+				"readCapacity":  1,
+				"writeCapacity": 1,
+			},
+		},
+		"enableTtl":    true,
+		"ttlAttribute": "created_at",
+		"ttl":          86400,
+	})
+	if err != nil {
+		service.LogError("Failed to get tokens repo.", err)
+		return
+	}
+
+	store := store.User{
+		Users:  userRepo,
+		Tokens: tokenRepo,
+	}
 
 	// Mount "swagger" controller
 	c1 := NewSwaggerController(service)
 	app.MountSwaggerController(service, c1)
 	// Mount "user" controller
-	c2 := NewUserController(service, store.Collections{Users: &store.UserCollection{Collection: usersCollection}, Tokens: &store.TokenCollection{Collection: tokensCollection}})
+	c2 := NewUserController(service, store)
 	app.MountUserController(service, c2)
 
 	// Start service

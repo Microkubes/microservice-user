@@ -1,243 +1,264 @@
 package store
 
 import (
-	"fmt"
 	"sync"
 
-	"github.com/Microkubes/microservice-user/app"
+	"github.com/JormungandrK/backends"
 	"github.com/goadesign/goa"
+	"github.com/satori/go.uuid"
 )
 
-// DB emulates a database driver using in-memory data structures.
+type MapStore map[string]interface{}
+
+// DB emulatesl a database driver using in-memory data structures.
 type DB struct {
 	sync.Mutex
-	users map[string]*app.UserPayload
+	MapStore
 }
 
+var (
+	BAD_REQUEST    = "bad request"
+	NOT_FOUND      = "not found"
+	INTERNAL_ERROR = "internal server error"
+)
+
 // NewDB initializes a new "DB" with dummy data.
-func NewDB() Collections {
-	roles := []string{"admin", "user"}
-	pass := "pass"
-	extID := "qwerc461f9f8eb02aae053f3"
-	user := &app.UserPayload{
-		Active:     false,
-		Email:      "frieda@oberbrunnerkirlin.name",
-		ExternalID: &extID,
-		Roles:      roles,
-		Password:   &pass,
-	}
-	//return &DB{users: map[string]*app.UserPayload{"5975c461f9f8eb02aae053f3": user}}
-	tokens := TokensMock{
-		Tokens: map[string]*app.UserPayload{},
-	}
-	users := DB{
-		users: map[string]*app.UserPayload{
-			"5975c461f9f8eb02aae053f3": user,
-			"5975c461f9f8eb02aae053f4": &app.UserPayload{
-				Active: false,
-				Email:  "email@example.com",
-				Roles:  []string{"user"},
-			},
-			"5975c461f9f8eb02aae053f5": &app.UserPayload{
-				Active: true,
-				Email:  "already-active@example.com",
-				Roles:  []string{"user"},
+func NewDB() User {
+
+	users := &DB{
+		MapStore: map[string]interface{}{
+			"b8cfa84f-bb6c-4c84-b39b-76dd32653921": map[string]interface{}{
+				"id":         "b8cfa84f-bb6c-4c84-b39b-76dd32653921",
+				"email":      "keitaro-user1@gmail.com",
+				"password":   "keitaro",
+				"externalID": "some-id",
+				"roles":      []string{"user"},
 			},
 		},
 	}
-	colls := Collections{
-		Tokens: &tokens,
-		Users:  &users,
+
+	tokens := &DB{
+		MapStore: map[string]interface{}{
+			"z8cfa84f-bb6c-4c84-b39b-76dd32653999": map[string]interface{}{
+				"id":    "z8cfa84f-bb6c-4c84-b39b-76dd32653999",
+				"email": "keitaro-user1@gmail.com",
+				"token": "sdaewefdc234erfdd123erfdxc23edx",
+			},
+		},
 	}
-	return colls
+
+	return User{
+		Users:  users,
+		Tokens: tokens,
+	}
 }
 
-// Reset removes all entries from the database.
-func (db *DB) Reset() {
-	db.users = make(map[string]*app.UserPayload)
-}
+func (db *DB) GetOne(filter backends.Filter, result interface{}) (interface{}, error) {
 
-// FindByID mock implementation
-func (db *DB) FindByID(userID string, mediaType *app.Users) error {
 	db.Lock()
 	defer db.Unlock()
 
-	if userID == "6975c461f9f8eb02aae053f4" {
-		return goa.ErrInternal("internal server error")
+	if id, ok := filter["id"]; ok {
+		idString := id.(string)
+
+		if idString == "bad-id" {
+			return nil, backends.ErrInvalidInput(BAD_REQUEST)
+		}
+
+		if idString == "internal-err-id" {
+			return nil, backends.ErrBackendError(INTERNAL_ERROR)
+		}
+
+		record, ok := db.MapStore[idString]
+		if !ok {
+			return nil, backends.ErrNotFound(NOT_FOUND)
+		}
+
+		err := backends.MapToInterface(&record, &result)
+		if err != nil {
+			return nil, backends.ErrBackendError(err)
+		}
 	}
 
-	if userID == "fakeobjectidab02aae053f3aasadas" {
-		return goa.ErrBadRequest("invalid user ID")
+	if email, ok := filter["email"]; ok {
+		emailString := email.(string)
+
+		if emailString == "internal-error@example.com" {
+			return nil, backends.ErrBackendError(INTERNAL_ERROR)
+		}
+
+		if emailString == "not-found@gmail.com" {
+			return nil, backends.ErrNotFound(NOT_FOUND)
+		}
+
+		if emailString == "bad@gmail.com" {
+			return nil, backends.ErrInvalidInput(BAD_REQUEST)
+		}
+
+		for _, r := range db.MapStore {
+			record := r.(map[string]interface{})
+
+			if record["email"] == emailString {
+				err := backends.MapToInterface(record, &result)
+				if err != nil {
+					return nil, backends.ErrBackendError(err)
+				}
+
+				break
+			}
+		}
 	}
 
-	if user, ok := db.users[userID]; ok {
-		mediaType.ID = userID
-		mediaType.Email = user.Email
-		mediaType.ExternalID = *user.ExternalID
-		mediaType.Roles = user.Roles
-		mediaType.Active = user.Active
+	if token, ok := filter["token"]; ok {
+		tokenString := token.(string)
+
+		if tokenString == "internal-error-token" {
+			return nil, backends.ErrBackendError(INTERNAL_ERROR)
+		}
+
+		if tokenString == "not-found-token" {
+			return nil, backends.ErrNotFound(NOT_FOUND)
+		}
+
+		for _, r := range db.MapStore {
+			record := r.(map[string]interface{})
+
+			if record["token"] == tokenString {
+				err := backends.MapToInterface(record, &result)
+				if err != nil {
+					return nil, backends.ErrBackendError(err)
+				}
+
+				break
+			}
+		}
+	}
+
+	return result, nil
+}
+
+func (db *DB) GetAll(filter backends.Filter, results interface{}, order string, sorting string, limit int, offset int) (interface{}, error) {
+	if offset > 2 {
+		return nil, backends.ErrNotFound("offset is too high")
+	}
+
+	var users []map[string]interface{}
+	for _, v := range db.MapStore {
+		users = append(users, v.(map[string]interface{}))
+	}
+
+	if len(users) == 0 {
+		return nil, backends.ErrNotFound("Empty users")
+	}
+
+	return users, nil
+}
+
+func (db *DB) Save(object interface{}, filter backends.Filter) (interface{}, error) {
+
+	db.Lock()
+	defer db.Unlock()
+
+	var result interface{}
+
+	payload, err := backends.InterfaceToMap(object)
+	if err != nil {
+		return nil, backends.ErrBackendError(err)
+	}
+
+	if filter == nil {
+
+		if (*payload)["email"] == "internal-error@example.com" {
+			return nil, backends.ErrBackendError(INTERNAL_ERROR)
+		}
+
+		id, err := uuid.NewV4()
+		if err != nil {
+			return nil, goa.ErrInternal(err)
+		}
+
+		(*payload)["id"] = id.String()
+
+		db.MapStore[id.String()] = *payload
 	} else {
-		return goa.ErrNotFound("user not found")
+
+		if id, ok := filter["id"]; ok {
+			idString := id.(string)
+
+			if idString == "bad-id" {
+				return nil, backends.ErrInvalidInput(BAD_REQUEST)
+			}
+
+			if idString == "internal-err-id" {
+				return nil, backends.ErrBackendError(INTERNAL_ERROR)
+			}
+
+			record, ok := db.MapStore[idString]
+			if !ok {
+				return nil, backends.ErrNotFound(NOT_FOUND)
+			}
+
+			updateRecord := record.(map[string]interface{})
+			for k, v := range *payload {
+				updateRecord[k] = v
+			}
+
+			payload = &updateRecord
+		}
+
+		if email, ok := filter["email"]; ok {
+			emailString := email.(string)
+
+			if emailString == "bad-id" {
+				return nil, backends.ErrInvalidInput(BAD_REQUEST)
+			}
+
+			if emailString == "internal-err-id" {
+				return nil, backends.ErrBackendError(INTERNAL_ERROR)
+			}
+
+			for _, r := range db.MapStore {
+				record := r.(map[string]interface{})
+
+				if record["email"] == emailString {
+
+					payload = &record
+					break
+				}
+			}
+		}
+	}
+
+	err = backends.MapToInterface(payload, &result)
+	if err != nil {
+		return nil, backends.ErrBackendError(err)
+	}
+
+	return result, nil
+}
+
+func (db *DB) DeleteOne(filter backends.Filter) error {
+
+	db.Lock()
+	defer db.Unlock()
+
+	if token, ok := filter["token"]; ok {
+		tokenString := token.(string)
+
+		for key, r := range db.MapStore {
+			record := r.(map[string]interface{})
+
+			if record["token"] == tokenString {
+
+				delete(db.MapStore, key)
+				break
+			}
+		}
 	}
 
 	return nil
 }
 
-// CreateUser mock implementation
-func (db *DB) CreateUser(payload *app.UserPayload) (*string, error) {
-	if payload.Password == nil && payload.ExternalID == nil {
-		return nil, goa.ErrBadRequest("password or externalID must be specified!")
-	}
-	if payload.Email == "internal-error@example.com" {
-		return nil, goa.ErrInternal("internal server error")
-	}
-
-	id := "ab75c461f9f8eb02aae058zr"
-	db.users[id] = payload
-
-	return &id, nil
-}
-
-// UpdateUser mock implementation
-func (db *DB) UpdateUser(userID string, payload *app.UserPayload) (*app.Users, error) {
-	if userID == "6975c461f9f8eb02aae053f4" {
-		return nil, goa.ErrInternal("internal server error")
-	}
-	if userID == "fakeobjectidab02aae053f3aasadas" {
-		return nil, goa.ErrBadRequest("invalid user ID")
-	}
-
-	if _, ok := db.users[userID]; ok {
-		db.users[userID] = payload
-		user, _ := db.users[userID]
-		return &app.Users{
-			Active:     user.Active,
-			Email:      user.Email,
-			ExternalID: *user.ExternalID,
-			ID:         userID,
-			Roles:      user.Roles,
-		}, nil
-	}
-	return nil, goa.ErrNotFound("user not found")
-}
-
-// FindByEmailAndPassword mock implementation
-func (db *DB) FindByEmailAndPassword(email, password string) (*app.Users, error) {
-	if email == "email@example.com" && password == "valid-pass" {
-		externalID := "1234"
-		return &app.Users{
-			Active:     true,
-			Email:      "email@example.com",
-			ExternalID: externalID,
-			ID:         "000000000000001",
-			Roles:      []string{"user"},
-		}, nil
-	}
-	if email == "internal-error@example.com" {
-		return nil, fmt.Errorf("Internal server error")
-	}
-	return nil, nil
-}
-
-// FindByEmail mock implementation
-func (db *DB) FindByEmail(email string) (*app.Users, error) {
-	if email == "frieda@oberbrunnerkirlin.name" {
-		externalID := "qwerc461f9f8eb02aae053f3"
-		return &app.Users{
-			Active:     true,
-			Email:      "frieda@oberbrunnerkirlin.name",
-			ExternalID: externalID,
-			ID:         "5975c461f9f8eb02aae053f3",
-			Roles:      []string{"admin", "user"},
-		}, nil
-	}
-	if email == "example@notexists.com" {
-		return nil, goa.ErrNotFound("user not exist")
-	}
-	if email == "example@invalid.com" {
-		return nil, goa.ErrInternal("internal server error")
-	}
-
-	for userID, user := range db.users {
-		exID := ""
-		if user.ExternalID != nil {
-			exID = *user.ExternalID
-		}
-		if user.Email == email {
-			return &app.Users{
-				Active:        user.Active,
-				Email:         user.Email,
-				ExternalID:    exID,
-				ID:            userID,
-				Organizations: user.Organizations,
-				Roles:         user.Roles,
-			}, nil
-		}
-	}
-
-	return nil, nil
-}
-
-// ActivateUser mock activation of a user.
-func (db *DB) ActivateUser(email string) error {
-	if email == "trigger-server-error@example.com" {
-		return goa.ErrInternal("intentional server error")
-	}
-	var user *app.UserPayload
-	for _, u := range db.users {
-		if u.Email == email {
-			user = u
-			break
-		}
-	}
-	if user == nil {
-		return goa.ErrNotFound("not found")
-	}
-	user.Active = true
-	return nil
-}
-
-// TokensMock implements a mock of ITokenCollection.
-type TokensMock struct {
-	Tokens map[string]*app.UserPayload
-}
-
-// CreateToken creates a token entry in the mock.
-func (m *TokensMock) CreateToken(payload *app.UserPayload) error {
-	m.Tokens[*payload.Token] = payload
-	return nil
-}
-
-// VerifyToken performs a mock verification of a token.
-func (m *TokensMock) VerifyToken(token string) (*string, error) {
-	payload, ok := m.Tokens[token]
-	if !ok {
-		return nil, goa.ErrNotFound("not found")
-	}
-	return &payload.Email, nil
-}
-
-// DeleteToken removes a token record from the mock.
-func (m *TokensMock) DeleteToken(token string) error {
-	_, ok := m.Tokens[token]
-	if !ok {
-		return goa.ErrNotFound("not found")
-	}
-	delete(m.Tokens, token)
-	return nil
-}
-
-// DeleteUserToken removes all tooken records from the mock for a user with the given email.
-func (m *TokensMock) DeleteUserToken(email string) error {
-	deleteTokens := []string{}
-	for token, payload := range m.Tokens {
-		if payload.Email == email {
-			deleteTokens = append(deleteTokens, token)
-		}
-	}
-
-	for _, token := range deleteTokens {
-		delete(m.Tokens, token)
-	}
+func (db *DB) DeleteAll(filter backends.Filter) error {
 	return nil
 }

@@ -1,23 +1,27 @@
 {
-  "service":{
+  "service": {
     "name": "microservice-user",
     "port": 8080,
-    "paths": ["/users"],
+    "paths": [
+      "/users"
+    ],
     "virtual_host": "microservice-user.service.consul",
     "weight": 10,
     "slots": 100
   },
   "gatewayUrl": "http://kong:8000",
-  "gatewayAdminUrl": "http://kong-admin:8001",
-  "security":{
+  "gatewayAdminUrl": "http://kong:8001",
+  "security": {
     "keysDir": "/run/secrets",
-    "ignorePatterns": ["/users/verify"],
-    "jwt":{
+    "ignorePatterns": [
+      "/users/verify"
+    ],
+    "jwt": {
       "name": "JWTSecurity",
       "description": "JWT security middleware",
       "tokenUrl": "http://kong:8000/jwt"
     },
-    "saml":{
+    "saml": {
       "certFile": "/run/secrets/service.cert",
       "keyFile": "/run/secrets/service.key",
       "identityProviderUrl": "http://kong:8000/saml/idp",
@@ -25,57 +29,85 @@
       "registrationServiceUrl": "http://kong:8000/users/register",
       "rootURL": "http://localhost:8000/users"
     },
-    "oauth2":{
+    "oauth2": {
       "description": "OAuth2 security middleware",
       "tokenUrl": "https://kong:8000/oauth2/token",
       "authorizeUrl": "https://kong:8000/oauth2/authorize"
     },
     "acl": {
-      "policies":[{
+      "policies": [
+        {
           "id": "users-allow-admin-access",
           "description": "Allows access to everything to an admin user",
-          "resources": ["<.+>"],
-          "actions": ["api:read","api:write"],
+          "resources": [
+            "<.+>"
+          ],
+          "actions": [
+            "api:read",
+            "api:write"
+          ],
           "effect": "allow",
-          "subjects": ["<.+>"],
+          "subjects": [
+            "<.+>"
+          ],
           "conditions": {
             "roles": {
               "type": "RolesCondition",
               "options": {
-                "values": ["admin", "system"]
+                "values": [
+                  "admin",
+                  "system"
+                ]
               }
-             }
+            }
           }
-       },{
-           "id": "users-allow-read-access",
-           "description": "Allows access to user's own profile",
-           "resources": ["/users/me"],
-           "actions": ["api:read"],
-           "effect": "allow",
-           "subjects": ["<.+>"],
-           "conditions": {
-             "roles": {
-               "type": "RolesCondition",
-               "options": {
-                 "values": ["user"]
-               }
+        },
+        {
+          "id": "users-allow-read-access",
+          "description": "Allows access to user's own profile",
+          "resources": [
+            "/users/me"
+          ],
+          "actions": [
+            "api:read"
+          ],
+          "effect": "allow",
+          "subjects": [
+            "<.+>"
+          ],
+          "conditions": {
+            "roles": {
+              "type": "RolesCondition",
+              "options": {
+                "values": [
+                  "user"
+                ]
               }
-           }
-        },{
-            "id": "read-swagger",
-            "description": "Allows to service swagger.",
-            "resources": ["/swagger<.+>"],
-            "actions": ["api:read"],
-            "effect": "allow",
-            "subjects": ["<.+>"]
-         }]
+            }
+          }
+        },
+        {
+          "id": "read-swagger",
+          "description": "Allows to service swagger.",
+          "resources": [
+            "/swagger<.+>"
+          ],
+          "actions": [
+            "api:read"
+          ],
+          "effect": "allow",
+          "subjects": [
+            "<.+>"
+          ]
+        }
+      ]
     }
   },
-  "database":{
+  "database": {
     "dbName": "mongodb",
     "dbInfo": {
-      "credentials": "/full/path/to/aws/credentials",
-      "endpoint": "http://localhost:9000",
+      "credentials": "/run/secrets/aws-credentials",
+      "endpoint": "http://dynamo:8000",
       "awsRegion": "us-east-1",
       "host": "mongo:27017",
       "database": "users",

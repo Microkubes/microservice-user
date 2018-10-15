@@ -4,20 +4,91 @@ consumes:
 - application/gob
 - application/x-gob
 definitions:
+  CreateUserPayload:
+    description: CreateUserPayload
+    example:
+      active: true
+      email: vinnie.d'amore@kessler.net
+      externalId: Voluptatum debitis iusto et.
+      namespaces:
+      - Quo quo amet occaecati ut.
+      - Quo quo amet occaecati ut.
+      - Quo quo amet occaecati ut.
+      organizations:
+      - Deleniti quis et.
+      password: 789xuu49q
+      roles:
+      - Velit quaerat nam velit incidunt sunt.
+      token: Reprehenderit quisquam maxime.
+    properties:
+      active:
+        default: false
+        description: Status of user account
+        example: true
+        type: boolean
+      email:
+        description: Email of user
+        example: vinnie.d'amore@kessler.net
+        format: email
+        type: string
+      externalId:
+        description: External id of user
+        example: Voluptatum debitis iusto et.
+        type: string
+      namespaces:
+        description: List of namespaces this user belongs to
+        example:
+        - Quo quo amet occaecati ut.
+        - Quo quo amet occaecati ut.
+        - Quo quo amet occaecati ut.
+        items:
+          example: Quo quo amet occaecati ut.
+          type: string
+        type: array
+      organizations:
+        description: List of organizations to which this user belongs to
+        example:
+        - Deleniti quis et.
+        items:
+          example: Deleniti quis et.
+          type: string
+        type: array
+      password:
+        description: Password of user
+        example: 789xuu49q
+        maxLength: 30
+        minLength: 6
+        type: string
+      roles:
+        description: Roles of user
+        example:
+        - Velit quaerat nam velit incidunt sunt.
+        items:
+          example: Velit quaerat nam velit incidunt sunt.
+          type: string
+        type: array
+      token:
+        description: Token for email verification
+        example: Reprehenderit quisquam maxime.
+        type: string
+    required:
+    - email
+    title: CreateUserPayload
+    type: object
   Credentials:
     description: Email and password credentials
     example:
-      email: magnus@mckenzie.info
-      password: htvx6y8d3
+      email: myles@mooreschneider.name
+      password: vhhtvx6y8
     properties:
       email:
         description: Email of user
-        example: magnus@mckenzie.info
+        example: myles@mooreschneider.name
         format: email
         type: string
       password:
         description: Password of user
-        example: htvx6y8d3
+        example: vhhtvx6y8
         maxLength: 30
         minLength: 6
         type: string
@@ -29,11 +100,11 @@ definitions:
   EmailPayload:
     description: Email payload
     example:
-      email: tiffany_reilly@rosenbaum.biz
+      email: marianna_hartmann@oreillylebsack.org
     properties:
       email:
         description: Email of user
-        example: tiffany_reilly@rosenbaum.biz
+        example: marianna_hartmann@oreillylebsack.org
         format: email
         type: string
     required:
@@ -43,21 +114,21 @@ definitions:
   ResetToken:
     description: ResetToken media type (default view)
     example:
-      email: Sed provident fugit.
-      id: Dignissimos nisi voluptatum.
-      token: Mollitia sint.
+      email: Provident fugit corrupti dignissimos nisi voluptatum.
+      id: Mollitia sint.
+      token: Officia ipsum voluptatem.
     properties:
       email:
         description: User email
-        example: Sed provident fugit.
+        example: Provident fugit corrupti dignissimos nisi voluptatum.
         type: string
       id:
         description: User ID
-        example: Dignissimos nisi voluptatum.
+        example: Mollitia sint.
         type: string
       token:
         description: New token
-        example: Mollitia sint.
+        example: Officia ipsum voluptatem.
         type: string
     required:
     - id
@@ -65,80 +136,78 @@ definitions:
     - token
     title: 'Mediatype identifier: resettokenmedia; view=default'
     type: object
-  UserPayload:
-    description: UserPayload
+  UpdateUserPayload:
+    description: UpdateUserPayload
     example:
-      active: true
-      email: ollie.hilll@smith.info
-      externalId: Doloremque aut sed ut impedit voluptatum debitis.
+      active: false
+      email: arnold@rueckerlabadie.org
+      externalId: Earum voluptas aperiam nostrum at.
       namespaces:
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
+      - Perferendis quos.
       organizations:
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
-      password: 3v789xuu49
+      - Quidem corrupti reprehenderit sit aut molestiae.
+      - Quidem corrupti reprehenderit sit aut molestiae.
+      - Quidem corrupti reprehenderit sit aut molestiae.
+      password: o6xgbsyo5h
       roles:
-      - Officiis velit quaerat nam velit incidunt.
-      - Officiis velit quaerat nam velit incidunt.
-      - Officiis velit quaerat nam velit incidunt.
-      token: Voluptatem reprehenderit quisquam maxime nam non.
+      - Pariatur consequatur accusantium occaecati sint.
+      - Pariatur consequatur accusantium occaecati sint.
+      - Pariatur consequatur accusantium occaecati sint.
+      token: Ipsam impedit vitae.
     properties:
       active:
         default: false
         description: Status of user account
-        example: true
+        example: false
         type: boolean
       email:
         description: Email of user
-        example: ollie.hilll@smith.info
+        example: arnold@rueckerlabadie.org
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Doloremque aut sed ut impedit voluptatum debitis.
+        example: Earum voluptas aperiam nostrum at.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
+        - Perferendis quos.
         items:
-          example: Placeat reprehenderit similique quo.
+          example: Perferendis quos.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Occaecati ut excepturi et deleniti quis.
-        - Occaecati ut excepturi et deleniti quis.
+        - Quidem corrupti reprehenderit sit aut molestiae.
+        - Quidem corrupti reprehenderit sit aut molestiae.
+        - Quidem corrupti reprehenderit sit aut molestiae.
         items:
-          example: Occaecati ut excepturi et deleniti quis.
+          example: Quidem corrupti reprehenderit sit aut molestiae.
           type: string
         type: array
       password:
         description: Password of user
-        example: 3v789xuu49
+        example: o6xgbsyo5h
         maxLength: 30
         minLength: 6
         type: string
       roles:
         description: Roles of user
         example:
-        - Officiis velit quaerat nam velit incidunt.
-        - Officiis velit quaerat nam velit incidunt.
-        - Officiis velit quaerat nam velit incidunt.
+        - Pariatur consequatur accusantium occaecati sint.
+        - Pariatur consequatur accusantium occaecati sint.
+        - Pariatur consequatur accusantium occaecati sint.
         items:
-          example: Officiis velit quaerat nam velit incidunt.
+          example: Pariatur consequatur accusantium occaecati sint.
           type: string
         type: array
       token:
         description: Token for email verification
-        example: Voluptatem reprehenderit quisquam maxime nam non.
+        example: Ipsam impedit vitae.
         type: string
-    required:
-    - email
-    title: UserPayload
+    title: UpdateUserPayload
     type: object
   error:
     description: Error response media type (default view)
@@ -147,7 +216,7 @@ definitions:
       detail: Value of ID must be an integer
       id: 3F1FKVRR
       meta:
-        timestamp: 1.458609e+09
+        timestamp: 1.458609066e+09
       status: "400"
     properties:
       code:
@@ -168,7 +237,7 @@ definitions:
         description: a meta object containing non-standard meta-information about
           the error.
         example:
-          timestamp: 1.458609e+09
+          timestamp: 1.458609066e+09
         type: object
       status:
         description: the HTTP status code applicable to this problem, expressed as
@@ -182,19 +251,19 @@ definitions:
     example:
       active: true
       email: thad@herman.name
-      externalId: Possimus ullam occaecati quae.
-      id: Rerum aliquid in sit reprehenderit ea.
+      externalId: Ullam occaecati quae odio rerum aliquid in.
+      id: Reprehenderit ea quam optio placeat.
       namespaces:
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
-      - Placeat reprehenderit similique quo.
+      - Quo quo amet occaecati ut.
+      - Quo quo amet occaecati ut.
+      - Quo quo amet occaecati ut.
       organizations:
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
-      - Occaecati ut excepturi et deleniti quis.
+      - Deleniti quis et.
+      - Deleniti quis et.
       roles:
-      - Officiis velit quaerat nam velit incidunt.
-      - Officiis velit quaerat nam velit incidunt.
+      - Velit quaerat nam velit incidunt sunt.
+      - Velit quaerat nam velit incidunt sunt.
+      - Velit quaerat nam velit incidunt sunt.
     properties:
       active:
         default: false
@@ -208,39 +277,39 @@ definitions:
         type: string
       externalId:
         description: External id of user
-        example: Possimus ullam occaecati quae.
+        example: Ullam occaecati quae odio rerum aliquid in.
         type: string
       id:
         description: Unique user ID
-        example: Rerum aliquid in sit reprehenderit ea.
+        example: Reprehenderit ea quam optio placeat.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
-        - Placeat reprehenderit similique quo.
+        - Quo quo amet occaecati ut.
+        - Quo quo amet occaecati ut.
+        - Quo quo amet occaecati ut.
         items:
-          example: Placeat reprehenderit similique quo.
+          example: Quo quo amet occaecati ut.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Occaecati ut excepturi et deleniti quis.
-        - Occaecati ut excepturi et deleniti quis.
-        - Occaecati ut excepturi et deleniti quis.
+        - Deleniti quis et.
+        - Deleniti quis et.
         items:
-          example: Occaecati ut excepturi et deleniti quis.
+          example: Deleniti quis et.
           type: string
         type: array
       roles:
         description: Roles of user
         example:
-        - Officiis velit quaerat nam velit incidunt.
-        - Officiis velit quaerat nam velit incidunt.
+        - Velit quaerat nam velit incidunt sunt.
+        - Velit quaerat nam velit incidunt sunt.
+        - Velit quaerat nam velit incidunt sunt.
         items:
-          example: Officiis velit quaerat nam velit incidunt.
+          example: Velit quaerat nam velit incidunt sunt.
           type: string
         type: array
     required:
@@ -290,16 +359,61 @@ paths:
       - http
       summary: Download swagger/swagger.json
   /users:
+    get:
+      description: Retrieves all active users
+      operationId: user#getAll
+      parameters:
+      - description: Limit users per page
+        in: query
+        name: limit
+        required: false
+        type: integer
+      - description: Number of users to skip
+        in: query
+        name: offset
+        required: false
+        type: integer
+      - description: Order by
+        in: query
+        name: order
+        required: false
+        type: string
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: sorting
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: getAll user
+      tags:
+      - user
     post:
       description: Creates user
       operationId: user#create
       parameters:
-      - description: UserPayload
+      - description: CreateUserPayload
         in: body
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/UserPayload'
+          $ref: '#/definitions/CreateUserPayload'
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.user+json
@@ -365,12 +479,12 @@ paths:
         name: userId
         required: true
         type: string
-      - description: UserPayload
+      - description: UpdateUserPayload
         in: body
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/UserPayload'
+          $ref: '#/definitions/UpdateUserPayload'
       produces:
       - application/vnd.goa.error
       - application/vnd.goa.user+json
@@ -421,6 +535,8 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -543,6 +659,10 @@ paths:
       responses:
         "200":
           description: User is verified
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
         "404":
           description: Not Found
           schema:
@@ -562,12 +682,8 @@ produces:
 - application/gob
 - application/x-gob
 responses:
-  NotFound:
-    description: Not Found
   OK:
     description: OK
-    schema:
-      $ref: '#/definitions/users'
 schemes:
 - http
 swagger: "2.0"
