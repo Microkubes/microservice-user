@@ -106,6 +106,9 @@
   "database": {
     "dbName": "mongodb",
     "dbInfo": {
+      "credentials": "/run/secrets/aws-credentials",
+      "endpoint": "http://dynamo:8000",
+      "awsRegion": "us-east-1",
       "host": "mongo:27017",
       "database": "users",
       "user": "restapi",
