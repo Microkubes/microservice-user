@@ -28,6 +28,7 @@ func main() {
 		return
 	}
 
+	//registration, err := gateway.NewKongGatewayFromConfigFile(gatewayURL, &http.Client{}, configFile)
 	registration := gateway.NewKongGateway(serviceConfig.GatewayAdminURL, &http.Client{}, serviceConfig.Service)
 
 	err = registration.SelfRegister()
@@ -54,6 +55,8 @@ func main() {
 
 	// Get the db collections/tables
 	dbConf := serviceConfig.DBConfig
+	// Create new session to MongoDB
+	session := store.NewSession(dbConf.Host, dbConf.Username, dbConf.Password, dbConf.DatabaseName)
 
 	backendManager := backends.NewBackendSupport(map[string]*config.DBInfo{
 		"mongodb":  &dbConf.DBInfo,

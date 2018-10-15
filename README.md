@@ -59,7 +59,7 @@ go test -v
 
 ## Set up MongoDB
 Create users database with default username and password.
-See: [Set up MongoDB](https://github.com/JormungandrK/jormungandr-infrastructure#mongodb--v346-)
+See: [Set up MongoDB](https://github.com/Microkubes/jormungandr-infrastructure#mongodb--v346-)
 ```
 export MS_DBNAME=users
 ./mongo/run.sh
@@ -77,9 +77,9 @@ First, create a directory for the shh keys:
 mkdir keys
 ```
 
-Find a key that you'll use to acceess JormungandrK organization on github. Then copy the
+Find a key that you'll use to acceess Microkubes organization on github. Then copy the
 private key to the directory you created above. The build would use this key to
-access ```JormungandrK/microservice-tools``` repository.
+access ```Microkubes/microservice-tools``` repository.
 
 ```bash
 cp ~/.ssh/id_rsa keys/
@@ -110,7 +110,7 @@ docker run microservice-user
 
 ## Check if the service is self-registering on Kong Gateway
 
-First make sure you have started Kong. See [Jormungandr Infrastructure](https://github.com/JormungandrK/jormungandr-infrastructure)
+First make sure you have started Kong. See [Jormungandr Infrastructure](https://github.com/Microkubes/jormungandr-infrastructure)
 on how to set up Kong locally.
 
 If you have Kong admin endpoint running on http://localhost:8001 , you're good to go.
