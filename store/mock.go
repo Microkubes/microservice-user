@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/JormungandrK/backends"
@@ -52,13 +51,10 @@ func NewDB() User {
 		Users:  users,
 		Tokens: tokens,
 	}
-	return colls
 }
 
 func (db *DB) GetOne(filter backends.Filter, result interface{}) (interface{}, error) {
 
-// FindByID mock implementation
-func (db *DB) FindByID(userID string, mediaType *app.Users) error {
 	db.Lock()
 	defer db.Unlock()
 
@@ -154,8 +150,6 @@ func (db *DB) GetAll(filter backends.Filter, results interface{}, order string, 
 	if len(users) == 0 {
 		return nil, backends.ErrNotFound("Empty users")
 	}
-	return nil, goa.ErrNotFound("user not found")
-}
 
 	return users, nil
 }
@@ -182,7 +176,6 @@ func (db *DB) Save(object interface{}, filter backends.Filter) (interface{}, err
 		if err != nil {
 			return nil, goa.ErrInternal(err)
 		}
-	}
 
 		(*payload)["id"] = id.String()
 
@@ -240,9 +233,6 @@ func (db *DB) Save(object interface{}, filter backends.Filter) (interface{}, err
 	if err != nil {
 		return nil, backends.ErrBackendError(err)
 	}
-	user.Active = true
-	return nil
-}
 
 	return result, nil
 }
@@ -265,16 +255,7 @@ func (db *DB) DeleteOne(filter backends.Filter) error {
 			}
 		}
 	}
-	return &payload.Email, nil
-}
 
-// DeleteToken removes a token record from the mock.
-func (m *TokensMock) DeleteToken(token string) error {
-	_, ok := m.Tokens[token]
-	if !ok {
-		return goa.ErrNotFound("not found")
-	}
-	delete(m.Tokens, token)
 	return nil
 }
 

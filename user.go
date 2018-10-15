@@ -110,7 +110,6 @@ func (c *UserController) Get(ctx *app.GetUserContext) error {
 // GetMe runs the getMe action.
 // Get the userID from the auth ibject and return the authenticated user
 func (c *UserController) GetMe(ctx *app.GetMeUserContext) error {
-	var authObj *auth.Auth
 
 	if !auth.HasAuth(ctx.Context) {
 		return ctx.InternalServerError(goa.ErrBadRequest("no-auth"))
@@ -179,7 +178,6 @@ func (c *UserController) GetAll(ctx *app.GetAllUserContext) error {
 
 // Update runs the update action.
 func (c *UserController) Update(ctx *app.UpdateUserContext) error {
-	res, err := c.collections.Users.UpdateUser(ctx.UserID, ctx.Payload)
 
 	payload := map[string]interface{}{}
 
@@ -265,9 +263,6 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 
 // FindByEmail looks up a user by its email.
 func (c *UserController) FindByEmail(ctx *app.FindByEmailUserContext) error {
-	user, err := c.collections.Users.FindByEmail(ctx.Payload.Email)
-	if err != nil {
-		e := err.(*goa.ErrorResponse)
 
 	user := &app.Users{}
 	if _, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), user); err != nil {
