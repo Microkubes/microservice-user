@@ -38,7 +38,6 @@ func NewUserController(service *goa.Service, store store.User) *UserController {
 
 // Create runs the create action.
 func (c *UserController) Create(ctx *app.CreateUserContext) error {
-
 	if ctx.Payload.Password == nil && ctx.Payload.ExternalID == nil {
 		return ctx.BadRequest(goa.ErrBadRequest("password or externalID must be specified!"))
 	}
@@ -57,7 +56,25 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		ctx.Payload.Password = &hashedPassword
 	}
 
-	result, err := c.Store.Users.Save(ctx.Payload, nil)
+	user := &store.UserRecord{
+		Active: false,
+		Email:  ctx.Payload.Email,
+		//ExternalID:    ctx.Payload.ExternalID == nil ? "": *ctx.Payload.ExternalID,
+		Namespaces:    ctx.Payload.Namespaces,
+		Organizations: ctx.Payload.Organizations,
+		Password:      *ctx.Payload.Password,
+		Roles:         ctx.Payload.Roles,
+		//Token:         ctx.Payload.Token,
+	}
+
+	if ctx.Payload.ExternalID != nil {
+		user.ExternalID = *ctx.Payload.ExternalID
+	}
+	if ctx.Payload.Token != nil {
+		user.Token = *ctx.Payload.Token
+	}
+
+	result, err := c.Store.Users.Save(user, nil)
 	if err != nil {
 		if backends.IsErrAlreadyExists(err) || backends.IsErrInvalidInput(err) {
 			return ctx.BadRequest(goa.ErrBadRequest(err))
@@ -80,12 +97,7 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	user := &app.Users{}
-	if err = backends.MapToInterface(result, user); err != nil {
-		return ctx.InternalServerError(goa.ErrInternal(err))
-	}
-
-	return ctx.Created(user)
+	return ctx.Created(result.(*store.UserRecord).ToAppUsers())
 }
 
 // Get runs the get action.
