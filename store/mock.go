@@ -180,6 +180,10 @@ func (db *DB) Save(object interface{}, filter backends.Filter) (interface{}, err
 		(*payload)["id"] = id.String()
 
 		db.MapStore[id.String()] = *payload
+		result = &UserRecord{
+			ExternalID: "",
+			Roles:      []string{},
+		}
 	} else {
 
 		if id, ok := filter["id"]; ok {
