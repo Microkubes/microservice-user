@@ -9,6 +9,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install github.com/Microkubes/micro
 ### Main
 FROM alpine:3.7
 
+COPY --from=build /go/src/github.com/Microkubes/microservice-user/config.json /config.json
 COPY --from=build /go/bin/microservice-user /usr/local/bin/microservice-user
 COPY --from=build /etc/ssl/certs /etc/ssl/certs
 
