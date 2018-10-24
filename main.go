@@ -20,7 +20,7 @@ func main() {
 	// Create service
 	service := goa.New("user")
 
-	_, configFile := loadGatewaySettings()
+	gatewayAdminURL, configFile := loadGatewaySettings()
 
 	serviceConfig, err := config.LoadConfig(configFile)
 	if err != nil {
@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	registration := gateway.NewKongGateway(serviceConfig.GatewayAdminURL, &http.Client{}, serviceConfig.Service)
+	registration := gateway.NewKongGateway(gatewayAdminURL, &http.Client{}, serviceConfig.Service)
 
 	err = registration.SelfRegister()
 	if err != nil {
