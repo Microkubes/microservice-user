@@ -113,7 +113,6 @@ var _ = Resource("user", func() {
 		Response("OK", func() {
 			Description("User is verified")
 			Status(200)
-			Media("plain/text")
 		})
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)

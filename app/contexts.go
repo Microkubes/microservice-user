@@ -6,7 +6,7 @@
 // $ goagen
 // --design=github.com/Microkubes/microservice-user/design
 // --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
-// --version=v1.3.1
+// --version=v1.3.0
 
 package app
 
@@ -489,7 +489,7 @@ func NewVerifyUserContext(ctx context.Context, r *http.Request, service *goa.Ser
 // OK sends a HTTP response with status code 200.
 func (ctx *VerifyUserContext) OK(resp []byte) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "plain/text")
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
 	}
 	ctx.ResponseData.WriteHeader(200)
 	_, err := ctx.ResponseData.Write(resp)

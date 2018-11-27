@@ -655,7 +655,7 @@ paths:
         type: string
       produces:
       - application/vnd.goa.error
-      - plain/text
+      - text/plain
       responses:
         "200":
           description: User is verified
