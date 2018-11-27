@@ -6,13 +6,14 @@
 // $ goagen
 // --design=github.com/Microkubes/microservice-user/design
 // --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
-// --version=v1.3.0
+// --version=v1.3.1
 
 package app
 
 import (
 	"context"
 	"github.com/goadesign/goa"
+	"github.com/goadesign/goa/cors"
 	"net/http"
 )
 
@@ -73,6 +74,13 @@ type UserController interface {
 func MountUserController(service *goa.Service, ctrl UserController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/users", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/find", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/find/email", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/:userId", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/me", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/verification/reset", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/verify", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -92,6 +100,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Create(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("POST", "/users", ctrl.MuxHandler("create", h, unmarshalCreateUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "Create", "route", "POST /users")
 
@@ -113,6 +122,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Find(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("POST", "/users/find", ctrl.MuxHandler("find", h, unmarshalFindUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "Find", "route", "POST /users/find")
 
@@ -134,6 +144,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.FindByEmail(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("POST", "/users/find/email", ctrl.MuxHandler("findByEmail", h, unmarshalFindByEmailUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "FindByEmail", "route", "POST /users/find/email")
 
@@ -149,6 +160,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Get(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("GET", "/users/:userId", ctrl.MuxHandler("get", h, nil))
 	service.LogInfo("mount", "ctrl", "User", "action", "Get", "route", "GET /users/:userId")
 
@@ -164,6 +176,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.GetAll(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("GET", "/users", ctrl.MuxHandler("getAll", h, nil))
 	service.LogInfo("mount", "ctrl", "User", "action", "GetAll", "route", "GET /users")
 
@@ -179,6 +192,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.GetMe(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("GET", "/users/me", ctrl.MuxHandler("getMe", h, nil))
 	service.LogInfo("mount", "ctrl", "User", "action", "GetMe", "route", "GET /users/me")
 
@@ -200,6 +214,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.ResetVerificationToken(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("POST", "/users/verification/reset", ctrl.MuxHandler("resetVerificationToken", h, unmarshalResetVerificationTokenUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "ResetVerificationToken", "route", "POST /users/verification/reset")
 
@@ -221,6 +236,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Update(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("PUT", "/users/:userId", ctrl.MuxHandler("update", h, unmarshalUpdateUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "Update", "route", "PUT /users/:userId")
 
@@ -236,8 +252,33 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Verify(rctx)
 	}
+	h = handleUserOrigin(h)
 	service.Mux.Handle("GET", "/users/verify", ctrl.MuxHandler("verify", h, nil))
 	service.LogInfo("mount", "ctrl", "User", "action", "Verify", "route", "GET /users/verify")
+}
+
+// handleUserOrigin applies the CORS response headers corresponding to the origin.
+func handleUserOrigin(h goa.Handler) goa.Handler {
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOrigin(origin, "*") {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Access-Control-Allow-Credentials", "false")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "OPTIONS")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
 }
 
 // unmarshalCreateUserPayload unmarshals the request body into the context request data Payload field.

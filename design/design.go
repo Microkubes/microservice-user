@@ -20,6 +20,11 @@ var _ = Resource("user", func() {
 	BasePath("/users")
 	// Do not setup security here!
 
+	// Allow preflight requests (HTTP OPTIONS)
+	Origin("*", func() {
+		Methods("OPTIONS")
+	})
+
 	// Actions define a single API endpoint
 	Action("create", func() {
 		Description("Creates user")
