@@ -1,7 +1,12 @@
 ### Multi-stage build
-FROM jormungandrk/goa-build as build
+FROM golang:1.10-alpine3.7 as build
 
-RUN apk --update add ca-certificates
+RUN apk --no-cache add git curl openssh
+
+RUN go get -u -v github.com/goadesign/goa/... && \
+    go get -u -v github.com/afex/hystrix-go/hystrix && \
+    go get -u -v github.com/Microkubes/microservice-security/... && \
+    go get -u -v github.com/Microkubes/microservice-tools/...
 
 COPY . /go/src/github.com/Microkubes/microservice-user
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install github.com/Microkubes/microservice-user
