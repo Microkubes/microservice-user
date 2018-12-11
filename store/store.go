@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/JormungandrK/backends"
+	"github.com/Microkubes/backends"
 	"github.com/Microkubes/microservice-user/app"
 )
 

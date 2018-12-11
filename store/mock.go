@@ -3,7 +3,7 @@ package store
 import (
 	"sync"
 
-	"github.com/JormungandrK/backends"
+	"github.com/Microkubes/backends"
 	"github.com/goadesign/goa"
 	"github.com/satori/go.uuid"
 )
