@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/JormungandrK/backends"
+	"github.com/Microkubes/backends"
 	"github.com/Microkubes/microservice-security/auth"
 	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/store"
