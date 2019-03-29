@@ -12,6 +12,8 @@ import (
 	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/store"
 
+	"github.com/Microkubes/microservice-tools/utils/healthcheck"
+	"github.com/Microkubes/microservice-tools/utils/version"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 )
@@ -51,6 +53,10 @@ func main() {
 	service.Use(middleware.Recover())
 
 	service.Use(chain.AsGoaMiddleware(securityChain))
+
+	service.Use(healthcheck.NewCheckMiddleware("/healthcheck"))
+
+	service.Use(version.NewVersionMiddleware(serviceConfig.Version, "/version"))
 
 	// Get the db collections/tables
 	dbConf := serviceConfig.DBConfig
