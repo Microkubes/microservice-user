@@ -137,7 +137,6 @@ var _ = Resource("user", func() {
 		Payload(EmailPayload)
 		Response(OK)
 		Response(BadRequest, ErrorMedia)
-		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
 	Action("forgotPasswordUpdate", func() {

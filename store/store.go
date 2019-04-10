@@ -5,7 +5,7 @@ import (
 	"github.com/Microkubes/microservice-user/app"
 )
 
-type ForgotPasswordTokens struct {
+type FPToken struct {
 	Token   string `form:"token" json:"token" yaml:"token" xml:"token"`
 	ExpDate string `form:"expDate" json:"expDate" yaml:"expDate" xml:"expDate"`
 }
@@ -29,7 +29,7 @@ type UserRecord struct {
 	// Token for email verification
 	Token string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 	// Tokens for forgotten password
-	ForgotPasswordTokens ForgotPasswordTokens `form:"forgotPasswordTokens" json:"forgotPasswordTokens" yaml:"forgotPasswordTokens" xml:"forgotPasswordTokens"`
+	FPToken FPToken `form:"forgotPasswordTokens" json:"forgotPasswordTokens" yaml:"forgotPasswordTokens" xml:"forgotPasswordTokens"`
 }
 
 func (u *UserRecord) ToAppUsers() *app.Users {

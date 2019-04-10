@@ -377,12 +377,33 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 }
 
 func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) error {
+	userRecord := &store.UserRecord{}
+	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), userRecord)
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.OK([]byte{})
+		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+	fpToken := store.FPToken{}
+	fpToken.Token = generateToken(42)
+	fpToken.ExpDate = ""
+	userRecord.FPToken = fpToken
+	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	// TODO: send mail with generated token
 
 	return ctx.OK([]byte{})
-
 }
 
 func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserContext) error {
+	// TODO: implement expire date validator
 	return ctx.OK([]byte{})
 }
 
@@ -393,6 +414,16 @@ func generateToken(n int) string {
 		panic(err)
 	}
 	return base64.URLEncoding.EncodeToString(rv)
+}
+
+func generateExpDate() string {
+	// TODO: implement this
+	return ""
+}
+
+func checkExpDate() string {
+	// TODO: implement this
+	return ""
 }
 
 // stringToBcryptHash returns the bcrypt hash of the password with the default cost
