@@ -131,6 +131,24 @@ var _ = Resource("user", func() {
 		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
+	Action("forgotPassword", func() {
+		Description("Forgot password action (sending email to user with link for resseting password)")
+		Routing(POST("password/forgot"))
+		Payload(EmailPayload)
+		Response(OK)
+		Response(BadRequest, ErrorMedia)
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+	Action("forgotPasswordUpdate", func() {
+		Description("Password token validation & password update")
+		Routing(POST("password/forgot/:forgotPasswordToken"))
+		Payload(ForgotPasswordPayload)
+		Response(OK)
+		Response(BadRequest, ErrorMedia)
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
 })
 
 // UserMedia defines the media type used to render user.
@@ -240,6 +258,19 @@ var EmailPayload = Type("EmailPayload", func() {
 		Format("email")
 	})
 	Required("email")
+})
+
+// ForgotPasswordPayload defines the payload for the password/forgot.
+var ForgotPasswordPayload = Type("ForgotPasswordPayload", func() {
+	Description("Password Reset payload")
+	Attribute("email", String, "Email of user", func() {
+		Format("email")
+	})
+	Attribute("password", String, "New password", func() {
+		MinLength(6)
+		MaxLength(30)
+	})
+	Required("email", "password")
 })
 
 // Swagger UI
