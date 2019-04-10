@@ -5,6 +5,11 @@ import (
 	"github.com/Microkubes/microservice-user/app"
 )
 
+type ForgotPasswordTokens struct {
+	Token   string `form:"token" json:"token" yaml:"token" xml:"token"`
+	ExpDate string `form:"expDate" json:"expDate" yaml:"expDate" xml:"expDate"`
+}
+
 type UserRecord struct {
 	ID string `json:"id" bson:"_id"`
 	// Status of user account
@@ -23,6 +28,8 @@ type UserRecord struct {
 	Roles []string `form:"roles,omitempty" json:"roles,omitempty" yaml:"roles,omitempty" xml:"roles,omitempty"`
 	// Token for email verification
 	Token string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
+	// Tokens for forgotten password
+	ForgotPasswordTokens ForgotPasswordTokens `form:"forgotPasswordTokens" json:"forgotPasswordTokens" yaml:"forgotPasswordTokens" xml:"forgotPasswordTokens"`
 }
 
 func (u *UserRecord) ToAppUsers() *app.Users {

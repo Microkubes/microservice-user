@@ -376,6 +376,16 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 	return ctx.OK(resetToken)
 }
 
+func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) error {
+
+	return ctx.OK([]byte{})
+
+}
+
+func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserContext) error {
+	return ctx.OK([]byte{})
+}
+
 // generateToken generates random string with length of n
 func generateToken(n int) string {
 	rv := make([]byte, n)

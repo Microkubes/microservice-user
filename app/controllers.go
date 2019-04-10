@@ -6,7 +6,7 @@
 // $ goagen
 // --design=github.com/Microkubes/microservice-user/design
 // --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
-// --version=v1.3.0
+// --version=v1.3.1
 
 package app
 
@@ -62,6 +62,8 @@ type UserController interface {
 	Create(*CreateUserContext) error
 	Find(*FindUserContext) error
 	FindByEmail(*FindByEmailUserContext) error
+	ForgotPassword(*ForgotPasswordUserContext) error
+	ForgotPasswordUpdate(*ForgotPasswordUpdateUserContext) error
 	Get(*GetUserContext) error
 	GetAll(*GetAllUserContext) error
 	GetMe(*GetMeUserContext) error
@@ -77,6 +79,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	service.Mux.Handle("OPTIONS", "/users", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/find", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/find/email", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/password/forgot", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/password/forgot/:forgotPasswordToken", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/:userId", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/me", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/verification/reset", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
@@ -147,6 +151,50 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	h = handleUserOrigin(h)
 	service.Mux.Handle("POST", "/users/find/email", ctrl.MuxHandler("findByEmail", h, unmarshalFindByEmailUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "FindByEmail", "route", "POST /users/find/email")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewForgotPasswordUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*EmailPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.ForgotPassword(rctx)
+	}
+	h = handleUserOrigin(h)
+	service.Mux.Handle("POST", "/users/password/forgot", ctrl.MuxHandler("forgotPassword", h, unmarshalForgotPasswordUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "ForgotPassword", "route", "POST /users/password/forgot")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewForgotPasswordUpdateUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*ForgotPasswordPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.ForgotPasswordUpdate(rctx)
+	}
+	h = handleUserOrigin(h)
+	service.Mux.Handle("POST", "/users/password/forgot/:forgotPasswordToken", ctrl.MuxHandler("forgotPasswordUpdate", h, unmarshalForgotPasswordUpdateUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "ForgotPasswordUpdate", "route", "POST /users/password/forgot/:forgotPasswordToken")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -315,6 +363,36 @@ func unmarshalFindUserPayload(ctx context.Context, service *goa.Service, req *ht
 // unmarshalFindByEmailUserPayload unmarshals the request body into the context request data Payload field.
 func unmarshalFindByEmailUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &emailPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalForgotPasswordUserPayload unmarshals the request body into the context request data Payload field.
+func unmarshalForgotPasswordUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &emailPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalForgotPasswordUpdateUserPayload unmarshals the request body into the context request data Payload field.
+func unmarshalForgotPasswordUpdateUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &forgotPasswordPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

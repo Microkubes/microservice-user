@@ -111,6 +111,28 @@ definitions:
     - email
     title: EmailPayload
     type: object
+  ForgotPasswordPayload:
+    description: Password Reset payload
+    example:
+      email: delaney@ziemeruecker.com
+      password: vmrl0fmhxw
+    properties:
+      email:
+        description: Email of user
+        example: delaney@ziemeruecker.com
+        format: email
+        type: string
+      password:
+        description: New password
+        example: vmrl0fmhxw
+        maxLength: 30
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    title: ForgotPasswordPayload
+    type: object
   ResetToken:
     description: ResetToken media type (default view)
     example:
@@ -140,20 +162,19 @@ definitions:
     description: UpdateUserPayload
     example:
       active: false
-      email: arnold@rueckerlabadie.org
-      externalId: Earum voluptas aperiam nostrum at.
+      email: declan_kling@jastspencer.biz
+      externalId: Et inventore ex inventore id eligendi.
       namespaces:
-      - Perferendis quos.
+      - Eveniet doloribus minus laudantium rerum soluta unde.
+      - Eveniet doloribus minus laudantium rerum soluta unde.
       organizations:
-      - Quidem corrupti reprehenderit sit aut molestiae.
-      - Quidem corrupti reprehenderit sit aut molestiae.
-      - Quidem corrupti reprehenderit sit aut molestiae.
-      password: o6xgbsyo5h
+      - Assumenda ut quam in dolorem.
+      password: xebiep2s
       roles:
-      - Pariatur consequatur accusantium occaecati sint.
-      - Pariatur consequatur accusantium occaecati sint.
-      - Pariatur consequatur accusantium occaecati sint.
-      token: Ipsam impedit vitae.
+      - Eius consequatur ratione ratione eligendi.
+      - Eius consequatur ratione ratione eligendi.
+      - Eius consequatur ratione ratione eligendi.
+      token: Enim quod autem sit sit.
     properties:
       active:
         default: false
@@ -162,50 +183,49 @@ definitions:
         type: boolean
       email:
         description: Email of user
-        example: arnold@rueckerlabadie.org
+        example: declan_kling@jastspencer.biz
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Earum voluptas aperiam nostrum at.
+        example: Et inventore ex inventore id eligendi.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Perferendis quos.
+        - Eveniet doloribus minus laudantium rerum soluta unde.
+        - Eveniet doloribus minus laudantium rerum soluta unde.
         items:
-          example: Perferendis quos.
+          example: Eveniet doloribus minus laudantium rerum soluta unde.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Quidem corrupti reprehenderit sit aut molestiae.
-        - Quidem corrupti reprehenderit sit aut molestiae.
-        - Quidem corrupti reprehenderit sit aut molestiae.
+        - Assumenda ut quam in dolorem.
         items:
-          example: Quidem corrupti reprehenderit sit aut molestiae.
+          example: Assumenda ut quam in dolorem.
           type: string
         type: array
       password:
         description: Password of user
-        example: o6xgbsyo5h
+        example: xebiep2s
         maxLength: 30
         minLength: 6
         type: string
       roles:
         description: Roles of user
         example:
-        - Pariatur consequatur accusantium occaecati sint.
-        - Pariatur consequatur accusantium occaecati sint.
-        - Pariatur consequatur accusantium occaecati sint.
+        - Eius consequatur ratione ratione eligendi.
+        - Eius consequatur ratione ratione eligendi.
+        - Eius consequatur ratione ratione eligendi.
         items:
-          example: Pariatur consequatur accusantium occaecati sint.
+          example: Eius consequatur ratione ratione eligendi.
           type: string
         type: array
       token:
         description: Token for email verification
-        example: Ipsam impedit vitae.
+        example: Enim quod autem sit sit.
         type: string
     title: UpdateUserPayload
     type: object
@@ -216,7 +236,7 @@ definitions:
       detail: Value of ID must be an integer
       id: 3F1FKVRR
       meta:
-        timestamp: 1.458609066e+09
+        timestamp: 1458609066
       status: "400"
     properties:
       code:
@@ -237,7 +257,7 @@ definitions:
         description: a meta object containing non-standard meta-information about
           the error.
         example:
-          timestamp: 1.458609066e+09
+          timestamp: 1458609066
         type: object
       status:
         description: the HTTP status code applicable to this problem, expressed as
@@ -605,6 +625,79 @@ paths:
       schemes:
       - http
       summary: getMe user
+      tags:
+      - user
+  /users/password/forgot:
+    post:
+      description: Forgot password action (sending email to user with link for resseting
+        password)
+      operationId: user#forgotPassword
+      parameters:
+      - description: Email payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/EmailPayload'
+      produces:
+      - application/vnd.goa.error
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: forgotPassword user
+      tags:
+      - user
+  /users/password/forgot/{forgotPasswordToken}:
+    post:
+      description: Password token validation & password update
+      operationId: user#forgotPasswordUpdate
+      parameters:
+      - in: path
+        name: forgotPasswordToken
+        required: true
+        type: string
+      - description: Password Reset payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/ForgotPasswordPayload'
+      produces:
+      - application/vnd.goa.error
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: forgotPasswordUpdate user
       tags:
       - user
   /users/verification/reset:

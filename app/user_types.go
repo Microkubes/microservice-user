@@ -6,7 +6,7 @@
 // $ goagen
 // --design=github.com/Microkubes/microservice-user/design
 // --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
-// --version=v1.3.0
+// --version=v1.3.1
 
 package app
 
@@ -252,6 +252,80 @@ func (ut *EmailPayload) Validate() (err error) {
 	}
 	if err2 := goa.ValidateFormat(goa.FormatEmail, ut.Email); err2 != nil {
 		err = goa.MergeErrors(err, goa.InvalidFormatError(`type.email`, ut.Email, goa.FormatEmail, err2))
+	}
+	return
+}
+
+// Password Reset payload
+type forgotPasswordPayload struct {
+	// Email of user
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
+	// New password
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
+}
+
+// Validate validates the forgotPasswordPayload type instance.
+func (ut *forgotPasswordPayload) Validate() (err error) {
+	if ut.Email == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "email"))
+	}
+	if ut.Password == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "password"))
+	}
+	if ut.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
+			err = goa.MergeErrors(err, goa.InvalidFormatError(`request.email`, *ut.Email, goa.FormatEmail, err2))
+		}
+	}
+	if ut.Password != nil {
+		if utf8.RuneCountInString(*ut.Password) < 6 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 6, true))
+		}
+	}
+	if ut.Password != nil {
+		if utf8.RuneCountInString(*ut.Password) > 30 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 30, false))
+		}
+	}
+	return
+}
+
+// Publicize creates ForgotPasswordPayload from forgotPasswordPayload
+func (ut *forgotPasswordPayload) Publicize() *ForgotPasswordPayload {
+	var pub ForgotPasswordPayload
+	if ut.Email != nil {
+		pub.Email = *ut.Email
+	}
+	if ut.Password != nil {
+		pub.Password = *ut.Password
+	}
+	return &pub
+}
+
+// Password Reset payload
+type ForgotPasswordPayload struct {
+	// Email of user
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
+	// New password
+	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
+}
+
+// Validate validates the ForgotPasswordPayload type instance.
+func (ut *ForgotPasswordPayload) Validate() (err error) {
+	if ut.Email == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "email"))
+	}
+	if ut.Password == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "password"))
+	}
+	if err2 := goa.ValidateFormat(goa.FormatEmail, ut.Email); err2 != nil {
+		err = goa.MergeErrors(err, goa.InvalidFormatError(`type.email`, ut.Email, goa.FormatEmail, err2))
+	}
+	if utf8.RuneCountInString(ut.Password) < 6 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.password`, ut.Password, utf8.RuneCountInString(ut.Password), 6, true))
+	}
+	if utf8.RuneCountInString(ut.Password) > 30 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.password`, ut.Password, utf8.RuneCountInString(ut.Password), 30, false))
 	}
 	return
 }

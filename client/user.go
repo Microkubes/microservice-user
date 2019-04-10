@@ -6,7 +6,7 @@
 // $ goagen
 // --design=github.com/Microkubes/microservice-user/design
 // --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
-// --version=v1.3.0
+// --version=v1.3.1
 
 package client
 
@@ -148,6 +148,93 @@ func (c *Client) NewFindByEmailUserRequest(ctx context.Context, path string, pay
 	return req, nil
 }
 
+// ForgotPasswordUserPath computes a request path to the forgotPassword action of user.
+func ForgotPasswordUserPath() string {
+
+	return fmt.Sprintf("/users/password/forgot")
+}
+
+// Forgot password action (sending email to user with link for resseting password)
+func (c *Client) ForgotPasswordUser(ctx context.Context, path string, payload *EmailPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewForgotPasswordUserRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewForgotPasswordUserRequest create the request corresponding to the forgotPassword action endpoint of the user resource.
+func (c *Client) NewForgotPasswordUserRequest(ctx context.Context, path string, payload *EmailPayload, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("POST", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
+	return req, nil
+}
+
+// ForgotPasswordUpdateUserPath computes a request path to the forgotPasswordUpdate action of user.
+func ForgotPasswordUpdateUserPath(forgotPasswordToken string) string {
+	param0 := forgotPasswordToken
+
+	return fmt.Sprintf("/users/password/forgot/%s", param0)
+}
+
+// Password token validation & password update
+func (c *Client) ForgotPasswordUpdateUser(ctx context.Context, path string, payload *ForgotPasswordPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewForgotPasswordUpdateUserRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewForgotPasswordUpdateUserRequest create the request corresponding to the forgotPasswordUpdate action endpoint of the user resource.
+func (c *Client) NewForgotPasswordUpdateUserRequest(ctx context.Context, path string, payload *ForgotPasswordPayload, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("POST", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
+	return req, nil
+}
+
 // GetUserPath computes a request path to the get action of user.
 func GetUserPath(userID string) string {
 	param0 := userID
@@ -202,12 +289,12 @@ func (c *Client) NewGetAllUserRequest(ctx context.Context, path string, limit *i
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	if limit != nil {
-		tmp10 := strconv.Itoa(*limit)
-		values.Set("limit", tmp10)
+		tmp12 := strconv.Itoa(*limit)
+		values.Set("limit", tmp12)
 	}
 	if offset != nil {
-		tmp11 := strconv.Itoa(*offset)
-		values.Set("offset", tmp11)
+		tmp13 := strconv.Itoa(*offset)
+		values.Set("offset", tmp13)
 	}
 	if order != nil {
 		values.Set("order", *order)

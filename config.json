@@ -9,25 +9,25 @@
     "weight": 10,
     "slots": 100
   },
-  "gatewayUrl": "http://kong:8000",
-  "gatewayAdminUrl": "http://kong:8001",
+  "gatewayUrl": "http://localhost:8000",
+  "gatewayAdminUrl": "http://localhost:8001",
   "version": "v1.0.1-beta",
   "security": {
-    "keysDir": "/run/secrets",
+    "keysDir": "/home/kalevski/keitaro/microkubes/docker/keys",
     "ignorePatterns": [
       "/users/verify"
     ],
     "jwt": {
       "name": "JWTSecurity",
       "description": "JWT security middleware",
-      "tokenUrl": "http://kong:8000/jwt"
+      "tokenUrl": "http://localhost:8000/jwt"
     },
     "saml": {
-      "certFile": "/run/secrets/service.cert",
-      "keyFile": "/run/secrets/service.key",
-      "identityProviderUrl": "http://kong:8000/saml/idp",
-      "userServiceUrl": "http://kong:8000/users",
-      "registrationServiceUrl": "http://kong:8000/users/register",
+      "certFile": "/home/kalevski/keitaro/microkubes/docker/keys/service.cert",
+      "keyFile": "/home/kalevski/keitaro/microkubes/docker/keys/service.key",
+      "identityProviderUrl": "http://localhost:8000/saml/idp",
+      "userServiceUrl": "http://localhost:8000/users",
+      "registrationServiceUrl": "http://localhost:8000/users/register",
       "rootURL": "http://localhost:8000/users"
     },
     "oauth2": {
@@ -107,10 +107,10 @@
   "database": {
     "dbName": "mongodb",
     "dbInfo": {
-      "credentials": "/run/secrets/aws-credentials",
+      "credentials": "/home/kalevski/keitaro/microkubes/docker/keys/aws-credentials",
       "endpoint": "http://dynamo:8000",
       "awsRegion": "us-east-1",
-      "host": "mongo:27017",
+      "host": "localhost:27017",
       "database": "users",
       "user": "restapi",
       "pass": "restapi"
