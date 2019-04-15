@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/Microkubes/backends"
 	"github.com/Microkubes/microservice-security/auth"
@@ -397,13 +399,31 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
+	fmt.Println("sending mail... (NOT IMPLMENETED)" + fpToken.Token)
 	// TODO: send mail with generated token
 
 	return ctx.OK([]byte{})
 }
 
 func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserContext) error {
-	// TODO: implement expire date validator
+	userRecord := &store.UserRecord{}
+	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), userRecord)
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.OK([]byte{})
+		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+	if userRecord.FPToken.Token != ctx.Payload.Token {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
+	if !checkExpDate(userRecord.FPToken.ExpDate) {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
+
 	return ctx.OK([]byte{})
 }
 
@@ -417,13 +437,19 @@ func generateToken(n int) string {
 }
 
 func generateExpDate() string {
-	// TODO: implement this
-	return ""
+	validTime := 60 * 24 // 1 day valid time
+	time := int(time.Now().UTC().Unix()/60) + validTime
+	return strconv.Itoa(time)
 }
 
-func checkExpDate() string {
-	// TODO: implement this
-	return ""
+func checkExpDate(expDate string) bool {
+	if expDateParsed, err := strconv.Atoi(expDate); err != nil {
+		currentTime := int(time.Now().UTC().Unix() / 60)
+		if expDateParsed < currentTime {
+			return true
+		}
+	}
+	return false
 }
 
 // stringToBcryptHash returns the bcrypt hash of the password with the default cost

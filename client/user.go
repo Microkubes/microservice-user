@@ -192,10 +192,9 @@ func (c *Client) NewForgotPasswordUserRequest(ctx context.Context, path string, 
 }
 
 // ForgotPasswordUpdateUserPath computes a request path to the forgotPasswordUpdate action of user.
-func ForgotPasswordUpdateUserPath(forgotPasswordToken string) string {
-	param0 := forgotPasswordToken
+func ForgotPasswordUpdateUserPath() string {
 
-	return fmt.Sprintf("/users/password/forgot/%s", param0)
+	return fmt.Sprintf("/users/password/update")
 }
 
 // Password token validation & password update

@@ -195,14 +195,6 @@ func (ctx *ForgotPasswordUserContext) BadRequest(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ForgotPasswordUserContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *ForgotPasswordUserContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -216,8 +208,7 @@ type ForgotPasswordUpdateUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ForgotPasswordToken string
-	Payload             *ForgotPasswordPayload
+	Payload *ForgotPasswordPayload
 }
 
 // NewForgotPasswordUpdateUserContext parses the incoming request URL and body, performs validations and creates the
@@ -229,11 +220,6 @@ func NewForgotPasswordUpdateUserContext(ctx context.Context, r *http.Request, se
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ForgotPasswordUpdateUserContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramForgotPasswordToken := req.Params["forgotPasswordToken"]
-	if len(paramForgotPasswordToken) > 0 {
-		rawForgotPasswordToken := paramForgotPasswordToken[0]
-		rctx.ForgotPasswordToken = rawForgotPasswordToken
-	}
 	return &rctx, err
 }
 

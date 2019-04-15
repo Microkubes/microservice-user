@@ -141,7 +141,7 @@ var _ = Resource("user", func() {
 	})
 	Action("forgotPasswordUpdate", func() {
 		Description("Password token validation & password update")
-		Routing(POST("password/forgot/:forgotPasswordToken"))
+		Routing(POST("password/update"))
 		Payload(ForgotPasswordPayload)
 		Response(OK)
 		Response(BadRequest, ErrorMedia)
@@ -262,20 +262,22 @@ var EmailPayload = Type("EmailPayload", func() {
 // ForgotPasswordPayload defines the payload for the password/forgot.
 var ForgotPasswordPayload = Type("ForgotPasswordPayload", func() {
 	Description("Password Reset payload")
-	Attribute("email", String, "Email of user", func() {
+	Attribute("email", String, "Email of the user", func() {
 		Format("email")
 	})
 	Attribute("password", String, "New password", func() {
 		MinLength(6)
 		MaxLength(30)
 	})
-	Required("email", "password")
+	Attribute("token", String, "Forgot password token")
+	Required("email", "password", "token")
 })
 
 // Swagger UI
 var _ = Resource("swagger", func() {
 	Description("The API swagger specification")
 
+	BasePath("/users")
 	Files("swagger.json", "swagger/swagger.json")
 	Files("swagger-ui/*filepath", "swagger-ui/dist")
 })

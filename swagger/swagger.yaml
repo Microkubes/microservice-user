@@ -116,9 +116,10 @@ definitions:
     example:
       email: delaney@ziemeruecker.com
       password: vmrl0fmhxw
+      token: Quidem corrupti reprehenderit sit aut molestiae.
     properties:
       email:
-        description: Email of user
+        description: Email of the user
         example: delaney@ziemeruecker.com
         format: email
         type: string
@@ -128,9 +129,14 @@ definitions:
         maxLength: 30
         minLength: 6
         type: string
+      token:
+        description: Forgot password token
+        example: Quidem corrupti reprehenderit sit aut molestiae.
+        type: string
     required:
     - email
     - password
+    - token
     title: ForgotPasswordPayload
     type: object
   ResetToken:
@@ -162,19 +168,19 @@ definitions:
     description: UpdateUserPayload
     example:
       active: false
-      email: declan_kling@jastspencer.biz
-      externalId: Et inventore ex inventore id eligendi.
+      email: isaac@mclaughlin.net
+      externalId: Eveniet doloribus minus laudantium rerum soluta unde.
       namespaces:
-      - Eveniet doloribus minus laudantium rerum soluta unde.
-      - Eveniet doloribus minus laudantium rerum soluta unde.
-      organizations:
       - Assumenda ut quam in dolorem.
-      password: xebiep2s
+      organizations:
+      - Voluptatum rem eos voluptatibus.
+      - Voluptatum rem eos voluptatibus.
+      password: 2s23h8wwm4
       roles:
-      - Eius consequatur ratione ratione eligendi.
-      - Eius consequatur ratione ratione eligendi.
-      - Eius consequatur ratione ratione eligendi.
-      token: Enim quod autem sit sit.
+      - Autem sit sit inventore neque qui.
+      - Autem sit sit inventore neque qui.
+      - Autem sit sit inventore neque qui.
+      token: Voluptas cumque.
     properties:
       active:
         default: false
@@ -183,49 +189,49 @@ definitions:
         type: boolean
       email:
         description: Email of user
-        example: declan_kling@jastspencer.biz
+        example: isaac@mclaughlin.net
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Et inventore ex inventore id eligendi.
+        example: Eveniet doloribus minus laudantium rerum soluta unde.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
-        example:
-        - Eveniet doloribus minus laudantium rerum soluta unde.
-        - Eveniet doloribus minus laudantium rerum soluta unde.
-        items:
-          example: Eveniet doloribus minus laudantium rerum soluta unde.
-          type: string
-        type: array
-      organizations:
-        description: List of organizations to which this user belongs to
         example:
         - Assumenda ut quam in dolorem.
         items:
           example: Assumenda ut quam in dolorem.
           type: string
         type: array
+      organizations:
+        description: List of organizations to which this user belongs to
+        example:
+        - Voluptatum rem eos voluptatibus.
+        - Voluptatum rem eos voluptatibus.
+        items:
+          example: Voluptatum rem eos voluptatibus.
+          type: string
+        type: array
       password:
         description: Password of user
-        example: xebiep2s
+        example: 2s23h8wwm4
         maxLength: 30
         minLength: 6
         type: string
       roles:
         description: Roles of user
         example:
-        - Eius consequatur ratione ratione eligendi.
-        - Eius consequatur ratione ratione eligendi.
-        - Eius consequatur ratione ratione eligendi.
+        - Autem sit sit inventore neque qui.
+        - Autem sit sit inventore neque qui.
+        - Autem sit sit inventore neque qui.
         items:
-          example: Eius consequatur ratione ratione eligendi.
+          example: Autem sit sit inventore neque qui.
           type: string
         type: array
       token:
         description: Token for email verification
-        example: Enim quod autem sit sit.
+        example: Voluptas cumque.
         type: string
     title: UpdateUserPayload
     type: object
@@ -649,10 +655,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -662,15 +664,11 @@ paths:
       summary: forgotPassword user
       tags:
       - user
-  /users/password/forgot/{forgotPasswordToken}:
+  /users/password/update:
     post:
       description: Password token validation & password update
       operationId: user#forgotPasswordUpdate
       parameters:
-      - in: path
-        name: forgotPasswordToken
-        required: true
-        type: string
       - description: Password Reset payload
         in: body
         name: payload

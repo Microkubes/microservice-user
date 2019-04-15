@@ -258,10 +258,12 @@ func (ut *EmailPayload) Validate() (err error) {
 
 // Password Reset payload
 type forgotPasswordPayload struct {
-	// Email of user
+	// Email of the user
 	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// New password
 	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
+	// Forgot password token
+	Token *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 }
 
 // Validate validates the forgotPasswordPayload type instance.
@@ -271,6 +273,9 @@ func (ut *forgotPasswordPayload) Validate() (err error) {
 	}
 	if ut.Password == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "password"))
+	}
+	if ut.Token == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "token"))
 	}
 	if ut.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
@@ -299,15 +304,20 @@ func (ut *forgotPasswordPayload) Publicize() *ForgotPasswordPayload {
 	if ut.Password != nil {
 		pub.Password = *ut.Password
 	}
+	if ut.Token != nil {
+		pub.Token = *ut.Token
+	}
 	return &pub
 }
 
 // Password Reset payload
 type ForgotPasswordPayload struct {
-	// Email of user
+	// Email of the user
 	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 	// New password
 	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
+	// Forgot password token
+	Token string `form:"token" json:"token" yaml:"token" xml:"token"`
 }
 
 // Validate validates the ForgotPasswordPayload type instance.
@@ -317,6 +327,9 @@ func (ut *ForgotPasswordPayload) Validate() (err error) {
 	}
 	if ut.Password == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "password"))
+	}
+	if ut.Token == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "token"))
 	}
 	if err2 := goa.ValidateFormat(goa.FormatEmail, ut.Email); err2 != nil {
 		err = goa.MergeErrors(err, goa.InvalidFormatError(`type.email`, ut.Email, goa.FormatEmail, err2))

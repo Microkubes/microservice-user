@@ -59,10 +59,9 @@ type (
 
 	// ForgotPasswordUpdateUserCommand is the command line data structure for the forgotPasswordUpdate action of user
 	ForgotPasswordUpdateUserCommand struct {
-		Payload             string
-		ContentType         string
-		ForgotPasswordToken string
-		PrettyPrint         bool
+		Payload     string
+		ContentType string
+		PrettyPrint bool
 	}
 
 	// GetUserCommand is the command line data structure for the get action of user
@@ -228,7 +227,7 @@ Payload example:
 	}
 	tmp5 := new(ForgotPasswordUpdateUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/password/forgot/FORGOTPASSWORDTOKEN"]`,
+		Use:   `user ["/users/password/update"]`,
 		Short: ``,
 		Long: `
 
@@ -236,7 +235,8 @@ Payload example:
 
 {
    "email": "delaney@ziemeruecker.com",
-   "password": "vmrl0fmhxw"
+   "password": "vmrl0fmhxw",
+   "token": "Quidem corrupti reprehenderit sit aut molestiae."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -321,22 +321,22 @@ Payload example:
 
 {
    "active": false,
-   "email": "declan_kling@jastspencer.biz",
-   "externalId": "Et inventore ex inventore id eligendi.",
+   "email": "isaac@mclaughlin.net",
+   "externalId": "Eveniet doloribus minus laudantium rerum soluta unde.",
    "namespaces": [
-      "Eveniet doloribus minus laudantium rerum soluta unde.",
-      "Eveniet doloribus minus laudantium rerum soluta unde."
-   ],
-   "organizations": [
       "Assumenda ut quam in dolorem."
    ],
-   "password": "xebiep2s",
-   "roles": [
-      "Eius consequatur ratione ratione eligendi.",
-      "Eius consequatur ratione ratione eligendi.",
-      "Eius consequatur ratione ratione eligendi."
+   "organizations": [
+      "Voluptatum rem eos voluptatibus.",
+      "Voluptatum rem eos voluptatibus."
    ],
-   "token": "Enim quod autem sit sit."
+   "password": "2s23h8wwm4",
+   "roles": [
+      "Autem sit sit inventore neque qui.",
+      "Autem sit sit inventore neque qui.",
+      "Autem sit sit inventore neque qui."
+   ],
+   "token": "Voluptas cumque."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp10.Run(c, args) },
 	}
@@ -709,7 +709,7 @@ func (cmd *ForgotPasswordUpdateUserCommand) Run(c *client.Client, args []string)
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/users/password/forgot/%v", url.QueryEscape(cmd.ForgotPasswordToken))
+		path = "/users/password/update"
 	}
 	var payload client.ForgotPasswordPayload
 	if cmd.Payload != "" {
@@ -734,8 +734,6 @@ func (cmd *ForgotPasswordUpdateUserCommand) Run(c *client.Client, args []string)
 func (cmd *ForgotPasswordUpdateUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var forgotPasswordToken string
-	cc.Flags().StringVar(&cmd.ForgotPasswordToken, "forgotPasswordToken", forgotPasswordToken, ``)
 }
 
 // Run makes the HTTP request corresponding to the GetUserCommand command.
