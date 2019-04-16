@@ -10,6 +10,7 @@ import (
 
 	"github.com/Microkubes/backends"
 	"github.com/Microkubes/microservice-security/auth"
+	"github.com/Microkubes/microservice-tools/rabbitmq"
 	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/store"
 	"github.com/goadesign/goa"
@@ -27,7 +28,8 @@ type Email struct {
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-	Store store.User
+	Store           store.User
+	ChannelRabbitMQ rabbitmq.Channel
 }
 
 // NewUserController creates a user controller.
@@ -400,12 +402,17 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	fmt.Println("sending mail... (NOT IMPLMENETED)" + fpToken.Token)
-	// TODO: send mail with generated token
+	fmt.Println("sending mail... TOKEN:" + fpToken.Token)
+
+	if err := c.ChannelRabbitMQ.Send("verification-email", []byte(fpToken.Token)); err != nil {
+		c.Service.LogError("User: failed to serialize token.", "err", err.Error())
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
 
 	return ctx.OK([]byte{})
 }
 
+// ForgotPasswordUpdate endpoint for changing old password with new one
 func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserContext) error {
 	userRecord := &store.UserRecord{}
 	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), userRecord)
