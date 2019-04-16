@@ -227,7 +227,7 @@ Payload example:
 	}
 	tmp5 := new(ForgotPasswordUpdateUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/password/update"]`,
+		Use:   `user ["/users/password/forgot"]`,
 		Short: ``,
 		Long: `
 
@@ -709,7 +709,7 @@ func (cmd *ForgotPasswordUpdateUserCommand) Run(c *client.Client, args []string)
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/password/update"
+		path = "/users/password/forgot"
 	}
 	var payload client.ForgotPasswordPayload
 	if cmd.Payload != "" {

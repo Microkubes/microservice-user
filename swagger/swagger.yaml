@@ -664,8 +664,7 @@ paths:
       summary: forgotPassword user
       tags:
       - user
-  /users/password/update:
-    post:
+    put:
       description: Password token validation & password update
       operationId: user#forgotPasswordUpdate
       parameters:

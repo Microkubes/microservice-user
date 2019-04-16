@@ -1098,9 +1098,9 @@ func ForgotPasswordUpdateUserBadRequest(t goatest.TInterface, ctx context.Contex
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/update"),
+		Path: fmt.Sprintf("/users/password/forgot"),
 	}
-	req, _err := http.NewRequest("POST", u.String(), nil)
+	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
 		panic("invalid test " + _err.Error()) // bug
 	}
@@ -1177,9 +1177,9 @@ func ForgotPasswordUpdateUserInternalServerError(t goatest.TInterface, ctx conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/update"),
+		Path: fmt.Sprintf("/users/password/forgot"),
 	}
-	req, _err := http.NewRequest("POST", u.String(), nil)
+	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
 		panic("invalid test " + _err.Error()) // bug
 	}
@@ -1256,9 +1256,9 @@ func ForgotPasswordUpdateUserNotFound(t goatest.TInterface, ctx context.Context,
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/update"),
+		Path: fmt.Sprintf("/users/password/forgot"),
 	}
-	req, _err := http.NewRequest("POST", u.String(), nil)
+	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
 		panic("invalid test " + _err.Error()) // bug
 	}
@@ -1335,9 +1335,9 @@ func ForgotPasswordUpdateUserOK(t goatest.TInterface, ctx context.Context, servi
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/update"),
+		Path: fmt.Sprintf("/users/password/forgot"),
 	}
-	req, _err := http.NewRequest("POST", u.String(), nil)
+	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
 		panic("invalid test " + _err.Error()) // bug
 	}

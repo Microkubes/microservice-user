@@ -141,7 +141,7 @@ var _ = Resource("user", func() {
 	})
 	Action("forgotPasswordUpdate", func() {
 		Description("Password token validation & password update")
-		Routing(POST("password/update"))
+		Routing(PUT("password/forgot"))
 		Payload(ForgotPasswordPayload)
 		Response(OK)
 		Response(BadRequest, ErrorMedia)

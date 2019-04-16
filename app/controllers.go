@@ -80,7 +80,6 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	service.Mux.Handle("OPTIONS", "/users/find", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/find/email", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/password/forgot", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/users/password/update", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/:userId", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/me", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/verification/reset", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
@@ -193,8 +192,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		return ctrl.ForgotPasswordUpdate(rctx)
 	}
 	h = handleUserOrigin(h)
-	service.Mux.Handle("POST", "/users/password/update", ctrl.MuxHandler("forgotPasswordUpdate", h, unmarshalForgotPasswordUpdateUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "ForgotPasswordUpdate", "route", "POST /users/password/update")
+	service.Mux.Handle("PUT", "/users/password/forgot", ctrl.MuxHandler("forgotPasswordUpdate", h, unmarshalForgotPasswordUpdateUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "ForgotPasswordUpdate", "route", "PUT /users/password/forgot")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

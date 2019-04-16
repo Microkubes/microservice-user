@@ -378,6 +378,7 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 	return ctx.OK(resetToken)
 }
 
+// ForgotPassword is used for verifying user and sending mail with generated token
 func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) error {
 	userRecord := &store.UserRecord{}
 	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), userRecord)

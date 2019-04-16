@@ -194,7 +194,7 @@ func (c *Client) NewForgotPasswordUserRequest(ctx context.Context, path string, 
 // ForgotPasswordUpdateUserPath computes a request path to the forgotPasswordUpdate action of user.
 func ForgotPasswordUpdateUserPath() string {
 
-	return fmt.Sprintf("/users/password/update")
+	return fmt.Sprintf("/users/password/forgot")
 }
 
 // Password token validation & password update
@@ -221,7 +221,7 @@ func (c *Client) NewForgotPasswordUpdateUserRequest(ctx context.Context, path st
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	req, err := http.NewRequest("POST", u.String(), &body)
+	req, err := http.NewRequest("PUT", u.String(), &body)
 	if err != nil {
 		return nil, err
 	}
