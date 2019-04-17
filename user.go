@@ -395,19 +395,19 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 	}
 	fpToken := store.FPToken{}
 	fpToken.Token = generateToken(42)
-	fpToken.ExpDate = ""
+	fpToken.ExpDate = generateExpDate()
 	userRecord.FPToken = fpToken
 	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	fmt.Println("sending mail... TOKEN:" + fpToken.Token)
+	fmt.Println("sending mail... TOKEN: " + fpToken.Token)
 
-	if err := c.ChannelRabbitMQ.Send("verification-email", []byte(fpToken.Token)); err != nil {
-		c.Service.LogError("User: failed to serialize token.", "err", err.Error())
-		return ctx.InternalServerError(goa.ErrInternal(err))
-	}
+	// if err := c.ChannelRabbitMQ.Send("verification-email", []byte(fpToken.Token)); err != nil {
+	// 	c.Service.LogError("User: failed to serialize token.", "err", err.Error())
+	// 	return ctx.InternalServerError(goa.ErrInternal(err))
+	// }
 
 	return ctx.OK([]byte{})
 }
@@ -425,12 +425,17 @@ func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserC
 		}
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
+
 	if userRecord.FPToken.Token != ctx.Payload.Token {
+		fmt.Println("Wrong token", userRecord.FPToken.Token, "!==", ctx.Payload.Token)
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
 	if !checkExpDate(userRecord.FPToken.ExpDate) {
+		fmt.Println("Expired Token")
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
+
+	fmt.Println("Change password!")
 
 	return ctx.OK([]byte{})
 }
@@ -451,11 +456,16 @@ func generateExpDate() string {
 }
 
 func checkExpDate(expDate string) bool {
-	if expDateParsed, err := strconv.Atoi(expDate); err != nil {
-		currentTime := int(time.Now().UTC().Unix() / 60)
-		if expDateParsed < currentTime {
-			return true
-		}
+	fmt.Println(expDate)
+	expDateParsed, err := strconv.Atoi(expDate)
+	if err != nil {
+		return false
+	}
+	currentTime := int(time.Now().UTC().Unix() / 60)
+	fmt.Println("expDate:", expDateParsed)
+	fmt.Println("current:", currentTime)
+	if expDateParsed > currentTime {
+		return true
 	}
 	return false
 }
