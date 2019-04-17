@@ -433,7 +433,16 @@ func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserC
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
 
-	// TODO: generate hash from password and save to database
+	hashedPassword, err := stringToBcryptHash(ctx.Payload.Password)
+	if err != nil {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
+
+	userRecord.Password = hashedPassword
+	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
 
 	return ctx.OK([]byte{})
 }
