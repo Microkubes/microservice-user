@@ -427,15 +427,13 @@ func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserC
 	}
 
 	if userRecord.FPToken.Token != ctx.Payload.Token {
-		fmt.Println("Wrong token", userRecord.FPToken.Token, "!==", ctx.Payload.Token)
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
 	if !checkExpDate(userRecord.FPToken.ExpDate) {
-		fmt.Println("Expired Token")
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
 
-	fmt.Println("Change password!")
+	// TODO: generate hash from password and save to database
 
 	return ctx.OK([]byte{})
 }
@@ -462,8 +460,6 @@ func checkExpDate(expDate string) bool {
 		return false
 	}
 	currentTime := int(time.Now().UTC().Unix() / 60)
-	fmt.Println("expDate:", expDateParsed)
-	fmt.Println("current:", currentTime)
 	if expDateParsed > currentTime {
 		return true
 	}
