@@ -16,7 +16,7 @@
     "keysDir": "/run/secrets",
     "ignorePatterns": [
       "/users/verify",
-      "/users/password/reset"
+      "/users/password/forgot"
     ],
     "jwt": {
       "name": "JWTSecurity",
