@@ -465,7 +465,9 @@ func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserC
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
 
+	userRecord.FPToken.ExpDate = "0"
 	userRecord.Password = hashedPassword
+
 	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
