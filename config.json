@@ -117,13 +117,6 @@
       "pass": "restapi"
     }
   },
-  "mail": {
-		"host": "fakesmtp",
-		"port": "1025",
-		"user": "fake@email.com",
-		"password": "password",
-		"email": "dev@microkubes.org"
-	},
 	"rabbitmq": {
 		"username": "guest",
 		"password": "guest",

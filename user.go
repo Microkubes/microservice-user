@@ -25,6 +25,15 @@ type Email struct {
 	Token string `json:"token,omitempty"`
 }
 
+// TODO: sadsad
+type EmailInfo struct {
+	ID       string `json:"id,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Template string `json:"template,omitempty"`
+	Email    string `json:"email,omitempty"`
+	Token    string `json:"token,omitempty"`
+}
+
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
@@ -33,10 +42,11 @@ type UserController struct {
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service, store store.User) *UserController {
+func NewUserController(service *goa.Service, store store.User, rmqChannel rabbitmq.Channel) *UserController {
 	return &UserController{
-		Controller: service.NewController("UserController"),
-		Store:      store,
+		Controller:      service.NewController("UserController"),
+		Store:           store,
+		ChannelRabbitMQ: rmqChannel,
 	}
 }
 
@@ -254,6 +264,7 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 		if backends.IsErrNotFound(err) {
 			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+
 		if backends.IsErrInvalidInput(err) {
 			return ctx.BadRequest(goa.ErrBadRequest(err))
 		}
@@ -404,10 +415,14 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 
 	fmt.Println("sending mail... TOKEN: " + fpToken.Token)
 
-	// if err := c.ChannelRabbitMQ.Send("verification-email", []byte(fpToken.Token)); err != nil {
-	// 	c.Service.LogError("User: failed to serialize token.", "err", err.Error())
-	// 	return ctx.InternalServerError(goa.ErrInternal(err))
-	// }
+	if c.ChannelRabbitMQ != nil {
+
+		// if err := c.ChannelRabbitMQ.Send("verification-email", []byte(fpToken.Token)); err != nil {
+		// 	c.Service.LogError("User: failed to serialize token.", "err", err.Error())
+		// 	return ctx.InternalServerError(goa.ErrInternal(err))
+		// }
+
+	}
 
 	return ctx.OK([]byte{})
 }
