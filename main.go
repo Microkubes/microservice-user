@@ -182,7 +182,7 @@ func openRabbitMQChannel(svc *config.ServiceConfig) (rabbitmq.Channel, error) {
 		return nil, nil
 	}
 	fmt.Println(svc.RabbitMQ)
-	connRabbitMQ, channelRabbitMQ, err := rabbitmq.Dial(
+	_, channelRabbitMQ, err := rabbitmq.Dial(
 		svc.RabbitMQ["username"],
 		svc.RabbitMQ["password"],
 		svc.RabbitMQ["host"],
@@ -191,9 +191,6 @@ func openRabbitMQChannel(svc *config.ServiceConfig) (rabbitmq.Channel, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	defer connRabbitMQ.Close()
-	defer channelRabbitMQ.Close()
 
 	return &rabbitmq.AMQPChannel{
 		Channel: channelRabbitMQ,

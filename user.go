@@ -417,11 +417,23 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 
 	if c.ChannelRabbitMQ != nil {
 
-		// if err := c.ChannelRabbitMQ.Send("verification-email", []byte(fpToken.Token)); err != nil {
-		// 	c.Service.LogError("User: failed to serialize token.", "err", err.Error())
-		// 	return ctx.InternalServerError(goa.ErrInternal(err))
-		// }
+		emailInfo := EmailInfo{
+			ID:       userRecord.ID,
+			Name:     "User",
+			Email:    userRecord.Email,
+			Token:    fpToken.Token,
+			Template: "Forgot Password",
+		}
 
+		body, err := json.Marshal(emailInfo)
+		if err != nil {
+			c.Service.LogError("User: failed to serialize emailInfo.", "err", err.Error())
+		}
+
+		if err := c.ChannelRabbitMQ.Send("verification-email", body); err != nil {
+			c.Service.LogError("User: failed to send message on rabbitMQ.", "err", err.Error())
+			return ctx.InternalServerError(goa.ErrInternal(err))
+		}
 	}
 
 	return ctx.OK([]byte{})
