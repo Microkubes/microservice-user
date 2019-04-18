@@ -25,7 +25,7 @@ type Email struct {
 	Token string `json:"token,omitempty"`
 }
 
-// TODO: sadsad
+// EmailInfo holds data for "verification-email" RabbitMQ channel
 type EmailInfo struct {
 	ID       string `json:"id,omitempty"`
 	Name     string `json:"name,omitempty"`
