@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/Microkubes/microservice-security/auth"
 	"github.com/Microkubes/microservice-user/app"
@@ -271,7 +273,6 @@ func TestVerifyUserNotFound(t *testing.T) {
 
 func TestVerifyUserInternalServerError(t *testing.T) {
 	token := internalErrToken
-
 	test.VerifyUserInternalServerError(t, context.Background(), service, ctrl, &token)
 }
 
@@ -280,6 +281,28 @@ func TestGenerateToken(t *testing.T) {
 
 	if len(token) != 56 {
 		t.Errorf("Expected token length was 56, got %d", len(token))
+	}
+}
+
+func TestGenerateExpDate(t *testing.T) {
+	expDate := generateExpDate()
+	time := strconv.Itoa(int(time.Now().UTC().Unix()/60) + (60 * 24))
+	if len(expDate) != len(time) {
+		t.Errorf("expDate wrong format")
+	}
+	if expDate != time {
+		t.Error("expDate value is not expected value")
+	}
+}
+
+func TestCheckExpDate(t *testing.T) {
+	expDate := strconv.Itoa(int(time.Now().UTC().Unix()/60) + (60 * 24))
+	if !checkExpDate(expDate) {
+		t.Errorf("expDate is expired, Expected value: [true]")
+	}
+	expDate = strconv.Itoa(int(time.Now().UTC().Unix()/60) - (60 * 24))
+	if checkExpDate(expDate) {
+		t.Errorf("expDate is not expired, Expected value [false]")
 	}
 }
 
