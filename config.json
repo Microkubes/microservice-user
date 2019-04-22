@@ -15,7 +15,8 @@
   "security": {
     "keysDir": "/run/secrets",
     "ignorePatterns": [
-      "/users/verify"
+      "/users/verify",
+      "/users/password/forgot"
     ],
     "jwt": {
       "name": "JWTSecurity",
@@ -115,5 +116,11 @@
       "user": "restapi",
       "pass": "restapi"
     }
-  }
+  },
+	"rabbitmq": {
+		"username": "guest",
+		"password": "guest",
+		"host": "rabbitmq",
+		"port": "5672"
+	}
 }

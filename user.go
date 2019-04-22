@@ -5,9 +5,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/Microkubes/backends"
 	"github.com/Microkubes/microservice-security/auth"
+	"github.com/Microkubes/microservice-tools/rabbitmq"
 	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/store"
 	"github.com/goadesign/goa"
@@ -22,17 +25,28 @@ type Email struct {
 	Token string `json:"token,omitempty"`
 }
 
+// EmailInfo holds data for "verification-email" RabbitMQ channel
+type EmailInfo struct {
+	ID       string `json:"id,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Template string `json:"template,omitempty"`
+	Email    string `json:"email,omitempty"`
+	Token    string `json:"token,omitempty"`
+}
+
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-	Store store.User
+	Store           store.User
+	ChannelRabbitMQ rabbitmq.Channel
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service *goa.Service, store store.User) *UserController {
+func NewUserController(service *goa.Service, store store.User, rmqChannel rabbitmq.Channel) *UserController {
 	return &UserController{
-		Controller: service.NewController("UserController"),
-		Store:      store,
+		Controller:      service.NewController("UserController"),
+		Store:           store,
+		ChannelRabbitMQ: rmqChannel,
 	}
 }
 
@@ -250,6 +264,7 @@ func (c *UserController) Find(ctx *app.FindUserContext) error {
 		if backends.IsErrNotFound(err) {
 			return ctx.NotFound(goa.ErrNotFound(err))
 		}
+
 		if backends.IsErrInvalidInput(err) {
 			return ctx.BadRequest(goa.ErrBadRequest(err))
 		}
@@ -376,6 +391,91 @@ func (c *UserController) ResetVerificationToken(ctx *app.ResetVerificationTokenU
 	return ctx.OK(resetToken)
 }
 
+// ForgotPassword is used for verifying user and sending mail with generated token
+func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) error {
+	userRecord := &store.UserRecord{}
+	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), userRecord)
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.OK([]byte{})
+		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+	fpToken := store.FPToken{}
+	fpToken.Token = generateToken(42)
+	fpToken.ExpDate = generateExpDate()
+	userRecord.FPToken = fpToken
+	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	fmt.Println("sending mail... TOKEN: " + fpToken.Token)
+
+	if c.ChannelRabbitMQ != nil {
+
+		emailInfo := EmailInfo{
+			ID:       userRecord.ID,
+			Name:     "User",
+			Email:    userRecord.Email,
+			Token:    fpToken.Token,
+			Template: "Forgot Password",
+		}
+
+		body, err := json.Marshal(emailInfo)
+		if err != nil {
+			c.Service.LogError("User: failed to serialize emailInfo.", "err", err.Error())
+		}
+
+		if err := c.ChannelRabbitMQ.Send("verification-email", body); err != nil {
+			c.Service.LogError("User: failed to send message on rabbitMQ.", "err", err.Error())
+			return ctx.InternalServerError(goa.ErrInternal(err))
+		}
+	}
+
+	return ctx.OK([]byte{})
+}
+
+// ForgotPasswordUpdate endpoint for changing old password with new one
+func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserContext) error {
+	userRecord := &store.UserRecord{}
+	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), userRecord)
+	if err != nil {
+		if backends.IsErrNotFound(err) {
+			return ctx.OK([]byte{})
+		}
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	if userRecord.FPToken.Token != ctx.Payload.Token {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
+	if !checkExpDate(userRecord.FPToken.ExpDate) {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
+
+	hashedPassword, err := stringToBcryptHash(ctx.Payload.Password)
+	if err != nil {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
+
+	userRecord.FPToken.ExpDate = "0"
+	userRecord.Password = hashedPassword
+
+	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.OK([]byte{})
+}
+
 // generateToken generates random string with length of n
 func generateToken(n int) string {
 	rv := make([]byte, n)
@@ -383,6 +483,25 @@ func generateToken(n int) string {
 		panic(err)
 	}
 	return base64.URLEncoding.EncodeToString(rv)
+}
+
+func generateExpDate() string {
+	validTime := 60 * 24 // 1 day valid time
+	time := int(time.Now().UTC().Unix()/60) + validTime
+	return strconv.Itoa(time)
+}
+
+func checkExpDate(expDate string) bool {
+	fmt.Println(expDate)
+	expDateParsed, err := strconv.Atoi(expDate)
+	if err != nil {
+		return false
+	}
+	currentTime := int(time.Now().UTC().Unix() / 60)
+	if expDateParsed > currentTime {
+		return true
+	}
+	return false
 }
 
 // stringToBcryptHash returns the bcrypt hash of the password with the default cost

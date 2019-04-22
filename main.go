@@ -1,15 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/Microkubes/microservice-tools/rabbitmq"
 
 	"github.com/Microkubes/backends"
 	"github.com/Microkubes/microservice-security/chain"
 	"github.com/Microkubes/microservice-security/flow"
-	"github.com/Microkubes/microservice-tools/config"
+	stdconfig "github.com/Microkubes/microservice-tools/config"
 	"github.com/Microkubes/microservice-tools/gateway"
 	"github.com/Microkubes/microservice-user/app"
+	"github.com/Microkubes/microservice-user/config"
 	"github.com/Microkubes/microservice-user/store"
 
 	"github.com/Microkubes/microservice-tools/utils/healthcheck"
@@ -23,8 +27,8 @@ func main() {
 	service := goa.New("user")
 
 	gatewayAdminURL, configFile := loadGatewaySettings()
-
-	serviceConfig, err := config.LoadConfig(configFile)
+	serviceConfig := &config.ServiceConfig{}
+	err := stdconfig.LoadConfigAs(configFile, serviceConfig)
 	if err != nil {
 		service.LogError("config", "err", err)
 		return
@@ -39,7 +43,7 @@ func main() {
 
 	defer registration.Unregister()
 
-	securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig)
+	securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig.ToStandardConfig())
 	if err != nil {
 		panic(err)
 	}
@@ -61,7 +65,7 @@ func main() {
 	// Get the db collections/tables
 	dbConf := serviceConfig.DBConfig
 
-	backendManager := backends.NewBackendSupport(map[string]*config.DBInfo{
+	backendManager := backends.NewBackendSupport(map[string]*stdconfig.DBInfo{
 		"mongodb":  &dbConf.DBInfo,
 		"dynamodb": &dbConf.DBInfo,
 	})
@@ -114,6 +118,11 @@ func main() {
 		return
 	}
 
+	rmqChannel, err := openRabbitMQChannel(serviceConfig)
+	if err != nil {
+		service.LogError("Failed setup messaging channel.", err)
+	}
+
 	store := store.User{
 		Users:  userRepo,
 		Tokens: tokenRepo,
@@ -123,7 +132,7 @@ func main() {
 	c1 := NewSwaggerController(service)
 	app.MountSwaggerController(service, c1)
 	// Mount "user" controller
-	c2 := NewUserController(service, store)
+	c2 := NewUserController(service, store, rmqChannel)
 	app.MountUserController(service, c2)
 
 	// Start service
@@ -166,4 +175,24 @@ func loadGatewaySettings() (string, string) {
 	}
 
 	return gatewayURL, serviceConfigFile
+}
+
+func openRabbitMQChannel(svc *config.ServiceConfig) (rabbitmq.Channel, error) {
+	if svc.RabbitMQ == nil { // don't set up messaging channel if not configured.
+		return nil, nil
+	}
+	fmt.Println(svc.RabbitMQ)
+	_, channelRabbitMQ, err := rabbitmq.Dial(
+		svc.RabbitMQ["username"],
+		svc.RabbitMQ["password"],
+		svc.RabbitMQ["host"],
+		svc.RabbitMQ["post"],
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &rabbitmq.AMQPChannel{
+		Channel: channelRabbitMQ,
+	}, nil
 }
