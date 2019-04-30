@@ -11,7 +11,7 @@
   },
   "gatewayUrl": "http://kong:8000",
   "gatewayAdminUrl": "http://kong:8001",
-  "version": "v1.0.1-beta",
+  "version": "v1.1.0-beta",
   "security": {
     "keysDir": "/run/secrets",
     "ignorePatterns": [
