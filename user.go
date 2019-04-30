@@ -25,13 +25,11 @@ type Email struct {
 	Token string `json:"token,omitempty"`
 }
 
-// EmailInfo holds data for "verification-email" RabbitMQ channel
-type EmailInfo struct {
-	ID       string `json:"id,omitempty"`
-	Name     string `json:"name,omitempty"`
-	Template string `json:"template,omitempty"`
-	Email    string `json:"email,omitempty"`
-	Token    string `json:"token,omitempty"`
+// AMQPMessage holds data for "email-queue" AMQP channel
+type AMQPMessage struct {
+	Email        string            `json:"email,omitempty"`
+	Data         map[string]string `json:"data,omitempty"`
+	TemplateName string            `json:"template,omitempty"`
 }
 
 // UserController implements the user resource.
@@ -413,29 +411,26 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	fmt.Println("sending mail... TOKEN: " + fpToken.Token)
-
 	if c.ChannelRabbitMQ != nil {
-
-		emailInfo := EmailInfo{
-			ID:       userRecord.ID,
-			Name:     "User",
-			Email:    userRecord.Email,
-			Token:    fpToken.Token,
-			Template: "Forgot Password",
+		messageData := map[string]string{
+			"name":  "User",
+			"token": fpToken.Token,
 		}
+		amqpMessage := AMQPMessage{
+			Email:        userRecord.Email,
+			Data:         messageData,
+			TemplateName: "forgotPassword",
+		}
+		body, err := json.Marshal(amqpMessage)
 
-		body, err := json.Marshal(emailInfo)
 		if err != nil {
-			c.Service.LogError("User: failed to serialize emailInfo.", "err", err.Error())
+			c.Service.LogError("User: failed to serialize AMQPMessage.", "err", err.Error())
 		}
-
-		if err := c.ChannelRabbitMQ.Send("verification-email", body); err != nil {
-			c.Service.LogError("User: failed to send message on rabbitMQ.", "err", err.Error())
+		if err := c.ChannelRabbitMQ.Send("email-queue", body); err != nil {
+			c.Service.LogError("User: failed to send message on AMQP Channel.", "err", err.Error())
 			return ctx.InternalServerError(goa.ErrInternal(err))
 		}
 	}
-
 	return ctx.OK([]byte{})
 }
 
