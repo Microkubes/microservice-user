@@ -8,7 +8,7 @@ import (
 
 	"github.com/Microkubes/microservice-user/client"
 	"github.com/Microkubes/microservice-user/tool/cli"
-	goaclient "github.com/goadesign/goa/client"
+	goaclient "github.com/keitaroinc/goa/client"
 	"github.com/spf13/cobra"
 )
 

@@ -13,7 +13,7 @@ import (
 	"github.com/Microkubes/microservice-tools/rabbitmq"
 	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/store"
-	"github.com/goadesign/goa"
+	"github.com/keitaroinc/goa"
 
 	"golang.org/x/crypto/bcrypt"
 )
