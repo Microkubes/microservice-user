@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/Microkubes/backends"
-	"github.com/goadesign/goa"
+	"github.com/keitaroinc/goa"
 	"github.com/satori/go.uuid"
 )
 

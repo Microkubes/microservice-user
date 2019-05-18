@@ -10,7 +10,7 @@ import (
 	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/app/test"
 	"github.com/Microkubes/microservice-user/store"
-	"github.com/goadesign/goa"
+	"github.com/keitaroinc/goa"
 )
 
 var db = store.NewDB()
