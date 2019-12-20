@@ -30,6 +30,10 @@ type UserRecord struct {
 	Token string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
 	// Tokens for forgotten password
 	FPToken FPToken `form:"forgotPasswordTokens" json:"forgotPasswordTokens" yaml:"forgotPasswordTokens" xml:"forgotPasswordTokens"`
+	// Time of creating
+	CreatedAt int64 `json:"createdAt,omitempty" bson:"createdAt"`
+	// Time of modifying
+	ModifiedAt int64 `json:"modifiedAt,omitempty" bson:"modifiedAt"`
 }
 
 func (u *UserRecord) ToAppUsers() *app.Users {

@@ -12,6 +12,7 @@ import (
 	"github.com/Microkubes/microservice-security/auth"
 	"github.com/Microkubes/microservice-tools/rabbitmq"
 	"github.com/Microkubes/microservice-user/app"
+	"github.com/Microkubes/microservice-user/helpers"
 	"github.com/Microkubes/microservice-user/store"
 	"github.com/keitaroinc/goa"
 
@@ -76,6 +77,7 @@ func (c *UserController) Create(ctx *app.CreateUserContext) error {
 		Organizations: ctx.Payload.Organizations,
 		Password:      *ctx.Payload.Password,
 		Roles:         ctx.Payload.Roles,
+		CreatedAt:     helpers.CurrentTimeMilliseconds(),
 		//Token:         ctx.Payload.Token,
 	}
 
@@ -206,6 +208,7 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 	payload := map[string]interface{}{}
 
 	payload["active"] = ctx.Payload.Active
+	payload["modifiedAt"] = helpers.CurrentTimeMilliseconds()
 
 	if ctx.Payload.Email != nil {
 		payload["email"] = ctx.Payload.Email
@@ -318,7 +321,8 @@ func (c *UserController) Verify(ctx *app.VerifyUserContext) error {
 	}
 
 	update := map[string]interface{}{
-		"active": true,
+		"active":     true,
+		"modifiedAt": helpers.CurrentTimeMilliseconds(),
 	}
 	_, err = c.Store.Users.Save(&update, backends.NewFilter().Match("email", user.Email))
 	if err != nil {
@@ -406,6 +410,7 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 	fpToken.Token = generateToken(42)
 	fpToken.ExpDate = generateExpDate()
 	userRecord.FPToken = fpToken
+	userRecord.ModifiedAt = helpers.CurrentTimeMilliseconds()
 	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -462,6 +467,7 @@ func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserC
 
 	userRecord.FPToken.ExpDate = "0"
 	userRecord.Password = hashedPassword
+	userRecord.ModifiedAt = helpers.CurrentTimeMilliseconds()
 
 	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
 	if err != nil {
