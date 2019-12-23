@@ -50,6 +50,13 @@ type (
 		PrettyPrint bool
 	}
 
+	// FindUsersUserCommand is the command line data structure for the findUsers action of user
+	FindUsersUserCommand struct {
+		Payload     string
+		ContentType string
+		PrettyPrint bool
+	}
+
 	// ForgotPasswordUserCommand is the command line data structure for the forgotPassword action of user
 	ForgotPasswordUserCommand struct {
 		Payload     string
@@ -135,21 +142,22 @@ Payload example:
 
 {
    "active": true,
-   "email": "vinnie.d'amore@kessler.net",
-   "externalId": "Voluptatum debitis iusto et.",
+   "email": "myles_lemke@gaylord.name",
+   "externalId": "Tenetur animi a sunt deserunt tempora quam.",
    "namespaces": [
-      "Quo quo amet occaecati ut.",
-      "Quo quo amet occaecati ut.",
-      "Quo quo amet occaecati ut."
+      "Amet occaecati.",
+      "Amet occaecati."
    ],
    "organizations": [
-      "Deleniti quis et."
+      "Et deleniti quis et consequuntur officiis.",
+      "Et deleniti quis et consequuntur officiis.",
+      "Et deleniti quis et consequuntur officiis."
    ],
-   "password": "789xuu49q",
+   "password": "34i2en7cd7",
    "roles": [
-      "Velit quaerat nam velit incidunt sunt."
+      "Nam velit incidunt sunt sed provident."
    ],
-   "token": "Reprehenderit quisquam maxime."
+   "token": "Et omnis neque consequatur."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -170,8 +178,8 @@ Payload example:
 Payload example:
 
 {
-   "email": "myles@mooreschneider.name",
-   "password": "vhhtvx6y8"
+   "email": "alva@grahamklein.org",
+   "password": "kzsr2yeiek"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -192,7 +200,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "marianna_hartmann@oreillylebsack.org"
+   "email": "janie@gaylord.info"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -201,19 +209,30 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "forgot-password",
-		Short: `Forgot password action (sending email to user with link for resseting password)`,
+		Use:   "find-users",
+		Short: `Find (filter) users by some filter.`,
 	}
-	tmp4 := new(ForgotPasswordUserCommand)
+	tmp4 := new(FindUsersUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/password/forgot"]`,
+		Use:   `user ["/users/list"]`,
 		Short: ``,
 		Long: `
 
 Payload example:
 
 {
-   "email": "marianna_hartmann@oreillylebsack.org"
+   "filter": [
+      {
+         "property": "Soluta omnis et pariatur consequatur accusantium occaecati.",
+         "value": "Harum ipsam impedit vitae sed."
+      }
+   ],
+   "page": 2650884019839767564,
+   "pageSize": 4871160491463818035,
+   "sort": {
+      "direction": "Ut ipsam corrupti suscipit aliquid explicabo.",
+      "property": "Et maxime explicabo natus."
+   }
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
@@ -222,10 +241,10 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "forgot-password-update",
-		Short: `Password token validation & password update`,
+		Use:   "forgot-password",
+		Short: `Forgot password action (sending email to user with link for resseting password)`,
 	}
-	tmp5 := new(ForgotPasswordUpdateUserCommand)
+	tmp5 := new(ForgotPasswordUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/password/forgot"]`,
 		Short: ``,
@@ -234,9 +253,7 @@ Payload example:
 Payload example:
 
 {
-   "email": "delaney@ziemeruecker.com",
-   "password": "vmrl0fmhxw",
-   "token": "Quidem corrupti reprehenderit sit aut molestiae."
+   "email": "janie@gaylord.info"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -245,26 +262,35 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get",
-		Short: `Get user by id`,
+		Use:   "forgot-password-update",
+		Short: `Password token validation & password update`,
 	}
-	tmp6 := new(GetUserCommand)
+	tmp6 := new(ForgotPasswordUpdateUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/USERID"]`,
+		Use:   `user ["/users/password/forgot"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "email": "caleb@pagac.org",
+   "password": "mdm045mvqp",
+   "token": "Aut dignissimos dolorem quibusdam."
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
 	tmp6.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get-all",
-		Short: `Retrieves all active users`,
+		Use:   "get",
+		Short: `Get user by id`,
 	}
-	tmp7 := new(GetAllUserCommand)
+	tmp7 := new(GetUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users"]`,
+		Use:   `user ["/users/USERID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
@@ -273,12 +299,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get-me",
-		Short: `Retrieves the user information for the authenticated user`,
+		Use:   "get-all",
+		Short: `Retrieves all active users`,
 	}
-	tmp8 := new(GetMeUserCommand)
+	tmp8 := new(GetAllUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/me"]`,
+		Use:   `user ["/users"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}
@@ -287,10 +313,24 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "get-me",
+		Short: `Retrieves the user information for the authenticated user`,
+	}
+	tmp9 := new(GetMeUserCommand)
+	sub = &cobra.Command{
+		Use:   `user ["/users/me"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
+	}
+	tmp9.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp9.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "reset-verification-token",
 		Short: `Reset verification token`,
 	}
-	tmp9 := new(ResetVerificationTokenUserCommand)
+	tmp10 := new(ResetVerificationTokenUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/verification/reset"]`,
 		Short: ``,
@@ -299,19 +339,19 @@ Payload example:
 Payload example:
 
 {
-   "email": "marianna_hartmann@oreillylebsack.org"
+   "email": "janie@gaylord.info"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp10.Run(c, args) },
 	}
-	tmp9.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp9.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp10.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp10.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "update",
 		Short: `Update user`,
 	}
-	tmp10 := new(UpdateUserCommand)
+	tmp11 := new(UpdateUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/USERID"]`,
 		Short: ``,
@@ -321,41 +361,42 @@ Payload example:
 
 {
    "active": false,
-   "email": "isaac@mclaughlin.net",
-   "externalId": "Eveniet doloribus minus laudantium rerum soluta unde.",
+   "email": "marques@spinka.org",
+   "externalId": "Voluptas eveniet sunt nemo qui nam.",
    "namespaces": [
-      "Assumenda ut quam in dolorem."
+      "Voluptas sunt voluptatem doloremque id.",
+      "Voluptas sunt voluptatem doloremque id.",
+      "Voluptas sunt voluptatem doloremque id."
    ],
    "organizations": [
-      "Voluptatum rem eos voluptatibus.",
-      "Voluptatum rem eos voluptatibus."
+      "Facere vel.",
+      "Facere vel.",
+      "Facere vel."
    ],
-   "password": "2s23h8wwm4",
+   "password": "y9m9wo4go9",
    "roles": [
-      "Autem sit sit inventore neque qui.",
-      "Autem sit sit inventore neque qui.",
-      "Autem sit sit inventore neque qui."
+      "Labore facere quasi et perspiciatis."
    ],
-   "token": "Voluptas cumque."
+   "token": "Nihil libero."
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp10.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp11.Run(c, args) },
 	}
-	tmp10.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp10.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp11.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp11.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "verify",
 		Short: `Verify a user by token`,
 	}
-	tmp11 := new(VerifyUserCommand)
+	tmp12 := new(VerifyUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/users/verify"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp11.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp12.Run(c, args) },
 	}
-	tmp11.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp11.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp12.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp12.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -666,6 +707,39 @@ func (cmd *FindByEmailUserCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *FindByEmailUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
+// Run makes the HTTP request corresponding to the FindUsersUserCommand command.
+func (cmd *FindUsersUserCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/users/list"
+	}
+	var payload client.FilterPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.FindUsersUser(ctx, path, &payload, cmd.ContentType)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *FindUsersUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }

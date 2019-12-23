@@ -85,6 +85,15 @@ var _ = Resource("user", func() {
 		Response(InternalServerError, ErrorMedia)
 	})
 
+	Action("findUsers", func() {
+		Description("Find (filter) users by some filter.")
+		Routing(POST("/list"))
+		Payload(FilterPayload)
+		Response(OK, UsersPageMedia)
+		Response(BadRequest, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+
 	Action("find", func() {
 		Description("Find a user by email+password")
 		Routing(POST("find"))
@@ -280,4 +289,43 @@ var _ = Resource("swagger", func() {
 	BasePath("/users")
 	Files("swagger.json", "swagger/swagger.json")
 	Files("swagger-ui/*filepath", "swagger-ui/dist")
+})
+
+// FilterPayload Users filter request payload.
+var FilterPayload = Type("FilterPayload", func() {
+	Attribute("page", Integer, "Page number (1-based).")
+	Attribute("pageSize", Integer, "Items per page.")
+	Attribute("filter", ArrayOf(FilterProperty), "Users filter.")
+	Attribute("sort", OrderSpec, "Sort specification.")
+	Required("page", "pageSize")
+})
+
+// FilterProperty Single property filter. Holds the property name and the value to be matched for that property.
+var FilterProperty = Type("FilterProperty", func() {
+	Attribute("property", String, "Property name")
+	Attribute("value", String, "Property value to match")
+	Required("property", "value")
+})
+
+// OrderSpec specifies the sorting - by which property and the direction, either 'asc' (ascending)
+// or 'desc' (descending).
+var OrderSpec = Type("OrderSpec", func() {
+	Attribute("property", String, "Sort by property")
+	Attribute("direction", String, "Sort order. Can be 'asc' or 'desc'.")
+	Required("property", "direction")
+})
+
+// UsersPageMedia result of filter-by. One result page along with items (array of Users).
+var UsersPageMedia = MediaType("application/mt.ckan.users-page+json", func() {
+	TypeName("UsersPage")
+	Attributes(func() {
+		Attribute("page", Integer, "Page number (1-based).")
+		Attribute("pageSize", Integer, "Items per page.")
+		Attribute("items", ArrayOf(UserMedia), "Users list")
+	})
+	View("default", func() {
+		Attribute("page")
+		Attribute("pageSize")
+		Attribute("items")
+	})
 })

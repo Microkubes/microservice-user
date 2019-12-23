@@ -15,6 +15,37 @@ import (
 	"net/http"
 )
 
+// UsersPage media type (default view)
+//
+// Identifier: application/mt.ckan.users-page+json; view=default
+type UsersPage struct {
+	// Users list
+	Items []*Users `form:"items,omitempty" json:"items,omitempty" yaml:"items,omitempty" xml:"items,omitempty"`
+	// Page number (1-based).
+	Page *int `form:"page,omitempty" json:"page,omitempty" yaml:"page,omitempty" xml:"page,omitempty"`
+	// Items per page.
+	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty" yaml:"pageSize,omitempty" xml:"pageSize,omitempty"`
+}
+
+// Validate validates the UsersPage media type instance.
+func (mt *UsersPage) Validate() (err error) {
+	for _, e := range mt.Items {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// DecodeUsersPage decodes the UsersPage instance encoded in resp body.
+func (c *Client) DecodeUsersPage(resp *http.Response) (*UsersPage, error) {
+	var decoded UsersPage
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // DecodeErrorResponse decodes the ErrorResponse instance encoded in resp body.
 func (c *Client) DecodeErrorResponse(resp *http.Response) (*goa.ErrorResponse, error) {
 	var decoded goa.ErrorResponse

@@ -3,6 +3,7 @@ package store
 import (
 	"github.com/Microkubes/backends"
 	"github.com/Microkubes/microservice-user/app"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type FPToken struct {
@@ -11,7 +12,7 @@ type FPToken struct {
 }
 
 type UserRecord struct {
-	ID string `json:"id" bson:"_id"`
+	ID bson.ObjectId `json:"id" bson:"_id"`
 	// Status of user account
 	Active bool `form:"active" json:"active" yaml:"active" xml:"active"`
 	// Email of user
@@ -41,7 +42,7 @@ func (u *UserRecord) ToAppUsers() *app.Users {
 		Active:        u.Active,
 		Email:         u.Email,
 		ExternalID:    u.ExternalID,
-		ID:            u.ID,
+		ID:            u.ID.Hex(),
 		Namespaces:    u.Namespaces,
 		Organizations: u.Organizations,
 		Roles:         u.Roles,

@@ -8,18 +8,19 @@ definitions:
     description: CreateUserPayload
     example:
       active: true
-      email: vinnie.d'amore@kessler.net
-      externalId: Voluptatum debitis iusto et.
+      email: myles_lemke@gaylord.name
+      externalId: Tenetur animi a sunt deserunt tempora quam.
       namespaces:
-      - Quo quo amet occaecati ut.
-      - Quo quo amet occaecati ut.
-      - Quo quo amet occaecati ut.
+      - Amet occaecati.
+      - Amet occaecati.
       organizations:
-      - Deleniti quis et.
-      password: 789xuu49q
+      - Et deleniti quis et consequuntur officiis.
+      - Et deleniti quis et consequuntur officiis.
+      - Et deleniti quis et consequuntur officiis.
+      password: 34i2en7cd7
       roles:
-      - Velit quaerat nam velit incidunt sunt.
-      token: Reprehenderit quisquam maxime.
+      - Nam velit incidunt sunt sed provident.
+      token: Et omnis neque consequatur.
     properties:
       active:
         default: false
@@ -28,48 +29,49 @@ definitions:
         type: boolean
       email:
         description: Email of user
-        example: vinnie.d'amore@kessler.net
+        example: myles_lemke@gaylord.name
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Voluptatum debitis iusto et.
+        example: Tenetur animi a sunt deserunt tempora quam.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Quo quo amet occaecati ut.
-        - Quo quo amet occaecati ut.
-        - Quo quo amet occaecati ut.
+        - Amet occaecati.
+        - Amet occaecati.
         items:
-          example: Quo quo amet occaecati ut.
+          example: Amet occaecati.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Deleniti quis et.
+        - Et deleniti quis et consequuntur officiis.
+        - Et deleniti quis et consequuntur officiis.
+        - Et deleniti quis et consequuntur officiis.
         items:
-          example: Deleniti quis et.
+          example: Et deleniti quis et consequuntur officiis.
           type: string
         type: array
       password:
         description: Password of user
-        example: 789xuu49q
+        example: 34i2en7cd7
         maxLength: 30
         minLength: 6
         type: string
       roles:
         description: Roles of user
         example:
-        - Velit quaerat nam velit incidunt sunt.
+        - Nam velit incidunt sunt sed provident.
         items:
-          example: Velit quaerat nam velit incidunt sunt.
+          example: Nam velit incidunt sunt sed provident.
           type: string
         type: array
       token:
         description: Token for email verification
-        example: Reprehenderit quisquam maxime.
+        example: Et omnis neque consequatur.
         type: string
     required:
     - email
@@ -78,17 +80,17 @@ definitions:
   Credentials:
     description: Email and password credentials
     example:
-      email: myles@mooreschneider.name
-      password: vhhtvx6y8
+      email: alva@grahamklein.org
+      password: kzsr2yeiek
     properties:
       email:
         description: Email of user
-        example: myles@mooreschneider.name
+        example: alva@grahamklein.org
         format: email
         type: string
       password:
         description: Password of user
-        example: vhhtvx6y8
+        example: kzsr2yeiek
         maxLength: 30
         minLength: 6
         type: string
@@ -100,38 +102,92 @@ definitions:
   EmailPayload:
     description: Email payload
     example:
-      email: marianna_hartmann@oreillylebsack.org
+      email: janie@gaylord.info
     properties:
       email:
         description: Email of user
-        example: marianna_hartmann@oreillylebsack.org
+        example: janie@gaylord.info
         format: email
         type: string
     required:
     - email
     title: EmailPayload
     type: object
+  FilterPayload:
+    example:
+      filter:
+      - property: Soluta omnis et pariatur consequatur accusantium occaecati.
+        value: Harum ipsam impedit vitae sed.
+      page: 2650884019839767564
+      pageSize: 4871160491463818035
+      sort:
+        direction: Ut ipsam corrupti suscipit aliquid explicabo.
+        property: Et maxime explicabo natus.
+    properties:
+      filter:
+        description: Users filter.
+        example:
+        - property: Soluta omnis et pariatur consequatur accusantium occaecati.
+          value: Harum ipsam impedit vitae sed.
+        items:
+          $ref: '#/definitions/FilterProperty'
+        type: array
+      page:
+        description: Page number (1-based).
+        example: 2650884019839767564
+        format: int64
+        type: integer
+      pageSize:
+        description: Items per page.
+        example: 4871160491463818035
+        format: int64
+        type: integer
+      sort:
+        $ref: '#/definitions/OrderSpec'
+    required:
+    - page
+    - pageSize
+    title: FilterPayload
+    type: object
+  FilterProperty:
+    example:
+      property: Soluta omnis et pariatur consequatur accusantium occaecati.
+      value: Harum ipsam impedit vitae sed.
+    properties:
+      property:
+        description: Property name
+        example: Soluta omnis et pariatur consequatur accusantium occaecati.
+        type: string
+      value:
+        description: Property value to match
+        example: Harum ipsam impedit vitae sed.
+        type: string
+    required:
+    - property
+    - value
+    title: FilterProperty
+    type: object
   ForgotPasswordPayload:
     description: Password Reset payload
     example:
-      email: delaney@ziemeruecker.com
-      password: vmrl0fmhxw
-      token: Quidem corrupti reprehenderit sit aut molestiae.
+      email: caleb@pagac.org
+      password: mdm045mvqp
+      token: Aut dignissimos dolorem quibusdam.
     properties:
       email:
         description: Email of the user
-        example: delaney@ziemeruecker.com
+        example: caleb@pagac.org
         format: email
         type: string
       password:
         description: New password
-        example: vmrl0fmhxw
+        example: mdm045mvqp
         maxLength: 30
         minLength: 6
         type: string
       token:
         description: Forgot password token
-        example: Quidem corrupti reprehenderit sit aut molestiae.
+        example: Aut dignissimos dolorem quibusdam.
         type: string
     required:
     - email
@@ -139,24 +195,42 @@ definitions:
     - token
     title: ForgotPasswordPayload
     type: object
+  OrderSpec:
+    example:
+      direction: Ut ipsam corrupti suscipit aliquid explicabo.
+      property: Et maxime explicabo natus.
+    properties:
+      direction:
+        description: Sort order. Can be 'asc' or 'desc'.
+        example: Ut ipsam corrupti suscipit aliquid explicabo.
+        type: string
+      property:
+        description: Sort by property
+        example: Et maxime explicabo natus.
+        type: string
+    required:
+    - property
+    - direction
+    title: OrderSpec
+    type: object
   ResetToken:
     description: ResetToken media type (default view)
     example:
-      email: Provident fugit corrupti dignissimos nisi voluptatum.
-      id: Mollitia sint.
-      token: Officia ipsum voluptatem.
+      email: Molestias maxime rem.
+      id: Consequatur earum aut.
+      token: Harum impedit enim commodi neque voluptatem reprehenderit.
     properties:
       email:
         description: User email
-        example: Provident fugit corrupti dignissimos nisi voluptatum.
+        example: Molestias maxime rem.
         type: string
       id:
         description: User ID
-        example: Mollitia sint.
+        example: Consequatur earum aut.
         type: string
       token:
         description: New token
-        example: Officia ipsum voluptatem.
+        example: Harum impedit enim commodi neque voluptatem reprehenderit.
         type: string
     required:
     - id
@@ -168,19 +242,20 @@ definitions:
     description: UpdateUserPayload
     example:
       active: false
-      email: isaac@mclaughlin.net
-      externalId: Eveniet doloribus minus laudantium rerum soluta unde.
+      email: marques@spinka.org
+      externalId: Voluptas eveniet sunt nemo qui nam.
       namespaces:
-      - Assumenda ut quam in dolorem.
+      - Voluptas sunt voluptatem doloremque id.
+      - Voluptas sunt voluptatem doloremque id.
+      - Voluptas sunt voluptatem doloremque id.
       organizations:
-      - Voluptatum rem eos voluptatibus.
-      - Voluptatum rem eos voluptatibus.
-      password: 2s23h8wwm4
+      - Facere vel.
+      - Facere vel.
+      - Facere vel.
+      password: y9m9wo4go9
       roles:
-      - Autem sit sit inventore neque qui.
-      - Autem sit sit inventore neque qui.
-      - Autem sit sit inventore neque qui.
-      token: Voluptas cumque.
+      - Labore facere quasi et perspiciatis.
+      token: Nihil libero.
     properties:
       active:
         default: false
@@ -189,51 +264,137 @@ definitions:
         type: boolean
       email:
         description: Email of user
-        example: isaac@mclaughlin.net
+        example: marques@spinka.org
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Eveniet doloribus minus laudantium rerum soluta unde.
+        example: Voluptas eveniet sunt nemo qui nam.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Assumenda ut quam in dolorem.
+        - Voluptas sunt voluptatem doloremque id.
+        - Voluptas sunt voluptatem doloremque id.
+        - Voluptas sunt voluptatem doloremque id.
         items:
-          example: Assumenda ut quam in dolorem.
+          example: Voluptas sunt voluptatem doloremque id.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Voluptatum rem eos voluptatibus.
-        - Voluptatum rem eos voluptatibus.
+        - Facere vel.
+        - Facere vel.
+        - Facere vel.
         items:
-          example: Voluptatum rem eos voluptatibus.
+          example: Facere vel.
           type: string
         type: array
       password:
         description: Password of user
-        example: 2s23h8wwm4
+        example: y9m9wo4go9
         maxLength: 30
         minLength: 6
         type: string
       roles:
         description: Roles of user
         example:
-        - Autem sit sit inventore neque qui.
-        - Autem sit sit inventore neque qui.
-        - Autem sit sit inventore neque qui.
+        - Labore facere quasi et perspiciatis.
         items:
-          example: Autem sit sit inventore neque qui.
+          example: Labore facere quasi et perspiciatis.
           type: string
         type: array
       token:
         description: Token for email verification
-        example: Voluptas cumque.
+        example: Nihil libero.
         type: string
     title: UpdateUserPayload
+    type: object
+  UsersPage:
+    description: UsersPage media type (default view)
+    example:
+      items:
+      - active: false
+        email: maximillia.funk@skiles.name
+        externalId: Occaecati quae odio rerum aliquid in sit.
+        id: Ea quam optio placeat reprehenderit similique.
+        namespaces:
+        - Amet occaecati.
+        - Amet occaecati.
+        - Amet occaecati.
+        organizations:
+        - Et deleniti quis et consequuntur officiis.
+        - Et deleniti quis et consequuntur officiis.
+        roles:
+        - Nam velit incidunt sunt sed provident.
+        - Nam velit incidunt sunt sed provident.
+        - Nam velit incidunt sunt sed provident.
+      - active: false
+        email: maximillia.funk@skiles.name
+        externalId: Occaecati quae odio rerum aliquid in sit.
+        id: Ea quam optio placeat reprehenderit similique.
+        namespaces:
+        - Amet occaecati.
+        - Amet occaecati.
+        - Amet occaecati.
+        organizations:
+        - Et deleniti quis et consequuntur officiis.
+        - Et deleniti quis et consequuntur officiis.
+        roles:
+        - Nam velit incidunt sunt sed provident.
+        - Nam velit incidunt sunt sed provident.
+        - Nam velit incidunt sunt sed provident.
+      page: 8637512787445997841
+      pageSize: 1216021488875908955
+    properties:
+      items:
+        description: Users list
+        example:
+        - active: false
+          email: maximillia.funk@skiles.name
+          externalId: Occaecati quae odio rerum aliquid in sit.
+          id: Ea quam optio placeat reprehenderit similique.
+          namespaces:
+          - Amet occaecati.
+          - Amet occaecati.
+          - Amet occaecati.
+          organizations:
+          - Et deleniti quis et consequuntur officiis.
+          - Et deleniti quis et consequuntur officiis.
+          roles:
+          - Nam velit incidunt sunt sed provident.
+          - Nam velit incidunt sunt sed provident.
+          - Nam velit incidunt sunt sed provident.
+        - active: false
+          email: maximillia.funk@skiles.name
+          externalId: Occaecati quae odio rerum aliquid in sit.
+          id: Ea quam optio placeat reprehenderit similique.
+          namespaces:
+          - Amet occaecati.
+          - Amet occaecati.
+          - Amet occaecati.
+          organizations:
+          - Et deleniti quis et consequuntur officiis.
+          - Et deleniti quis et consequuntur officiis.
+          roles:
+          - Nam velit incidunt sunt sed provident.
+          - Nam velit incidunt sunt sed provident.
+          - Nam velit incidunt sunt sed provident.
+        items:
+          $ref: '#/definitions/users'
+        type: array
+      page:
+        description: Page number (1-based).
+        example: 8637512787445997841
+        format: int64
+        type: integer
+      pageSize:
+        description: Items per page.
+        example: 1216021488875908955
+        format: int64
+        type: integer
+    title: 'Mediatype identifier: application/mt.ckan.users-page+json; view=default'
     type: object
   error:
     description: Error response media type (default view)
@@ -275,67 +436,67 @@ definitions:
   users:
     description: users media type (default view)
     example:
-      active: true
-      email: thad@herman.name
-      externalId: Ullam occaecati quae odio rerum aliquid in.
-      id: Reprehenderit ea quam optio placeat.
+      active: false
+      email: maximillia.funk@skiles.name
+      externalId: Occaecati quae odio rerum aliquid in sit.
+      id: Ea quam optio placeat reprehenderit similique.
       namespaces:
-      - Quo quo amet occaecati ut.
-      - Quo quo amet occaecati ut.
-      - Quo quo amet occaecati ut.
+      - Amet occaecati.
+      - Amet occaecati.
+      - Amet occaecati.
       organizations:
-      - Deleniti quis et.
-      - Deleniti quis et.
+      - Et deleniti quis et consequuntur officiis.
+      - Et deleniti quis et consequuntur officiis.
       roles:
-      - Velit quaerat nam velit incidunt sunt.
-      - Velit quaerat nam velit incidunt sunt.
-      - Velit quaerat nam velit incidunt sunt.
+      - Nam velit incidunt sunt sed provident.
+      - Nam velit incidunt sunt sed provident.
+      - Nam velit incidunt sunt sed provident.
     properties:
       active:
         default: false
         description: Status of user account
-        example: true
+        example: false
         type: boolean
       email:
         description: Email of user
-        example: thad@herman.name
+        example: maximillia.funk@skiles.name
         format: email
         type: string
       externalId:
         description: External id of user
-        example: Ullam occaecati quae odio rerum aliquid in.
+        example: Occaecati quae odio rerum aliquid in sit.
         type: string
       id:
         description: Unique user ID
-        example: Reprehenderit ea quam optio placeat.
+        example: Ea quam optio placeat reprehenderit similique.
         type: string
       namespaces:
         description: List of namespaces this user belongs to
         example:
-        - Quo quo amet occaecati ut.
-        - Quo quo amet occaecati ut.
-        - Quo quo amet occaecati ut.
+        - Amet occaecati.
+        - Amet occaecati.
+        - Amet occaecati.
         items:
-          example: Quo quo amet occaecati ut.
+          example: Amet occaecati.
           type: string
         type: array
       organizations:
         description: List of organizations to which this user belongs to
         example:
-        - Deleniti quis et.
-        - Deleniti quis et.
+        - Et deleniti quis et consequuntur officiis.
+        - Et deleniti quis et consequuntur officiis.
         items:
-          example: Deleniti quis et.
+          example: Et deleniti quis et consequuntur officiis.
           type: string
         type: array
       roles:
         description: Roles of user
         example:
-        - Velit quaerat nam velit incidunt sunt.
-        - Velit quaerat nam velit incidunt sunt.
-        - Velit quaerat nam velit incidunt sunt.
+        - Nam velit incidunt sunt sed provident.
+        - Nam velit incidunt sunt sed provident.
+        - Nam velit incidunt sunt sed provident.
         items:
-          example: Velit quaerat nam velit incidunt sunt.
+          example: Nam velit incidunt sunt sed provident.
           type: string
         type: array
     required:
@@ -602,6 +763,37 @@ paths:
       schemes:
       - http
       summary: findByEmail user
+      tags:
+      - user
+  /users/list:
+    post:
+      description: Find (filter) users by some filter.
+      operationId: user#findUsers
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/FilterPayload'
+      produces:
+      - application/mt.ckan.users-page+json
+      - application/vnd.goa.error
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UsersPage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: findUsers user
       tags:
       - user
   /users/me:

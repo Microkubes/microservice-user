@@ -19,6 +19,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const MaxResultsPerPage = 500
+
 // Email holds info for the email template
 type Email struct {
 	ID    string `json:"id,omitempty"`
@@ -257,6 +259,67 @@ func (c *UserController) Update(ctx *app.UpdateUserContext) error {
 	return ctx.OK(user)
 }
 
+// FindUsers find users matching a filter
+func (c *UserController) FindUsers(ctx *app.FindUsersUserContext) error {
+
+	authObj := auth.GetAuth(ctx)
+	if authObj == nil {
+		return ctx.BadRequest(goa.ErrBadRequest("auth not set"))
+	}
+
+	page := ctx.Payload.Page
+	if page < 1 {
+		return ctx.BadRequest(goa.ErrBadRequest("invalid page number"))
+	}
+	page--
+	pageSize := ctx.Payload.PageSize
+	if pageSize > MaxResultsPerPage {
+		pageSize = MaxResultsPerPage
+	}
+
+	var bf backends.Filter
+	if ctx.Payload.Filter != nil && len(ctx.Payload.Filter) > 0 {
+		bf = backends.NewFilter()
+		for _, filterProp := range ctx.Payload.Filter {
+			bf.Match(filterProp.Property, filterProp.Value)
+		}
+	}
+
+	sortBy := "createdAt"
+	sortDir := "asc"
+
+	if ctx.Payload.Sort != nil {
+		sortBy = ctx.Payload.Sort.Property
+		sortDir = ctx.Payload.Sort.Direction
+	}
+
+	result, err := c.Store.Users.GetAll(bf, &store.UserRecord{}, sortBy, sortDir, pageSize, page)
+	if err != nil {
+		if backends.IsErrInvalidInput(err) {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	users := *(result.(*[]*store.UserRecord))
+
+	usersPage := &app.UsersPage{
+		Page:     &page,
+		PageSize: &pageSize,
+		Items:    []*app.Users{},
+	}
+
+	for _, userItem := range users {
+		user := userItem
+		if !user.Active {
+			continue
+		}
+		usersPage.Items = append(usersPage.Items, user.ToAppUsers())
+	}
+
+	return ctx.OK(usersPage)
+}
+
 // Find looks up a user by its email and password. Intended for internal use.
 func (c *UserController) Find(ctx *app.FindUserContext) error {
 
@@ -411,7 +474,7 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 	fpToken.ExpDate = generateExpDate()
 	userRecord.FPToken = fpToken
 	userRecord.ModifiedAt = helpers.CurrentTimeMilliseconds()
-	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
+	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID.Hex()))
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
@@ -469,7 +532,7 @@ func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserC
 	userRecord.Password = hashedPassword
 	userRecord.ModifiedAt = helpers.CurrentTimeMilliseconds()
 
-	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID))
+	_, err = c.Store.Users.Save(userRecord, backends.NewFilter().Match("id", userRecord.ID.Hex()))
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}

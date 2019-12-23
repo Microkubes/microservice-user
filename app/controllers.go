@@ -62,6 +62,7 @@ type UserController interface {
 	Create(*CreateUserContext) error
 	Find(*FindUserContext) error
 	FindByEmail(*FindByEmailUserContext) error
+	FindUsers(*FindUsersUserContext) error
 	ForgotPassword(*ForgotPasswordUserContext) error
 	ForgotPasswordUpdate(*ForgotPasswordUpdateUserContext) error
 	Get(*GetUserContext) error
@@ -79,6 +80,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	service.Mux.Handle("OPTIONS", "/users", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/find", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/find/email", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/list", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/password/forgot", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/:userId", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/me", ctrl.MuxHandler("preflight", handleUserOrigin(cors.HandlePreflight()), nil))
@@ -150,6 +152,28 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	h = handleUserOrigin(h)
 	service.Mux.Handle("POST", "/users/find/email", ctrl.MuxHandler("findByEmail", h, unmarshalFindByEmailUserPayload))
 	service.LogInfo("mount", "ctrl", "User", "action", "FindByEmail", "route", "POST /users/find/email")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewFindUsersUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*FilterPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.FindUsers(rctx)
+	}
+	h = handleUserOrigin(h)
+	service.Mux.Handle("POST", "/users/list", ctrl.MuxHandler("findUsers", h, unmarshalFindUsersUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "FindUsers", "route", "POST /users/list")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -362,6 +386,21 @@ func unmarshalFindUserPayload(ctx context.Context, service *goa.Service, req *ht
 // unmarshalFindByEmailUserPayload unmarshals the request body into the context request data Payload field.
 func unmarshalFindByEmailUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &emailPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalFindUsersUserPayload unmarshals the request body into the context request data Payload field.
+func unmarshalFindUsersUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &filterPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}
