@@ -6,7 +6,7 @@ RUN apk --no-cache add git curl openssh
 COPY . /go/src/github.com/Microkubes/microservice-user
 
 RUN cd /go/src/github.com/Microkubes/microservice-user && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install github.com/Microkubes/microservice-user
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install
 
 ### Main
 FROM alpine:3.10
