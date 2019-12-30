@@ -148,6 +148,49 @@ func (c *Client) NewFindByEmailUserRequest(ctx context.Context, path string, pay
 	return req, nil
 }
 
+// FindUsersUserPath computes a request path to the findUsers action of user.
+func FindUsersUserPath() string {
+
+	return fmt.Sprintf("/users/list")
+}
+
+// Find (filter) users by some filter.
+func (c *Client) FindUsersUser(ctx context.Context, path string, payload *FilterPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewFindUsersUserRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewFindUsersUserRequest create the request corresponding to the findUsers action endpoint of the user resource.
+func (c *Client) NewFindUsersUserRequest(ctx context.Context, path string, payload *FilterPayload, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("POST", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
+	return req, nil
+}
+
 // ForgotPasswordUserPath computes a request path to the forgotPassword action of user.
 func ForgotPasswordUserPath() string {
 
@@ -288,12 +331,12 @@ func (c *Client) NewGetAllUserRequest(ctx context.Context, path string, limit *i
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	if limit != nil {
-		tmp12 := strconv.Itoa(*limit)
-		values.Set("limit", tmp12)
+		tmp13 := strconv.Itoa(*limit)
+		values.Set("limit", tmp13)
 	}
 	if offset != nil {
-		tmp13 := strconv.Itoa(*offset)
-		values.Set("offset", tmp13)
+		tmp14 := strconv.Itoa(*offset)
+		values.Set("offset", tmp14)
 	}
 	if order != nil {
 		values.Set("order", *order)

@@ -17,8 +17,8 @@ var db = store.NewDB()
 var (
 	service          = goa.New("user-test")
 	ctrl             = NewUserController(service, db, nil)
-	ID               = "b8cfa84f-bb6c-4c84-b39b-76dd32653921"
-	notFoundID       = "dxcfa84f-bb6c-4c84-b39b-76dd32653900"
+	ID               = "5df2103b5f1b640001142d3c"
+	notFoundID       = "5df2103b5f1b640001142d4c"
 	notFonundEmail   = "not-found@gmail.com"
 	notFoundToken    = "not-found-token"
 	badID            = "bad-id"

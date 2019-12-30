@@ -4,8 +4,7 @@ import (
 	"sync"
 
 	"github.com/Microkubes/backends"
-	"github.com/keitaroinc/goa"
-	"github.com/satori/go.uuid"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type MapStore map[string]interface{}
@@ -27,8 +26,8 @@ func NewDB() User {
 
 	users := &DB{
 		MapStore: map[string]interface{}{
-			"b8cfa84f-bb6c-4c84-b39b-76dd32653921": map[string]interface{}{
-				"id":         "b8cfa84f-bb6c-4c84-b39b-76dd32653921",
+			"5df2103b5f1b640001142d3c": map[string]interface{}{
+				"id":         "5df2103b5f1b640001142d3c",
 				"email":      "keitaro-user1@gmail.com",
 				"password":   "keitaro",
 				"externalID": "some-id",
@@ -172,14 +171,11 @@ func (db *DB) Save(object interface{}, filter backends.Filter) (interface{}, err
 			return nil, backends.ErrBackendError(INTERNAL_ERROR)
 		}
 
-		id, err := uuid.NewV4()
-		if err != nil {
-			return nil, goa.ErrInternal(err)
-		}
+		id := bson.NewObjectId().Hex()
 
-		(*payload)["id"] = id.String()
+		(*payload)["id"] = id
 
-		db.MapStore[id.String()] = *payload
+		db.MapStore[id] = *payload
 		result = &UserRecord{
 			ExternalID: "",
 			Roles:      []string{},
