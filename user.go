@@ -482,6 +482,7 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 	if c.ChannelRabbitMQ != nil {
 		messageData := map[string]string{
 			"name":  "User",
+			"email": ctx.Payload.Email,
 			"token": fpToken.Token,
 		}
 		amqpMessage := AMQPMessage{
