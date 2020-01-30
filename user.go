@@ -506,7 +506,7 @@ func (c *UserController) ForgotPassword(ctx *app.ForgotPasswordUserContext) erro
 // ForgotPasswordUpdate endpoint for changing old password with new one
 func (c *UserController) ForgotPasswordUpdate(ctx *app.ForgotPasswordUpdateUserContext) error {
 	userRecord := &store.UserRecord{}
-	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("email", ctx.Payload.Email), userRecord)
+	_, err := c.Store.Users.GetOne(backends.NewFilter().Match("forgotPasswordTokens.token", ctx.Payload.Token), userRecord)
 	if err != nil {
 		if backends.IsErrNotFound(err) {
 			return ctx.OK([]byte{})
