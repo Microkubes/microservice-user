@@ -279,7 +279,7 @@ var ForgotPasswordPayload = Type("ForgotPasswordPayload", func() {
 		MaxLength(30)
 	})
 	Attribute("token", String, "Forgot password token")
-	Required("email", "password", "token")
+	Required("password", "token")
 })
 
 // Swagger UI
