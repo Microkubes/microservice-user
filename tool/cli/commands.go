@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/Microkubes/microservice-user/design
-// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
+// --out=$(GOPATH)src/github.com/Microkubes/microservice-user
 // --version=v1.3.1
 
 package cli

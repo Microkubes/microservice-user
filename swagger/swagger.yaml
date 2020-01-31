@@ -190,7 +190,6 @@ definitions:
         example: Aut dignissimos dolorem quibusdam.
         type: string
     required:
-    - email
     - password
     - token
     title: ForgotPasswordPayload
