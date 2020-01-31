@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/Microkubes/microservice-user/design
-// --out=$(GOPATH)/src/github.com/Microkubes/microservice-user
+// --out=$(GOPATH)src/github.com/Microkubes/microservice-user
 // --version=v1.3.1
 
 package client
@@ -404,9 +404,6 @@ type forgotPasswordPayload struct {
 
 // Validate validates the forgotPasswordPayload type instance.
 func (ut *forgotPasswordPayload) Validate() (err error) {
-	if ut.Email == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "email"))
-	}
 	if ut.Password == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "password"))
 	}
@@ -435,7 +432,7 @@ func (ut *forgotPasswordPayload) Validate() (err error) {
 func (ut *forgotPasswordPayload) Publicize() *ForgotPasswordPayload {
 	var pub ForgotPasswordPayload
 	if ut.Email != nil {
-		pub.Email = *ut.Email
+		pub.Email = ut.Email
 	}
 	if ut.Password != nil {
 		pub.Password = *ut.Password
@@ -449,7 +446,7 @@ func (ut *forgotPasswordPayload) Publicize() *ForgotPasswordPayload {
 // Password Reset payload
 type ForgotPasswordPayload struct {
 	// Email of the user
-	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// New password
 	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
 	// Forgot password token
@@ -458,17 +455,16 @@ type ForgotPasswordPayload struct {
 
 // Validate validates the ForgotPasswordPayload type instance.
 func (ut *ForgotPasswordPayload) Validate() (err error) {
-	if ut.Email == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "email"))
-	}
 	if ut.Password == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "password"))
 	}
 	if ut.Token == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "token"))
 	}
-	if err2 := goa.ValidateFormat(goa.FormatEmail, ut.Email); err2 != nil {
-		err = goa.MergeErrors(err, goa.InvalidFormatError(`type.email`, ut.Email, goa.FormatEmail, err2))
+	if ut.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
+			err = goa.MergeErrors(err, goa.InvalidFormatError(`type.email`, *ut.Email, goa.FormatEmail, err2))
+		}
 	}
 	if utf8.RuneCountInString(ut.Password) < 6 {
 		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.password`, ut.Password, utf8.RuneCountInString(ut.Password), 6, true))
