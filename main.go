@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/Microkubes/microservice-tools/rabbitmq"
@@ -11,7 +10,6 @@ import (
 	"github.com/Microkubes/microservice-security/chain"
 	"github.com/Microkubes/microservice-security/flow"
 	stdconfig "github.com/Microkubes/microservice-tools/config"
-	"github.com/Microkubes/microservice-tools/gateway"
 	"github.com/Microkubes/microservice-user/app"
 	"github.com/Microkubes/microservice-user/config"
 	"github.com/Microkubes/microservice-user/store"
@@ -26,22 +24,13 @@ func main() {
 	// Create service
 	service := goa.New("user")
 
-	gatewayAdminURL, configFile := loadGatewaySettings()
+	configFile := loadConfigSettings()
 	serviceConfig := &config.ServiceConfig{}
 	err := stdconfig.LoadConfigAs(configFile, serviceConfig)
 	if err != nil {
 		service.LogError("config", "err", err)
 		return
 	}
-
-	registration := gateway.NewKongGateway(gatewayAdminURL, &http.Client{}, serviceConfig.Service)
-
-	err = registration.SelfRegister()
-	if err != nil {
-		panic(err)
-	}
-
-	defer registration.Unregister()
 
 	securityChain, cleanup, err := flow.NewSecurityFromConfig(serviceConfig.ToStandardConfig())
 	if err != nil {
@@ -163,18 +152,14 @@ func loadMongnoSettings() (string, string, string, string) {
 	return host, username, password, database
 }
 
-func loadGatewaySettings() (string, string) {
-	gatewayURL := os.Getenv("API_GATEWAY_URL")
+func loadConfigSettings() string {
 	serviceConfigFile := os.Getenv("SERVICE_CONFIG_FILE")
 
-	if gatewayURL == "" {
-		gatewayURL = "http://localhost:8001"
-	}
 	if serviceConfigFile == "" {
 		serviceConfigFile = "/run/secrets/microservice_user_config.json"
 	}
 
-	return gatewayURL, serviceConfigFile
+	return serviceConfigFile
 }
 
 func openRabbitMQChannel(svc *config.ServiceConfig) (rabbitmq.Channel, error) {

@@ -12,11 +12,6 @@ type ServiceConfig struct {
 	stdcfg.SecurityConfig `json:"security,omitempty"`
 	// DBConfig holds the database connection configuration
 	stdcfg.DBConfig `json:"database"`
-	// GatewayURL is the URL of the API Gateway
-	GatewayURL string `json:"gatewayUrl"`
-	// GatewayAdminURL is the administration URL of the API Gateway. Used for purposes of registration of a
-	// microservice with the API gateway.
-	GatewayAdminURL string `json:"gatewayAdminUrl"`
 	// ContainerManager is the platform for managing containerized services
 	// Can be swarm or kubernetes
 	ContainerManager string `json:"containerManager,omitempty"`
@@ -31,8 +26,6 @@ func (svc *ServiceConfig) ToStandardConfig() *stdcfg.ServiceConfig {
 		Service:          svc.Service,
 		SecurityConfig:   svc.SecurityConfig,
 		DBConfig:         svc.DBConfig,
-		GatewayURL:       svc.GatewayURL,
-		GatewayAdminURL:  svc.GatewayAdminURL,
 		ContainerManager: svc.ContainerManager,
 		Version:          svc.Version,
 	}

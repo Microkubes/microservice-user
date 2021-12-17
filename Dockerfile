@@ -17,6 +17,4 @@ COPY --from=build /etc/ssl/certs /etc/ssl/certs
 
 EXPOSE 8080
 
-ENV API_GATEWAY_URL="http://localhost:8001"
-
 CMD ["/usr/local/bin/microservice-user"]
