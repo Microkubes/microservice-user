@@ -19,6 +19,8 @@ type ServiceConfig struct {
 	Version string `json:"version"`
 	// RabbitMQ holds information about the rabbitmq server
 	RabbitMQ map[string]string `json:"rabbitmq"`
+	// GatewayURL is the URL of the API Gateway
+	GatewayURL string `json:"gatewayUrl"`
 }
 
 func (svc *ServiceConfig) ToStandardConfig() *stdcfg.ServiceConfig {
@@ -28,5 +30,6 @@ func (svc *ServiceConfig) ToStandardConfig() *stdcfg.ServiceConfig {
 		DBConfig:         svc.DBConfig,
 		ContainerManager: svc.ContainerManager,
 		Version:          svc.Version,
+		GatewayURL:       svc.GatewayURL,
 	}
 }
