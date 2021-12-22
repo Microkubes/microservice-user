@@ -60,7 +60,7 @@ func CreateUserBadRequest(t goatest.TInterface, ctx context.Context, service *go
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users"),
+		Path: fmt.Sprintf("/"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -140,7 +140,7 @@ func CreateUserCreated(t goatest.TInterface, ctx context.Context, service *goa.S
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users"),
+		Path: fmt.Sprintf("/"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -224,7 +224,7 @@ func CreateUserInternalServerError(t goatest.TInterface, ctx context.Context, se
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users"),
+		Path: fmt.Sprintf("/"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -303,7 +303,7 @@ func FindUserBadRequest(t goatest.TInterface, ctx context.Context, service *goa.
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/find"),
+		Path: fmt.Sprintf("/find"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -382,7 +382,7 @@ func FindUserInternalServerError(t goatest.TInterface, ctx context.Context, serv
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/find"),
+		Path: fmt.Sprintf("/find"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -461,7 +461,7 @@ func FindUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Se
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/find"),
+		Path: fmt.Sprintf("/find"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -541,7 +541,7 @@ func FindUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service,
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/find"),
+		Path: fmt.Sprintf("/find"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -625,7 +625,7 @@ func FindByEmailUserInternalServerError(t goatest.TInterface, ctx context.Contex
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/find/email"),
+		Path: fmt.Sprintf("/find/email"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -704,7 +704,7 @@ func FindByEmailUserNotFound(t goatest.TInterface, ctx context.Context, service 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/find/email"),
+		Path: fmt.Sprintf("/find/email"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -784,7 +784,7 @@ func FindByEmailUserOK(t goatest.TInterface, ctx context.Context, service *goa.S
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/find/email"),
+		Path: fmt.Sprintf("/find/email"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -868,7 +868,7 @@ func FindUsersUserBadRequest(t goatest.TInterface, ctx context.Context, service 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/list"),
+		Path: fmt.Sprintf("/list"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -947,7 +947,7 @@ func FindUsersUserInternalServerError(t goatest.TInterface, ctx context.Context,
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/list"),
+		Path: fmt.Sprintf("/list"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -1027,7 +1027,7 @@ func FindUsersUserOK(t goatest.TInterface, ctx context.Context, service *goa.Ser
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/list"),
+		Path: fmt.Sprintf("/list"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -1111,7 +1111,7 @@ func ForgotPasswordUserBadRequest(t goatest.TInterface, ctx context.Context, ser
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/forgot"),
+		Path: fmt.Sprintf("/password/forgot"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -1190,7 +1190,7 @@ func ForgotPasswordUserInternalServerError(t goatest.TInterface, ctx context.Con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/forgot"),
+		Path: fmt.Sprintf("/password/forgot"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -1269,7 +1269,7 @@ func ForgotPasswordUserOK(t goatest.TInterface, ctx context.Context, service *go
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/forgot"),
+		Path: fmt.Sprintf("/password/forgot"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -1341,7 +1341,7 @@ func ForgotPasswordUpdateUserBadRequest(t goatest.TInterface, ctx context.Contex
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/forgot"),
+		Path: fmt.Sprintf("/password/forgot"),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
@@ -1420,7 +1420,7 @@ func ForgotPasswordUpdateUserInternalServerError(t goatest.TInterface, ctx conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/forgot"),
+		Path: fmt.Sprintf("/password/forgot"),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
@@ -1499,7 +1499,7 @@ func ForgotPasswordUpdateUserNotFound(t goatest.TInterface, ctx context.Context,
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/forgot"),
+		Path: fmt.Sprintf("/password/forgot"),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
@@ -1578,7 +1578,7 @@ func ForgotPasswordUpdateUserOK(t goatest.TInterface, ctx context.Context, servi
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/password/forgot"),
+		Path: fmt.Sprintf("/password/forgot"),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
@@ -1640,7 +1640,7 @@ func GetUserBadRequest(t goatest.TInterface, ctx context.Context, service *goa.S
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", userID),
+		Path: fmt.Sprintf("/%v", userID),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -1709,7 +1709,7 @@ func GetUserInternalServerError(t goatest.TInterface, ctx context.Context, servi
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", userID),
+		Path: fmt.Sprintf("/%v", userID),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -1778,7 +1778,7 @@ func GetUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.Ser
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", userID),
+		Path: fmt.Sprintf("/%v", userID),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -1847,7 +1847,7 @@ func GetUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", userID),
+		Path: fmt.Sprintf("/%v", userID),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -1938,7 +1938,7 @@ func GetAllUserInternalServerError(t goatest.TInterface, ctx context.Context, se
 		query["sorting"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users"),
+		Path:     fmt.Sprintf("/"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -2040,7 +2040,7 @@ func GetAllUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.
 		query["sorting"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users"),
+		Path:     fmt.Sprintf("/"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -2141,7 +2141,7 @@ func GetAllUserOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 		query["sorting"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users"),
+		Path:     fmt.Sprintf("/"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -2219,7 +2219,7 @@ func GetMeUserBadRequest(t goatest.TInterface, ctx context.Context, service *goa
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/me"),
+		Path: fmt.Sprintf("/me"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -2287,7 +2287,7 @@ func GetMeUserInternalServerError(t goatest.TInterface, ctx context.Context, ser
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/me"),
+		Path: fmt.Sprintf("/me"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -2355,7 +2355,7 @@ func GetMeUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.S
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/me"),
+		Path: fmt.Sprintf("/me"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -2423,7 +2423,7 @@ func GetMeUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/me"),
+		Path: fmt.Sprintf("/me"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -2506,7 +2506,7 @@ func ResetVerificationTokenUserBadRequest(t goatest.TInterface, ctx context.Cont
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/verification/reset"),
+		Path: fmt.Sprintf("/verification/reset"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -2585,7 +2585,7 @@ func ResetVerificationTokenUserInternalServerError(t goatest.TInterface, ctx con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/verification/reset"),
+		Path: fmt.Sprintf("/verification/reset"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -2664,7 +2664,7 @@ func ResetVerificationTokenUserNotFound(t goatest.TInterface, ctx context.Contex
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/verification/reset"),
+		Path: fmt.Sprintf("/verification/reset"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -2744,7 +2744,7 @@ func ResetVerificationTokenUserOK(t goatest.TInterface, ctx context.Context, ser
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/verification/reset"),
+		Path: fmt.Sprintf("/verification/reset"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -2828,7 +2828,7 @@ func UpdateUserBadRequest(t goatest.TInterface, ctx context.Context, service *go
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", userID),
+		Path: fmt.Sprintf("/%v", userID),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
@@ -2908,7 +2908,7 @@ func UpdateUserInternalServerError(t goatest.TInterface, ctx context.Context, se
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", userID),
+		Path: fmt.Sprintf("/%v", userID),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
@@ -2988,7 +2988,7 @@ func UpdateUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", userID),
+		Path: fmt.Sprintf("/%v", userID),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
@@ -3069,7 +3069,7 @@ func UpdateUserOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", userID),
+		Path: fmt.Sprintf("/%v", userID),
 	}
 	req, _err := http.NewRequest("PUT", u.String(), nil)
 	if _err != nil {
@@ -3149,7 +3149,7 @@ func VerifyUserBadRequest(t goatest.TInterface, ctx context.Context, service *go
 		query["token"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users/verify"),
+		Path:     fmt.Sprintf("/verify"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -3227,7 +3227,7 @@ func VerifyUserInternalServerError(t goatest.TInterface, ctx context.Context, se
 		query["token"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users/verify"),
+		Path:     fmt.Sprintf("/verify"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -3305,7 +3305,7 @@ func VerifyUserNotFound(t goatest.TInterface, ctx context.Context, service *goa.
 		query["token"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users/verify"),
+		Path:     fmt.Sprintf("/verify"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -3382,7 +3382,7 @@ func VerifyUserOK(t goatest.TInterface, ctx context.Context, service *goa.Servic
 		query["token"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/users/verify"),
+		Path:     fmt.Sprintf("/verify"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)

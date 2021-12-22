@@ -134,7 +134,7 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	}
 	tmp1 := new(CreateUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users"]`,
+		Use:   `user ["/"]`,
 		Short: ``,
 		Long: `
 
@@ -171,7 +171,7 @@ Payload example:
 	}
 	tmp2 := new(FindUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/find"]`,
+		Use:   `user ["/find"]`,
 		Short: ``,
 		Long: `
 
@@ -193,7 +193,7 @@ Payload example:
 	}
 	tmp3 := new(FindByEmailUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/find/email"]`,
+		Use:   `user ["/find/email"]`,
 		Short: ``,
 		Long: `
 
@@ -214,7 +214,7 @@ Payload example:
 	}
 	tmp4 := new(FindUsersUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/list"]`,
+		Use:   `user ["/list"]`,
 		Short: ``,
 		Long: `
 
@@ -246,7 +246,7 @@ Payload example:
 	}
 	tmp5 := new(ForgotPasswordUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/password/forgot"]`,
+		Use:   `user ["/password/forgot"]`,
 		Short: ``,
 		Long: `
 
@@ -267,7 +267,7 @@ Payload example:
 	}
 	tmp6 := new(ForgotPasswordUpdateUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/password/forgot"]`,
+		Use:   `user ["/password/forgot"]`,
 		Short: ``,
 		Long: `
 
@@ -290,7 +290,7 @@ Payload example:
 	}
 	tmp7 := new(GetUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/USERID"]`,
+		Use:   `user ["/USERID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
@@ -304,7 +304,7 @@ Payload example:
 	}
 	tmp8 := new(GetAllUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users"]`,
+		Use:   `user ["/"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}
@@ -318,7 +318,7 @@ Payload example:
 	}
 	tmp9 := new(GetMeUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/me"]`,
+		Use:   `user ["/me"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
 	}
@@ -332,7 +332,7 @@ Payload example:
 	}
 	tmp10 := new(ResetVerificationTokenUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/verification/reset"]`,
+		Use:   `user ["/verification/reset"]`,
 		Short: ``,
 		Long: `
 
@@ -353,7 +353,7 @@ Payload example:
 	}
 	tmp11 := new(UpdateUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/USERID"]`,
+		Use:   `user ["/USERID"]`,
 		Short: ``,
 		Long: `
 
@@ -391,7 +391,7 @@ Payload example:
 	}
 	tmp12 := new(VerifyUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/users/verify"]`,
+		Use:   `user ["/verify"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp12.Run(c, args) },
 	}
@@ -618,7 +618,7 @@ func (cmd *CreateUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users"
+		path = "/"
 	}
 	var payload client.CreateUserPayload
 	if cmd.Payload != "" {
@@ -651,7 +651,7 @@ func (cmd *FindUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/find"
+		path = "/find"
 	}
 	var payload client.Credentials
 	if cmd.Payload != "" {
@@ -684,7 +684,7 @@ func (cmd *FindByEmailUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/find/email"
+		path = "/find/email"
 	}
 	var payload client.EmailPayload
 	if cmd.Payload != "" {
@@ -717,7 +717,7 @@ func (cmd *FindUsersUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/list"
+		path = "/list"
 	}
 	var payload client.FilterPayload
 	if cmd.Payload != "" {
@@ -750,7 +750,7 @@ func (cmd *ForgotPasswordUserCommand) Run(c *client.Client, args []string) error
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/password/forgot"
+		path = "/password/forgot"
 	}
 	var payload client.EmailPayload
 	if cmd.Payload != "" {
@@ -783,7 +783,7 @@ func (cmd *ForgotPasswordUpdateUserCommand) Run(c *client.Client, args []string)
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/password/forgot"
+		path = "/password/forgot"
 	}
 	var payload client.ForgotPasswordPayload
 	if cmd.Payload != "" {
@@ -816,7 +816,7 @@ func (cmd *GetUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/users/%v", url.QueryEscape(cmd.UserID))
+		path = fmt.Sprintf("/%v", url.QueryEscape(cmd.UserID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -842,7 +842,7 @@ func (cmd *GetAllUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users"
+		path = "/"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -874,7 +874,7 @@ func (cmd *GetMeUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/me"
+		path = "/me"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -898,7 +898,7 @@ func (cmd *ResetVerificationTokenUserCommand) Run(c *client.Client, args []strin
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/verification/reset"
+		path = "/verification/reset"
 	}
 	var payload client.EmailPayload
 	if cmd.Payload != "" {
@@ -931,7 +931,7 @@ func (cmd *UpdateUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/users/%v", url.QueryEscape(cmd.UserID))
+		path = fmt.Sprintf("/%v", url.QueryEscape(cmd.UserID))
 	}
 	var payload client.UpdateUserPayload
 	if cmd.Payload != "" {
@@ -966,7 +966,7 @@ func (cmd *VerifyUserCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/users/verify"
+		path = "/verify"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)

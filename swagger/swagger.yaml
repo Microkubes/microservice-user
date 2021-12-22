@@ -512,39 +512,7 @@ info:
   title: The user microservice
   version: "1.0"
 paths:
-  /swagger-ui/{filepath}:
-    get:
-      operationId: swagger#/swagger-ui/*filepath
-      parameters:
-      - description: Relative file path
-        in: path
-        name: filepath
-        required: true
-        type: string
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-        "404":
-          description: File not found
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      summary: Download swagger-ui/dist
-  /swagger.json:
-    get:
-      operationId: swagger#/swagger.json
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-      schemes:
-      - http
-      summary: Download swagger/swagger.json
-  /users:
+  /:
     get:
       description: Retrieves all active users
       operationId: user#getAll
@@ -621,7 +589,7 @@ paths:
       summary: create user
       tags:
       - user
-  /users/{userId}:
+  /{userId}:
     get:
       description: Get user by id
       operationId: user#get
@@ -696,7 +664,7 @@ paths:
       summary: update user
       tags:
       - user
-  /users/find:
+  /find:
     post:
       description: Find a user by email+password
       operationId: user#find
@@ -732,7 +700,7 @@ paths:
       summary: find user
       tags:
       - user
-  /users/find/email:
+  /find/email:
     post:
       description: Find a user by email
       operationId: user#findByEmail
@@ -764,7 +732,7 @@ paths:
       summary: findByEmail user
       tags:
       - user
-  /users/list:
+  /list:
     post:
       description: Find (filter) users by some filter.
       operationId: user#findUsers
@@ -795,7 +763,7 @@ paths:
       summary: findUsers user
       tags:
       - user
-  /users/me:
+  /me:
     get:
       description: Retrieves the user information for the authenticated user
       operationId: user#getMe
@@ -824,7 +792,7 @@ paths:
       summary: getMe user
       tags:
       - user
-  /users/password/forgot:
+  /password/forgot:
     post:
       description: Forgot password action (sending email to user with link for resseting
         password)
@@ -888,7 +856,39 @@ paths:
       summary: forgotPasswordUpdate user
       tags:
       - user
-  /users/verification/reset:
+  /swagger-ui/{filepath}:
+    get:
+      operationId: swagger#/swagger-ui/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: Download swagger-ui/dist
+  /swagger.json:
+    get:
+      operationId: swagger#/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      summary: Download swagger/swagger.json
+  /verification/reset:
     post:
       description: Reset verification token
       operationId: user#resetVerificationToken
@@ -924,7 +924,7 @@ paths:
       summary: resetVerificationToken user
       tags:
       - user
-  /users/verify:
+  /verify:
     get:
       description: Verify a user by token
       operationId: user#verify

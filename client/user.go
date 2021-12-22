@@ -22,7 +22,7 @@ import (
 // CreateUserPath computes a request path to the create action of user.
 func CreateUserPath() string {
 
-	return fmt.Sprintf("/users")
+	return fmt.Sprintf("/")
 }
 
 // Creates user
@@ -65,7 +65,7 @@ func (c *Client) NewCreateUserRequest(ctx context.Context, path string, payload 
 // FindUserPath computes a request path to the find action of user.
 func FindUserPath() string {
 
-	return fmt.Sprintf("/users/find")
+	return fmt.Sprintf("/find")
 }
 
 // Find a user by email+password
@@ -108,7 +108,7 @@ func (c *Client) NewFindUserRequest(ctx context.Context, path string, payload *C
 // FindByEmailUserPath computes a request path to the findByEmail action of user.
 func FindByEmailUserPath() string {
 
-	return fmt.Sprintf("/users/find/email")
+	return fmt.Sprintf("/find/email")
 }
 
 // Find a user by email
@@ -151,7 +151,7 @@ func (c *Client) NewFindByEmailUserRequest(ctx context.Context, path string, pay
 // FindUsersUserPath computes a request path to the findUsers action of user.
 func FindUsersUserPath() string {
 
-	return fmt.Sprintf("/users/list")
+	return fmt.Sprintf("/list")
 }
 
 // Find (filter) users by some filter.
@@ -194,7 +194,7 @@ func (c *Client) NewFindUsersUserRequest(ctx context.Context, path string, paylo
 // ForgotPasswordUserPath computes a request path to the forgotPassword action of user.
 func ForgotPasswordUserPath() string {
 
-	return fmt.Sprintf("/users/password/forgot")
+	return fmt.Sprintf("/password/forgot")
 }
 
 // Forgot password action (sending email to user with link for resseting password)
@@ -237,7 +237,7 @@ func (c *Client) NewForgotPasswordUserRequest(ctx context.Context, path string, 
 // ForgotPasswordUpdateUserPath computes a request path to the forgotPasswordUpdate action of user.
 func ForgotPasswordUpdateUserPath() string {
 
-	return fmt.Sprintf("/users/password/forgot")
+	return fmt.Sprintf("/password/forgot")
 }
 
 // Password token validation & password update
@@ -281,7 +281,7 @@ func (c *Client) NewForgotPasswordUpdateUserRequest(ctx context.Context, path st
 func GetUserPath(userID string) string {
 	param0 := userID
 
-	return fmt.Sprintf("/users/%s", param0)
+	return fmt.Sprintf("/%s", param0)
 }
 
 // Get user by id
@@ -310,7 +310,7 @@ func (c *Client) NewGetUserRequest(ctx context.Context, path string) (*http.Requ
 // GetAllUserPath computes a request path to the getAll action of user.
 func GetAllUserPath() string {
 
-	return fmt.Sprintf("/users")
+	return fmt.Sprintf("/")
 }
 
 // Retrieves all active users
@@ -355,7 +355,7 @@ func (c *Client) NewGetAllUserRequest(ctx context.Context, path string, limit *i
 // GetMeUserPath computes a request path to the getMe action of user.
 func GetMeUserPath() string {
 
-	return fmt.Sprintf("/users/me")
+	return fmt.Sprintf("/me")
 }
 
 // Retrieves the user information for the authenticated user
@@ -384,7 +384,7 @@ func (c *Client) NewGetMeUserRequest(ctx context.Context, path string) (*http.Re
 // ResetVerificationTokenUserPath computes a request path to the resetVerificationToken action of user.
 func ResetVerificationTokenUserPath() string {
 
-	return fmt.Sprintf("/users/verification/reset")
+	return fmt.Sprintf("/verification/reset")
 }
 
 // Reset verification token
@@ -428,7 +428,7 @@ func (c *Client) NewResetVerificationTokenUserRequest(ctx context.Context, path 
 func UpdateUserPath(userID string) string {
 	param0 := userID
 
-	return fmt.Sprintf("/users/%s", param0)
+	return fmt.Sprintf("/%s", param0)
 }
 
 // Update user
@@ -471,7 +471,7 @@ func (c *Client) NewUpdateUserRequest(ctx context.Context, path string, payload 
 // VerifyUserPath computes a request path to the verify action of user.
 func VerifyUserPath() string {
 
-	return fmt.Sprintf("/users/verify")
+	return fmt.Sprintf("/verify")
 }
 
 // Verify a user by token
